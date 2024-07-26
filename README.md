@@ -70,8 +70,8 @@ Follow these steps to set up the project locally:
 │ ├── page.tsx (Home page)
 │ ├── /upload
 │ │ └── page.tsx (Upload photo page)
-│ ├── /recommendations
-│ │ └── page.tsx (Recommendations page)
+│ ├── /recommendation
+│ │ └── page.tsx (Recommendation page)
 │ ├── /register
 │ │ └── page.tsx (User registration page)
 │ ├── /login
