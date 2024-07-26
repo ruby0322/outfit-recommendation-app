@@ -48,6 +48,7 @@ Follow these steps to set up the project locally:
     Create a `.env.local` file in the root directory and add your environment variables.
     ```env
     DATABASE_URL=your_database_url
+    NEXT_PUBLIC_SUPABASE_ANON_KEY=your_database_anon_key
     NEXT_PUBLIC_API_KEY=your_api_key
     ```
 
