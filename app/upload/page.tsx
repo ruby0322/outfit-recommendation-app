@@ -1,7 +1,7 @@
 "use server";
 
 import CustomizationFields from "./customization-fields";
-import PictureUploader from "./picture-uploader";
+import ImageUploader from "./image-uploader";
 import SubmitButton from "./submit-button";
 
 const UploadPage = () => {
@@ -11,7 +11,7 @@ const UploadPage = () => {
   return (
     <div className='w-full flex flex-col gap-8 items-center justify-center'>
       <div className='w-full flex gap-8 justify-center items-center'>
-        <PictureUploader />
+        <ImageUploader />
         <CustomizationFields />
       </div>
       <SubmitButton />

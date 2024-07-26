@@ -11,9 +11,7 @@ export const updateSession = async (request: NextRequest) => {
         headers: request.headers,
       },
     });
-    
-    // console.log('process.env.NEXT_PUBLIC_TESTING_SUPABASE_URL: ', process.env.NEXT_PUBLIC_TESTING_SUPABASE_URL!)
-    // console.log('process.env.NEXT_PUBLIC_TESTING_ANON_KEY: ', process.env.NEXT_PUBLIC_TESTING_SUPABASE_ANON_KEY!)
+
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_TESTING === "true"
         ? process.env.NEXT_PUBLIC_TESTING_SUPABASE_URL!
