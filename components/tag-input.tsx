@@ -15,11 +15,13 @@ const TagInput = ({
   id: string;
 }) => {
   const [inputValue, setInputValue] = useState<string>("");
+  const [isComposing, setIsComposing] = useState(false);
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     setInputValue(e.target.value);
   };
   const handleKeyDown: KeyboardEventHandler<HTMLInputElement> = (e) => {
-    if (e.key === "Enter" && inputValue.trim() !== "") {
+    if (e.key === "Enter" && inputValue.trim() !== "" && !isComposing) {
+      e.preventDefault();
       addTag(inputValue.trim());
       setInputValue("");
     }
@@ -64,6 +66,8 @@ const TagInput = ({
           value={inputValue}
           onChange={handleInputChange}
           onKeyDown={handleKeyDown}
+          onCompositionStart={() => setIsComposing(true)}
+          onCompositionEnd={() => setIsComposing(false)}
           className='pr-20'
         />
         <Button
