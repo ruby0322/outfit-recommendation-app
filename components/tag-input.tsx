@@ -20,6 +20,7 @@ const TagInput = ({
   };
   const handleKeyDown: KeyboardEventHandler<HTMLInputElement> = (e) => {
     if (e.key === "Enter" && inputValue.trim() !== "") {
+      e.preventDefault();
       addTag(inputValue.trim());
       setInputValue("");
     }
