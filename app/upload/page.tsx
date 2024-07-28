@@ -25,7 +25,7 @@ const schema = z.object({
     .max(200, "不可超過 200 公斤"),
   stylePreferences: z.array(z.string()).optional(),
   uploadedImage: z
-    .instanceof(FileList)
+    .instanceof(FileList, { message: "請上傳圖片" })
     .refine((files) => files.length > 0, "請上傳圖片"),
 });
 
