@@ -9,7 +9,7 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      items: {
+      item: {
         Row: {
           created_at: string
           external_link: string | null
@@ -36,7 +36,7 @@ export type Database = {
         }
         Relationships: []
       }
-      params: {
+      param: {
         Row: {
           clothing_type: Database["public"]["Enums"]["clothing_type"] | null
           created_at: string
@@ -60,7 +60,7 @@ export type Database = {
         }
         Relationships: []
       }
-      recommendations: {
+      recommendation: {
         Row: {
           created_at: string
           id: number
@@ -84,19 +84,19 @@ export type Database = {
             foreignKeyName: "recommendations_param_id_fkey"
             columns: ["param_id"]
             isOneToOne: false
-            referencedRelation: "params"
+            referencedRelation: "param"
             referencedColumns: ["id"]
           },
           {
             foreignKeyName: "recommendations_upload_id_fkey"
             columns: ["upload_id"]
             isOneToOne: false
-            referencedRelation: "uploads"
+            referencedRelation: "upload"
             referencedColumns: ["id"]
           },
         ]
       }
-      results: {
+      result: {
         Row: {
           created_at: string
           distance: number | null
@@ -120,12 +120,12 @@ export type Database = {
             foreignKeyName: "results_item_id_fkey"
             columns: ["item_id"]
             isOneToOne: false
-            referencedRelation: "items"
+            referencedRelation: "item"
             referencedColumns: ["id"]
           },
         ]
       }
-      suggestions: {
+      suggestion: {
         Row: {
           created_at: string
           id: number
@@ -149,12 +149,12 @@ export type Database = {
             foreignKeyName: "suggestions_recommendation_id_fkey"
             columns: ["recommendation_id"]
             isOneToOne: false
-            referencedRelation: "recommendations"
+            referencedRelation: "recommendation"
             referencedColumns: ["id"]
           },
         ]
       }
-      uploads: {
+      upload: {
         Row: {
           created_at: string
           id: number
