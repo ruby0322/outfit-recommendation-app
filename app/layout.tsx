@@ -37,7 +37,7 @@ export default async function RootLayout({
         )}
       >
         <Header />
-        <div className='flex-1 flex items-center overflow-y-scroll overflow-x-hidden mt-[4rem] mb-[4.5rem]'>
+        <div className='flex-1 flex items-center overflow-y-scroll overflow-x-hidden pb-16'>
           {children}
         </div>
         <Footer />
