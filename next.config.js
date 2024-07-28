@@ -1,7 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
     images: {
-        domains: ['oaidalleapiprodscus.blob.core.windows.net', 'dmbkhireuarjpvecjmds.supabase.co', 'jmgowbnhsejplwjfhpnv.supabase.co'],
+        domains: ['oaidalleapiprodscus.blob.core.windows.net', 'dmbkhireuarjpvecjmds.supabase.co', 'jmgowbnhsejplwjfhpnv.supabase.co', 'media.discordapp.net'],
     },
     experimental: {
         serverActions: {
