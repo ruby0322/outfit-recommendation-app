@@ -102,20 +102,30 @@ export type Database = {
           distance: number | null
           id: number
           item_id: number | null
+          suggestion_id: number | null
         }
         Insert: {
           created_at?: string
           distance?: number | null
           id?: number
           item_id?: number | null
+          suggestion_id?: number | null
         }
         Update: {
           created_at?: string
           distance?: number | null
           id?: number
           item_id?: number | null
+          suggestion_id?: number | null
         }
         Relationships: [
+          {
+            foreignKeyName: "result_suggestion_id_fkey"
+            columns: ["suggestion_id"]
+            isOneToOne: false
+            referencedRelation: "suggestion"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "results_item_id_fkey"
             columns: ["item_id"]
