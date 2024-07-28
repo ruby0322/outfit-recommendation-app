@@ -9,6 +9,7 @@ export type ResultsTable = Tables<"results">;
 
 export interface Recommendation {
   params: ParamsTable;
+  upload: UploadsTable;
   items: {
     [style: string]: ItemsTable[];
   };
