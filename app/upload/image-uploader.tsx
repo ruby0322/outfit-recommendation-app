@@ -40,7 +40,7 @@ const ImageUploader = () => {
             src={preview}
             alt='Uploaded Image'
             layout='fill'
-            objectFit='cover'
+            className='object-cover'
           />
         ) : (
           <Upload className='w-12 h-12 text-gray-300' />
