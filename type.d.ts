@@ -1,18 +1,18 @@
 import { Enums, Tables } from "@/types/supabase";
 
-export type ItemsTable = Tables<"items">;
-export type ParamsTable = Tables<"params">;
-export type RecommendationsTable = Tables<"recommendations">;
-export type SuggestionsTable = Tables<"suggestions">;
-export type UploadsTable = Tables<"uploads">;
-export type ResultsTable = Tables<"results">;
+export type ItemTable = Tables<"item">;
+export type ParamTable = Tables<"param">;
+export type RecommendationTable = Tables<"recommendation">;
+export type SuggestionTable = Tables<"suggestion">;
+export type UploadTable = Tables<"upload">;
+export type ResultTable = Tables<"result">;
 
 export type ClothingType = Enums<"clothing_type">;
 
 export interface Recommendation {
-  params: ParamsTable;
-  upload: UploadsTable;
+  params: ParamTable;
+  upload: UploadTable;
   items: {
-    [style: string]: ItemsTable[];
+    [style: string]: ItemTable[];
   };
 }
