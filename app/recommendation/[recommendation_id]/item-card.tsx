@@ -1,12 +1,12 @@
 "use client";
 
 import { Card } from "@/components/ui/card";
-import { ItemsTable } from "@/type";
+import { ItemTable } from "@/type";
 import { ShoppingCart } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
-const ItemCard = ({ item }: { item: ItemsTable }) => {
+const ItemCard = ({ item }: { item: ItemTable }) => {
   return (
     <Card className='cursor-pointer overflow-hidden rounded-none flex flex-col gap-1 shadow-none border-0'>
       <Image

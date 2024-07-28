@@ -1,7 +1,7 @@
-import { ItemsTable } from "@/type";
+import { ItemTable } from "@/type";
 import ItemCard from "./item-card";
 
-const ItemList = ({ title, items }: { title: string; items: ItemsTable[] }) => {
+const ItemList = ({ title, items }: { title: string; items: ItemTable[] }) => {
   return (
     <div className='p-4 flex flex-col gap-6 border-t-[1px] border-gray-800/30'>
       <h3 className='text-xl font-semibold text-muted-foreground'>{title}</h3>

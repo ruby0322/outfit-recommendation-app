@@ -1,8 +1,8 @@
 import { Card } from "@/components/ui/card";
-import { UploadsTable } from "@/type";
+import { UploadTable } from "@/type";
 import Image from "next/image";
 
-const UserInfoCard = ({ upload }: { upload: UploadsTable }) => {
+const UserInfoCard = ({ upload }: { upload: UploadTable }) => {
   return (
     <Card className='w-full p-4 flex gap-4'>
       <Image
