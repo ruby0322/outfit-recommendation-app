@@ -39,15 +39,17 @@ const UploadPage = () => {
 
   const onSubmit = (data: any) => {
     console.log(data);
-    /* TODO: Store uploaded image to file storage, and store submission to DB and retrieve its corresponding recommendation id. */
     const reader = new FileReader();
     reader.onloadend = () => {
+      /* TODO: Store uploaded image to file storage and retrieve its filepath. */
       const base64 = reader.result;
       /* upload to file storage here */
+      /* END TODO */
     };
     reader.readAsDataURL(data.uploadedImage[0]);
-    /* END TODO */
+    /* TODO: Store submission data to DB and retrieve its corresponding recommendation id. */
     const recommendationId = "example-recommendation-id";
+    /* END TODO */
     router.push(`/recommendation/${recommendationId}`);
   };
 
