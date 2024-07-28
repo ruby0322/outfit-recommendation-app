@@ -42,18 +42,21 @@ export type Database = {
           created_at: string
           height: number | null
           id: number
+          style_preferences: string | null
         }
         Insert: {
           clothing_type?: Database["public"]["Enums"]["clothing_type"] | null
           created_at?: string
           height?: number | null
           id?: number
+          style_preferences?: string | null
         }
         Update: {
           clothing_type?: Database["public"]["Enums"]["clothing_type"] | null
           created_at?: string
           height?: number | null
           id?: number
+          style_preferences?: string | null
         }
         Relationships: []
       }
