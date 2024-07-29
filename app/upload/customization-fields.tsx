@@ -25,7 +25,7 @@ const CustomizationFields = () => {
   const bodyType = watch("bodyType");
 
   return (
-    <Card className='w-128'>
+    <Card className='w-128 max-w-[92vw]'>
       <CardHeader>
         <CardTitle>客製化參數</CardTitle>
         <CardDescription>

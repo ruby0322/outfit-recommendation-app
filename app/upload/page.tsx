@@ -48,17 +48,17 @@ const UploadPage = () => {
     };
     reader.readAsDataURL(data.uploadedImage[0]);
     /* TODO: Store submission data to DB and retrieve its corresponding recommendation id. */
-    const recommendationId = "example-recommendation-id";
+    const recommendationId = "a0091a7b-5d62-4c74-8f0e-b43f686b5331";
     /* END TODO */
     router.push(`/recommendation/${recommendationId}`);
   };
 
   return (
-    <div className='w-full'>
+    <div className='w-full mt-16'>
       <FormProvider {...methods}>
         <form onSubmit={methods.handleSubmit(onSubmit)}>
           <div className='w-full flex flex-col gap-8 items-center justify-center'>
-            <div className='w-full flex gap-8 justify-center items-center'>
+            <div className='w-full flex flex-col md:flex-row gap-8 justify-center items-center'>
               <ImageUploader />
               <CustomizationFields />
             </div>
