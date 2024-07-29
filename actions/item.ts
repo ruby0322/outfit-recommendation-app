@@ -1,8 +1,8 @@
 "use server";
 import { createClient } from "@/utils/supabase/server";
-import { ItemsTable } from "@/type";
+import { ItemTable } from "@/type";
 
-const getItemById = async (item_id: string): Promise<ItemsTable> => {
+const getItemById = async (item_id: string): Promise<ItemTable | null> => {
     try {
         const supabase = createClient();
         const { data, error } = await supabase
@@ -16,14 +16,14 @@ const getItemById = async (item_id: string): Promise<ItemsTable> => {
           return null;
         }
     
-        return data as ItemsTable;
+        return data as ItemTable;
       } catch (error) {
         console.error('Unexpected error:', error);
         return null;
       }
 };
 
-const getItemsByIds = async (item_ids: string[]): Promise<ItemsTable[]> => {
+const getItemsByIds = async (item_ids: string[]): Promise<ItemTable[]> => {
     try {
         const supabase = createClient();
         const { data, error } = await supabase
@@ -36,7 +36,7 @@ const getItemsByIds = async (item_ids: string[]): Promise<ItemsTable[]> => {
           return [];
         }
     
-        return data as ItemsTable[];
+        return data as ItemTable[];
       } catch (error) {
         console.error('Unexpected error:', error);
         return [];
