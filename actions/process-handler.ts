@@ -3,9 +3,9 @@ import { extractLabelsFromImage, validateResponseFormat } from './image-labeling
 import { semanticSearch } from './outfit-matching';
 import { chatCompletionTextAndImage, chatCompletionTextOnly } from './utils';
 import { getItemsByIds } from './item';
-import { ItemsTable } from '@/type';
+import { ItemTable } from '@/type';
 
-const handleSuggestionMatching = async (suggested_label_strings: string[], max_num_item: number): Promise<string[]> => {
+const handleSuggestionMatching = async (suggested_label_strings: string[], max_num_item: number): Promise<string[] | null> => {
     try {
         let allMatchedItemIds: string[] = [];
         
@@ -23,7 +23,7 @@ const handleSuggestionMatching = async (suggested_label_strings: string[], max_n
     }
 };
 
-const handleInputToSuggestions = async (image_url: string, textual_info: string, max_num_suggestion: number): Promise<string[]> => {
+const handleInputToSuggestions = async (image_url: string, textual_info: string, max_num_suggestion: number): Promise<string[] | null> => {
     try {
         let suggestedLabelStrings: string[] = [];
         const model = "gpt-4o";
@@ -48,16 +48,16 @@ const handleInputToSuggestions = async (image_url: string, textual_info: string,
     }
 };
 
-const handleRequest = async (image_url: string, textual_info: string, max_num_suggestion: number, max_num_item: number): Promise<ItemsTable[]> => {
+const handleRequest = async (image_url: string, textual_info: string, max_num_suggestion: number, max_num_item: number): Promise<ItemTable[] | null> => {
     try {
         const suggestedLabelStrings = await handleInputToSuggestions(image_url, textual_info, max_num_suggestion);
 
-        if (suggestedLabelStrings.length === 0) {
-            return [];
+        if (!suggestedLabelStrings || suggestedLabelStrings.length === 0) {
+            return null;
         }
         const matchedItemIds = await handleSuggestionMatching(suggestedLabelStrings, max_num_item);
-        if (matchedItemIds.length === 0) {
-            return [];
+        if (!matchedItemIds || matchedItemIds.length === 0) {
+            return null;
         }
         const items = await getItemsByIds(matchedItemIds);
         return items;
