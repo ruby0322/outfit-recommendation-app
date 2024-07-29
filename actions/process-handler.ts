@@ -8,12 +8,10 @@ import { ItemTable } from '@/type';
 const handleSuggestionMatching = async (suggested_label_strings: string[], max_num_item: number): Promise<string[] | null> => {
     try {
         let allMatchedItemIds: string[] = [];
-        
         for (const label of suggested_label_strings) {
             const matchedItemIds = await semanticSearch(label);
             allMatchedItemIds = allMatchedItemIds.concat(matchedItemIds);
         }
-        
         // 確保返回的項目 ID 不超過 max_num_item 並且是唯一的
         const uniqueItemIds = Array.from(new Set(allMatchedItemIds));
         return uniqueItemIds.slice(0, max_num_item);
@@ -21,21 +19,26 @@ const handleSuggestionMatching = async (suggested_label_strings: string[], max_n
         console.error('Error in handleSuggestionMatching:', error);
         return [];
     }
+    // TODO: Need to fix return format.
 };
 
 const handleInputToSuggestions = async (image_url: string, textual_info: string, max_num_suggestion: number): Promise<string[] | null> => {
     try {
         let suggestedLabelStrings: string[] = [];
-        const model = "gpt-4o";
+        const model = "gpt-4o-mini";
 
         if (image_url && textual_info) {
             const response = await chatCompletionTextAndImage(model, textual_info, image_url);
-            suggestedLabelStrings = response.split('\n').slice(0, max_num_suggestion);
+            if (response) {
+                suggestedLabelStrings = response.split('\n').slice(0, max_num_suggestion);
+            }
         } else if (image_url) {
             const labels = await extractLabelsFromImage(image_url);
             const labelsArray = labels.split(',').map(label => label.trim());
             const response = await chatCompletionTextOnly(model, labelsArray.join(' '));
-            suggestedLabelStrings = response.split('\n').slice(0, max_num_suggestion);
+            if (response) {
+                suggestedLabelStrings = response.split('\n').slice(0, max_num_suggestion);
+            }
         } else if (textual_info) {
             // （跳過處理）
             return [];
@@ -61,6 +64,8 @@ const handleRequest = async (image_url: string, textual_info: string, max_num_su
         }
         const items = await getItemsByIds(matchedItemIds);
         return items;
+
+        // TODO: Need to fix return format.
     } catch (error) {
         console.error('Error in handleRequest:', error);
         return [];
