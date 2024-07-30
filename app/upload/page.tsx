@@ -51,16 +51,7 @@ const UploadPage = async () => {
     };
     reader.readAsDataURL(data.uploadedImage[0]);
     /* TODO: Store submission data to DB and retrieve its corresponding recommendation id. */
-    const recommendationId: number = await handleSubmission(
-      data.clothingType,
-      imageUrl,
-      data.height,
-      data.stylePreferences ? data.stylePreferences.join(",") : null,
-      userId,
-      maxNumSuggestion,
-      maxNumItem
-    );
-    // const recommendationId = "a0091a7b-5d62-4c74-8f0e-b43f686b5331";
+    const recommendationId = "a0091a7b-5d62-4c74-8f0e-b43f686b5331";
     /* END TODO */
     router.push(`/recommendation/${recommendationId}`);
   };
