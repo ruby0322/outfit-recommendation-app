@@ -44,7 +44,7 @@ const handleInputToSuggestions = async (image_url: string, textual_info: string,
             return [];
         }
         
-        return suggestedLabelStrings;
+        return suggestedLabelStrings as string[];
     } catch (error) {
         console.error('Error in handleInputToSuggestions:', error);
         return [];
