@@ -2,7 +2,8 @@
 "use server";
 import { createClient } from "@/utils/supabase/server";
 import { ClothingType, ParamTable, UploadTable } from "@/type";
-import { Labrada } from "next/font/google";
+import { v4 as uuidv4 } from "uuid";
+import { ImageURL } from "openai/resources/beta/threads/messages";
 
 const getParamById = async (param_id: number): Promise<ParamTable | null> => {
   try {
@@ -24,16 +25,23 @@ const getParamById = async (param_id: number): Promise<ParamTable | null> => {
 };
 
 const insertParam = async (
-  height: number,
+  height: number | null,
   clothing_type: ClothingType,
-  style_preferences: string
-) => {
+  style_preferences: string | null
+): Promise<number> => {
   const supabase = createClient();
-  const { error } = await supabase
+  const { data, error } = await supabase
     .from("param")
-    .insert([{ height, clothing_type, style_preferences }]);
+    .insert([{ height, clothing_type, style_preferences }])
+    .select("id");
   if (error) {
     console.log(error);
+  }
+  if (data && data.length > 0) {
+    const param_id = data[0].id;
+    return param_id as number;
+  } else {
+    return -1;
   }
 };
 
@@ -66,16 +74,23 @@ const getUploadById = async (
 };
 
 const insertUpload = async (
-  image_url: string,
+  image_url: ImageURL,
   label_string: string,
   user_id: number
 ) => {
   const supabase = createClient();
-  const { error } = await supabase
-    .from("param")
-    .insert([{ image_url, label_string, user_id }]);
+  const { data, error } = await supabase
+    .from("upload")
+    .insert([{ image_url, label_string, user_id }])
+    .select("id");
   if (error) {
     console.log(error);
+  }
+  if (data && data.length > 0) {
+    const upload_id = data[0].id;
+    return upload_id as number;
+  } else {
+    return -1;
   }
 };
 

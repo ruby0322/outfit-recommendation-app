@@ -34,17 +34,21 @@ const getResults = async (
   }
 };
 
-const insertResult = async (
-  item_id: number,
-  suggestion_id: number,
-  distance: number
-) => {
+const insertResults = async (results: ResultTable[]): Promise<number[] | null> => {
   const supabase = createClient();
-  const { error } = await supabase
+
+  const { data, error } = await supabase
     .from("result")
-    .insert([{ item_id, suggestion_id, distance }]);
+    .insert(results)
+    .select("id");
   if (error) {
     console.log(error);
+  }
+  if (data && data.length > 0) {
+    const result_ids = data.map(o => o.id);
+    return result_ids as number[];
+  } else {
+    return null;
   }
 };
 
@@ -84,13 +88,20 @@ const getSuggestion = async (
 const insertSuggestion = async (
   recommendation_id: number,
   label_string: string
-) => {
+): Promise<number> => {
   const supabase = createClient();
-  const { error } = await supabase
+  const { data, error } = await supabase
     .from("suggestion")
-    .insert([{ recommendation_id, label_string }]);
+    .insert({ recommendation_id, label_string })
+    .select("id");
   if (error) {
     console.log(error);
+  }
+  if (data && data.length > 0) {
+    const suggestion_id = data[0].id;
+    return suggestion_id as number;
+  } else {
+    return -1;
   }
 };
 
@@ -154,4 +165,26 @@ const getRecommendationById = async (
   return recommendation_record as Recommendation;
 };
 
-export { getRecommendationById };
+const insertRecommendation = async (param_id: number, upload_id: number) => {
+  const supabase = createClient();
+  const { data, error } = await supabase
+    .from("recommendation")
+    .insert([{ param_id, upload_id }])
+    .select("id");
+  if (error) {
+    console.log(error);
+  }
+  if (data && data.length > 0) {
+    const recommendation_id = data[0].id;
+    return recommendation_id as number;
+  } else {
+    return -1;
+  }
+};
+
+export {
+  getRecommendationById,
+  insertRecommendation,
+  insertSuggestion,
+  insertResults,
+};
