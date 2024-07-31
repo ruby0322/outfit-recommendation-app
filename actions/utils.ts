@@ -21,7 +21,7 @@ const chatCompletionTextAndImage = async ({
           role: "user",
           content: [
             { type: "text", text: prompt },
-            { type: "image_url", image_url: { "url": image_url } as ImageURL },
+            { type: "image_url", image_url: { url: image_url, detail: "high" } as ImageURL  },
           ],
         },
       ],
@@ -48,10 +48,9 @@ const chatCompletionTextOnly = async ({
   try {
     // Sending a request to the OpenAI API with only text input
     const completion = await openai.chat.completions.create({
-      model: model,
+      model,
       messages: [{ role: "user", content: prompt }],
     });
-
     // Extracting and returning the response content
     const response = completion.choices[0].message.content;
     return response;

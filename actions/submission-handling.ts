@@ -68,12 +68,16 @@ const makePrompt = ({
   請你根據這件${
     clothing_type === "top" ? "上衣" : "下身"
   }的描述："${label_string}"
-  ，並加上我提供的額外資訊輔助判斷，${height === null ? "" : `身高：${height}`}、${style_preferences === null ? "" : `偏好風格：${style_preferences}`}
+  ，並加上我提供的額外資訊輔助判斷，${
+    height === null ? "" : `身高：${height}`
+  }、${style_preferences === null ? "" : `偏好風格：${style_preferences}`}
   推薦我${max_num_suggestion}種與之搭配的${
     clothing_type === "top" ? "下身" : "上衣"
   }
-  請仿照以下格式：
+  請仿照以下格式，回答無需包含其他資訊：
   "顏色:[顏色], 服裝類型:[類型], 剪裁版型:[描述], 設計特點:[描述], 材質:[材質], 配件:[描述]（無的話可略）, 細節:[描述], 褲管:[描述]",
+  "顏色:[顏色], 服裝類型:[類型], 剪裁版型:[描述], 設計特點:[描述], 材質:[材質], 配件:[描述]（無的話可略）, 細節:[描述], 褲管:[描述]",
+  "顏色:[顏色], 服裝類型:[類型], 剪裁版型:[描述], 設計特點:[描述], 材質:[材質], 配件:[描述]（無的話可略）, 細節:[描述], 褲管:[描述]"
   `;
   return prompt;
 };
@@ -104,9 +108,16 @@ const makeSuggestions = async ({
   const suggestions = await chatCompletionTextOnly({ model, prompt });
   console.log("Suggestions:", suggestions);
 
-  // Assume data cleansing and format checking is done here
+  // TODO: Validation(Data cleansing and format checking) is done here
+  // const suggestedLabelStrings: string[] = validation(suggestions);
   // Example: Parsing the response into a list of suggested label strings
-  const suggestedLabelStrings: string[] = ["藍色襯衫", "白色短踢"];
+  const suggestedLabelStrings: string[] = [
+    "顏色: 黑色, 服裝類型: 高腰直筒褲, 剪裁版型: 修身高腰, 設計特點: 極簡設計, 材質: 西裝布料, 細節: 無口袋設計, 褲管: 直筒",
+    "顏色: 深藍色, 服裝類型: 窄管牛仔褲, 剪裁版型: 緊身高腰, 設計特點: 修身剪裁, 材質: 彈性牛仔布, 細節: 無破損設計, 褲管: 窄管",
+    "顏色: 黑色, 服裝類型: A字短裙, 剪裁版型: 高腰A字, 設計特點: 簡約俐落, 材質: 羊毛混紡, 細節: 隱藏拉鍊, 褲管: 略展",
+    "顏色: 灰色, 服裝類型: 西裝闊腿褲, 剪裁版型: 寬鬆高腰, 設計特點: 俐落剪裁, 材質: 西裝布料, 細節: 腰部打褶設計, 褲管: 闊腿",
+    "顏色: 黑色, 服裝類型: 高腰皮褲, 剪裁版型: 緊身高腰, 設計特點: 光澤皮革, 材質: 皮革, 細節: 金屬拉鍊, 褲管: 窄管",
+  ];
   /* TODO: some data cleansing and format checking */
   return suggestedLabelStrings;
 };

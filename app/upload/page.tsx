@@ -55,13 +55,15 @@ const UploadPage = () => {
           /* upload to file storage here */
           /* END TODO */
           console.log("public image url:", imageUrl);
+          const style_preference = data.stylePreferences
+          ? data.stylePreferences.join(", ")
+          : null;
+          console.log(style_preference);
           const recommendationId = await handleSubmission({
             clothing_type: data.clothingType,
             image_url: imageUrl,
             height: data.height,
-            style_preferences: data.stylePreferences
-              ? data.stylePreferences.join(",")
-              : null,
+            style_preferences: style_preference,
             user_id: USER_ID,
             max_num_suggestion: MAX_NUM_SUGGESTION,
             max_num_item: MAX_NUM_ITEM,

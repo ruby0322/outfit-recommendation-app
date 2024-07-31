@@ -199,7 +199,7 @@ const EXAMPLE_RECOMMENDATION: Recommendation = {
   },
 };
 
-const RecommendationPage = ({
+const RecommendationPage = async ({
   params,
 }: {
   params: { recommendation_id: number };
