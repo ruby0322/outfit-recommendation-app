@@ -1,9 +1,7 @@
-// param.ts
 "use server";
 import { createClient } from "@/utils/supabase/server";
 import { ClothingType, ParamTable, UploadTable } from "@/type";
 import { v4 as uuidv4 } from "uuid";
-import { ImageURL } from "openai/resources/beta/threads/messages";
 
 const getParamById = async (param_id: number): Promise<ParamTable | null> => {
   try {
@@ -74,7 +72,7 @@ const getUploadById = async (
 };
 
 const insertUpload = async (
-  image_url: ImageURL,
+  image_url: string,
   label_string: string,
   user_id: number
 ) => {

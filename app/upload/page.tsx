@@ -4,15 +4,14 @@ import { Button } from "@/components/ui/button";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { FormProvider, useForm } from "react-hook-form";
-import { z } from "zod";
+import { string, z } from "zod";
 import CustomizationFields from "./customization-fields";
 import ImageUploader from "./image-uploader";
 import { handleSubmission } from "@/actions/submission-handling";
-import { ImageURL } from "openai/resources/beta/threads/messages";
 import { storeImageToStorage } from "@/actions/storage";
 
 const schema = z.object({
-  clothingType: z.enum(["upper", "lower"], {
+  clothingType: z.enum(["top", "bottom"], {
     message: "請選擇服飾類型",
   }),
   bodyType: z.enum(["slim", "average", "athletic", "curvy"], {
@@ -34,38 +33,63 @@ const schema = z.object({
 
 type FormData = z.infer<typeof schema>;
 
-const UploadPage = async () => {
+const UploadPage = () => {
   const router = useRouter();
   const methods = useForm({
     resolver: zodResolver(schema),
   });
 
   const onSubmit = async (data: any) => {
-    console.log(data);
+    console.log("data:", data);
     const reader = new FileReader();
-    reader.onloadend = () => {
+    reader.onloadend = async () => {
       /* TODO: Store uploaded image to file storage and retrieve its filepath. */
-      const base64 = reader.result as string;
-      /* upload to file storage here */
-      /* END TODO */
+      // const base64 = reader.result as string;
+      if (typeof reader.result === "string") {
+        const base64 = reader.result;
+        console.log("created base64 url:", base64);
+        try {
+          console.log("try to convert base64 to blob object");
+          const imageUrl = await storeImageToStorage(base64);
+
+          /* upload to file storage here */
+          /* END TODO */
+          console.log("public image url:", imageUrl);
+          const recommendationId = await handleSubmission({
+            clothing_type: data.clothingType,
+            image_url: imageUrl,
+            height: data.height,
+            style_preferences: data.stylePreferences
+              ? data.stylePreferences.join(",")
+              : null,
+            user_id: USER_ID,
+            max_num_suggestion: MAX_NUM_SUGGESTION,
+            max_num_item: MAX_NUM_ITEM,
+          });
+          /* TODO: Store submission data to DB and retrieve its corresponding recommendation id. */
+          // const recommendationId = "a0091a7b-5d62-4c74-8f0e-b43f686b5331";
+          router.push(`/recommendation/${recommendationId}`);
+        } catch (error) {
+          console.error("Error in onSubmit:", error);
+        }
+      }
     };
     reader.readAsDataURL(data.uploadedImage[0]);
-    /* TODO: Store submission data to DB and retrieve its corresponding recommendation id. */
-    const recommendationId = "a0091a7b-5d62-4c74-8f0e-b43f686b5331";
-    /* END TODO */
-    router.push(`/recommendation/${recommendationId}`);
+    const USER_ID: number = 90;
+    const MAX_NUM_SUGGESTION: number = 3;
+    const MAX_NUM_ITEM: number = 3;
   };
 
   return (
-    <div className='w-full mt-16'>
+    <div className="w-full mt-16">
       <FormProvider {...methods}>
         <form onSubmit={methods.handleSubmit(onSubmit)}>
-          <div className='w-full flex flex-col gap-8 items-center justify-center'>
-            <div className='w-full flex flex-col md:flex-row gap-8 justify-center items-center'>
+          <div className="w-full flex flex-col gap-8 items-center justify-center">
+            <div className="w-full flex flex-col md:flex-row gap-8 justify-center items-center">
               <ImageUploader />
               <CustomizationFields />
             </div>
-            <Button variant='outline' type='submit'>
+            <Button variant="outline" type="submit">
               一鍵成為穿搭達人！
             </Button>
           </div>

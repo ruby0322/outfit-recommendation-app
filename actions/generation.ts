@@ -1,5 +1,4 @@
 "use server";
-
 import openai from "@/utils/openai";
 
 const askGPT = async (role: string, prompt: string): Promise<string> => {

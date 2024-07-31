@@ -13,7 +13,7 @@ const EXAMPLE_RECOMMENDATION: Recommendation = {
     韓系簡約: [
       {
         created_at: "",
-        external_link: null,
+        // external_link: null,
         id: 0,
         image_url:
           "https://media.discordapp.net/attachments/893439505988743178/1267120091280179220/DALLE_2024-07-05_19.59.50_-_Create_a_high-quality_product_photo_of_a_lightweight_hoodie._The_hoodie_should_feature_a_simple_modern_design_made_from_high-quality_soft_and_ligh.webp?ex=66a7a10b&is=66a64f8b&hm=b55ba7f1463a7c675d35a587ee3ffd6f242e846e2f5c473e875ab8161bb3a305&=&format=webp&width=1124&height=1124",
@@ -24,7 +24,7 @@ const EXAMPLE_RECOMMENDATION: Recommendation = {
       },
       {
         created_at: "",
-        external_link: null,
+        // external_link: null,
         id: 0,
         image_url:
           "https://media.discordapp.net/attachments/893439505988743178/1267120091930169354/DALLE_2024-07-05_19.59.13_-_Create_a_high-quality_product_photo_of_slim-fit_khaki_pants._The_pants_should_be_plain_featuring_a_simple_and_clean_design_made_from_high-quality_fa.webp?ex=66a7a10b&is=66a64f8b&hm=c377bd69de57c7f4d35040473fdd45e3538069777d517e0252dab4634a8b7c58&=&format=webp&width=1124&height=1124",
@@ -35,7 +35,7 @@ const EXAMPLE_RECOMMENDATION: Recommendation = {
       },
       {
         created_at: "",
-        external_link: null,
+        // external_link: null,
         id: 0,
         image_url:
           "https://media.discordapp.net/attachments/893439505988743178/1267120091280179220/DALLE_2024-07-05_19.59.50_-_Create_a_high-quality_product_photo_of_a_lightweight_hoodie._The_hoodie_should_feature_a_simple_modern_design_made_from_high-quality_soft_and_ligh.webp?ex=66a7a10b&is=66a64f8b&hm=b55ba7f1463a7c675d35a587ee3ffd6f242e846e2f5c473e875ab8161bb3a305&=&format=webp&width=1124&height=1124",
@@ -46,7 +46,7 @@ const EXAMPLE_RECOMMENDATION: Recommendation = {
       },
       {
         created_at: "",
-        external_link: null,
+        // external_link: null,
         id: 0,
         image_url:
           "https://media.discordapp.net/attachments/893439505988743178/1267120091930169354/DALLE_2024-07-05_19.59.13_-_Create_a_high-quality_product_photo_of_slim-fit_khaki_pants._The_pants_should_be_plain_featuring_a_simple_and_clean_design_made_from_high-quality_fa.webp?ex=66a7a10b&is=66a64f8b&hm=c377bd69de57c7f4d35040473fdd45e3538069777d517e0252dab4634a8b7c58&=&format=webp&width=1124&height=1124",
@@ -57,7 +57,7 @@ const EXAMPLE_RECOMMENDATION: Recommendation = {
       },
       {
         created_at: "",
-        external_link: null,
+        // external_link: null,
         id: 0,
         image_url:
           "https://media.discordapp.net/attachments/893439505988743178/1267120091280179220/DALLE_2024-07-05_19.59.50_-_Create_a_high-quality_product_photo_of_a_lightweight_hoodie._The_hoodie_should_feature_a_simple_modern_design_made_from_high-quality_soft_and_ligh.webp?ex=66a7a10b&is=66a64f8b&hm=b55ba7f1463a7c675d35a587ee3ffd6f242e846e2f5c473e875ab8161bb3a305&=&format=webp&width=1124&height=1124",
@@ -70,7 +70,7 @@ const EXAMPLE_RECOMMENDATION: Recommendation = {
     日系可愛: [
       {
         created_at: "",
-        external_link: null,
+        // external_link: null,
         id: 0,
         image_url:
           "https://media.discordapp.net/attachments/893439505988743178/1267120092416577596/DALLE_2024-07-05_20.01.07_-_Create_a_high-quality_product_photo_of_relaxed_denim_jeans._The_jeans_should_feature_a_simple_modern_design_made_from_high-quality_soft_denim_fabri.webp?ex=66a7a10b&is=66a64f8b&hm=48c502f57580dc2f094aeb3145805b39f306f156c8daba6024170e651b414096&=&format=webp&width=1124&height=1124",
@@ -81,7 +81,7 @@ const EXAMPLE_RECOMMENDATION: Recommendation = {
       },
       {
         created_at: "",
-        external_link: null,
+        // external_link: null,
         id: 0,
         image_url:
           "https://media.discordapp.net/attachments/893439505988743178/1267120092907569243/DALLE_2024-07-05_20.01.36_-_Create_a_high-quality_product_photo_of_a_tailored_blazer._The_blazer_should_feature_a_simple_elegant_design_made_from_high-quality_fabric_with_a_tai.webp?ex=66a7a10c&is=66a64f8c&hm=289529967407501ef64a99de500c7ca8e843d5209bc0be3b89cb143a7db1630b&=&format=webp&width=1124&height=1124",
@@ -92,7 +92,7 @@ const EXAMPLE_RECOMMENDATION: Recommendation = {
       },
       {
         created_at: "",
-        external_link: null,
+        // external_link: null,
         id: 0,
         image_url:
           "https://media.discordapp.net/attachments/893439505988743178/1267120092416577596/DALLE_2024-07-05_20.01.07_-_Create_a_high-quality_product_photo_of_relaxed_denim_jeans._The_jeans_should_feature_a_simple_modern_design_made_from_high-quality_soft_denim_fabri.webp?ex=66a7a10b&is=66a64f8b&hm=48c502f57580dc2f094aeb3145805b39f306f156c8daba6024170e651b414096&=&format=webp&width=1124&height=1124",
@@ -103,7 +103,7 @@ const EXAMPLE_RECOMMENDATION: Recommendation = {
       },
       {
         created_at: "",
-        external_link: null,
+        // external_link: null,
         id: 0,
         image_url:
           "https://media.discordapp.net/attachments/893439505988743178/1267120092907569243/DALLE_2024-07-05_20.01.36_-_Create_a_high-quality_product_photo_of_a_tailored_blazer._The_blazer_should_feature_a_simple_elegant_design_made_from_high-quality_fabric_with_a_tai.webp?ex=66a7a10c&is=66a64f8c&hm=289529967407501ef64a99de500c7ca8e843d5209bc0be3b89cb143a7db1630b&=&format=webp&width=1124&height=1124",
@@ -114,7 +114,7 @@ const EXAMPLE_RECOMMENDATION: Recommendation = {
       },
       {
         created_at: "",
-        external_link: null,
+        // external_link: null,
         id: 0,
         image_url:
           "https://media.discordapp.net/attachments/893439505988743178/1267120092416577596/DALLE_2024-07-05_20.01.07_-_Create_a_high-quality_product_photo_of_relaxed_denim_jeans._The_jeans_should_feature_a_simple_modern_design_made_from_high-quality_soft_denim_fabri.webp?ex=66a7a10b&is=66a64f8b&hm=48c502f57580dc2f094aeb3145805b39f306f156c8daba6024170e651b414096&=&format=webp&width=1124&height=1124",
@@ -127,7 +127,7 @@ const EXAMPLE_RECOMMENDATION: Recommendation = {
     美式休閒: [
       {
         created_at: "",
-        external_link: null,
+        // external_link: null,
         id: 0,
         image_url:
           "https://media.discordapp.net/attachments/893439505988743178/1267120092907569243/DALLE_2024-07-05_20.01.36_-_Create_a_high-quality_product_photo_of_a_tailored_blazer._The_blazer_should_feature_a_simple_elegant_design_made_from_high-quality_fabric_with_a_tai.webp?ex=66a7a10c&is=66a64f8c&hm=289529967407501ef64a99de500c7ca8e843d5209bc0be3b89cb143a7db1630b&=&format=webp&width=1124&height=1124",
@@ -138,7 +138,7 @@ const EXAMPLE_RECOMMENDATION: Recommendation = {
       },
       {
         created_at: "",
-        external_link: null,
+        // external_link: null,
         id: 0,
         image_url:
           "https://media.discordapp.net/attachments/893439505988743178/1267120092416577596/DALLE_2024-07-05_20.01.07_-_Create_a_high-quality_product_photo_of_relaxed_denim_jeans._The_jeans_should_feature_a_simple_modern_design_made_from_high-quality_soft_denim_fabri.webp?ex=66a7a10b&is=66a64f8b&hm=48c502f57580dc2f094aeb3145805b39f306f156c8daba6024170e651b414096&=&format=webp&width=1124&height=1124",
@@ -149,7 +149,7 @@ const EXAMPLE_RECOMMENDATION: Recommendation = {
       },
       {
         created_at: "",
-        external_link: null,
+        // external_link: null,
         id: 0,
         image_url:
           "https://media.discordapp.net/attachments/893439505988743178/1267120092907569243/DALLE_2024-07-05_20.01.36_-_Create_a_high-quality_product_photo_of_a_tailored_blazer._The_blazer_should_feature_a_simple_elegant_design_made_from_high-quality_fabric_with_a_tai.webp?ex=66a7a10c&is=66a64f8c&hm=289529967407501ef64a99de500c7ca8e843d5209bc0be3b89cb143a7db1630b&=&format=webp&width=1124&height=1124",
@@ -160,7 +160,7 @@ const EXAMPLE_RECOMMENDATION: Recommendation = {
       },
       {
         created_at: "",
-        external_link: null,
+        // external_link: null,
         id: 0,
         image_url:
           "https://media.discordapp.net/attachments/893439505988743178/1267120092416577596/DALLE_2024-07-05_20.01.07_-_Create_a_high-quality_product_photo_of_relaxed_denim_jeans._The_jeans_should_feature_a_simple_modern_design_made_from_high-quality_soft_denim_fabri.webp?ex=66a7a10b&is=66a64f8b&hm=48c502f57580dc2f094aeb3145805b39f306f156c8daba6024170e651b414096&=&format=webp&width=1124&height=1124",
@@ -171,7 +171,7 @@ const EXAMPLE_RECOMMENDATION: Recommendation = {
       },
       {
         created_at: "",
-        external_link: null,
+        // external_link: null,
         id: 0,
         image_url:
           "https://media.discordapp.net/attachments/893439505988743178/1267120092416577596/DALLE_2024-07-05_20.01.07_-_Create_a_high-quality_product_photo_of_relaxed_denim_jeans._The_jeans_should_feature_a_simple_modern_design_made_from_high-quality_soft_denim_fabri.webp?ex=66a7a10b&is=66a64f8b&hm=48c502f57580dc2f094aeb3145805b39f306f156c8daba6024170e651b414096&=&format=webp&width=1124&height=1124",
@@ -199,13 +199,14 @@ const EXAMPLE_RECOMMENDATION: Recommendation = {
   },
 };
 
-const RecommendationPage = async ({
+const RecommendationPage = ({
   params,
 }: {
   params: { recommendation_id: number };
 }) => {
   /* TODO: Fetch recommendation result with `recommendation_id` */
-  const recommendation: Recommendation = await getRecommendationById(params.recommendation_id) as Recommendation;
+  const recommendation: Recommendation =  EXAMPLE_RECOMMENDATION;
+  // const recommendation: Recommendation = await getRecommendationById(params.recommendation_id) as Recommendation;
   /* END TODO */
   return (
     <div className='w-full flex flex-col items-center justify-center'>
