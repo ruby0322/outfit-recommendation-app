@@ -1,13 +1,98 @@
-import { ImageURL } from "openai/resources/beta/threads/messages";
+"use server";
 
-// image-labeling.ts
-const extractLabelsFromImage = async (image_url: ImageURL): Promise<string> => {
-    /* TODO: The whole process of extracting labels from an image.
-       You should utilize validateResponseFormat() to make sure your output has the correct format. */
+import { ClothingType } from "@/type";
+import { chatCompletionTextAndImage } from "./utils";
+import { Erica_One } from "next/font/google";
+import { error } from "console";
+
+const makePrompt = (clothing_type: ClothingType): string => {
+  const prompt: string = `
+    仔細觀察這張圖片中的${
+      clothing_type === "top" ? "上衣" : "下身類衣物"
+    }後，提供一個詳細的 multi-tags 列表。確保涵蓋每一個細節，包括顏色、材質、設計、功能等。每類可有多個標籤以涵蓋所有細節。需要的話，你可以使用規範以外的標籤來完成你的任務。
+    請使用下方 JSON 格式回覆，回答無需包含其他資訊：
+    {
+      "顏色": "[顏色]",
+      "服裝類型": "[類型]",
+      "剪裁版型": "[描述]",
+      "設計特點": "[描述]",
+      "材質": "[材質]",
+      "配件": "[描述]（若無可略過）",
+      "細節": "[描述]",
+      ${
+        clothing_type === "top"
+          ? "\"領子\": \"[描述]\", \"袖子\": \"[描述]\""
+          : "\"褲管\": \"[描述]\""
+      }
+    }
+    
+    範例：
+    {
+      "顏色": "藍色",
+      "服裝類型": "襯衫",
+      "剪裁版型": "修身剪裁",
+      "設計特點": "有口袋",
+      "材質": "羊毛混紡",
+      "配件": "無",
+      "細節": "有條紋",
+      "領子": "翻領",
+      "袖子": "長袖"
+    }
+  `;
+  return prompt;
 };
 
-const validateResponseFormat = (image_label_string: string): Promise<boolean> => {
-    /* TODO: Validate the format of the response you get from GPT.
+
+const extractLabelsFromImage = async (
+  image_url: string,
+  clothing_type: ClothingType
+): Promise<string | null> => {
+  /* TODO: The whole process of extracting labels from an image. */
+  /* You can utilize chatCompletionTextAndImage() to get response from gpt. */
+  /* You should utilize validateResponseFormat() to make sure your output has the correct format. */
+  const model: string = "gpt-4o-mini";
+  const prompt: string = makePrompt(clothing_type);
+  console.log(prompt);
+  try {
+    const response: string | null = await chatCompletionTextAndImage({
+      model,
+      prompt,
+      image_url,
+    });
+    // TODO:  Validate response format
+    if (response && validateResponseFormat(response)) {
+      return response;
+    }
+    else {
+      console.error("Invalid response format:", response );
+      return null;
+    }
+    // END TODO
+  } catch (error) {
+    console.error("Error in extractLabelsFromImage:", error);
+    return null;
+  }
+  /* END TODO */
+};
+
+const validateResponseFormat = (image_label_string: string): boolean => {
+  try {
+    const parsed_labels = JSON.parse(image_label_string);
+    const required_keys = ["顏色", "服裝類型", "剪裁版型", "設計特點", "材質", "配件", "細節"];
+
+    const top_keys = ["領子", "袖子"];
+    const bottom_keys = ["褲管"];
+    
+    const has_required_keys = required_keys.every(key => key in parsed_labels);
+    const has_specific_keys = top_keys.every(key => key in parsed_labels) || bottom_keys.every(key => key in parsed_labels);
+
+    return has_required_keys && has_specific_keys;
+  }
+  catch (error) {
+    console.error("Error in validateResponseFormat", error);
+    return false;
+  }
+  /* TODO: Validate the format of the response you get from GPT.
        Implement your validation logic here. */
 };
 

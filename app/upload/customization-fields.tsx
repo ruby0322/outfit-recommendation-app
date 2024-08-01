@@ -37,32 +37,32 @@ const CustomizationFields = () => {
           <Label htmlFor='clothing-type'>我上傳的服飾是</Label>
           <div className='flex flex-wrap gap-2'>
             <Label
-              htmlFor='clothing-type-upper'
+              htmlFor='clothing-type-top'
               className={`flex items-center gap-2 rounded-md border px-3 py-2 cursor-pointer ${
-                clothingType === "upper" ? "bg-muted" : ""
+                clothingType === "top" ? "bg-muted" : ""
               }`}
             >
               <input
-                id='clothing-type-upper'
+                id='clothing-type-top'
                 type='radio'
-                value='upper'
+                value='top'
                 {...register("clothingType")}
-                onChange={() => setValue("clothingType", "upper")}
+                onChange={() => setValue("clothingType", "top")}
               />
               上衣
             </Label>
             <Label
-              htmlFor='clothing-type-lower'
+              htmlFor='clothing-type-bottom'
               className={`flex items-center gap-2 rounded-md border px-3 py-2 cursor-pointer ${
-                clothingType === "lower" ? "bg-muted" : ""
+                clothingType === "bottom" ? "bg-muted" : ""
               }`}
             >
               <input
-                id='clothing-type-lower'
+                id='clothing-type-bottom'
                 type='radio'
-                value='lower'
+                value='bottom'
                 {...register("clothingType")}
-                onChange={() => setValue("clothingType", "lower")}
+                onChange={() => setValue("clothingType", "bottom")}
               />
               下身
             </Label>

@@ -2,9 +2,10 @@
 import { createClient } from "@/utils/supabase/server";
 import { ItemTable } from "@/type";
 
+// Fetch a single item by its ID
 const getItemById = async (item_id: number): Promise<ItemTable | null> => {
+  const supabase = createClient();
   try {
-    const supabase = createClient();
     const { data, error } = await supabase
       .from("item")
       .select("*")
@@ -23,11 +24,10 @@ const getItemById = async (item_id: number): Promise<ItemTable | null> => {
   }
 };
 
-const getItemsByIds = async (
-  item_ids: number[]
-): Promise<ItemTable[] | null> => {
+// Fetch multiple items by their IDs
+const getItemsByIds = async (item_ids: number[]): Promise<ItemTable[] | null> => {
+  const supabase = createClient();
   try {
-    const supabase = createClient();
     const { data, error } = await supabase
       .from("item")
       .select("*")
@@ -37,6 +37,7 @@ const getItemsByIds = async (
       console.error("Error fetching items:", error);
       return null;
     }
+
     return data as ItemTable[];
   } catch (error) {
     console.error("Unexpected error:", error);

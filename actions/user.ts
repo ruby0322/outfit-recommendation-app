@@ -1,5 +1,4 @@
 "use server";
-
 import { Profile, ProfileTable } from "@/type";
 import { createClient } from "@/utils/supabase/server";
 import { revalidatePath } from "next/cache";
