@@ -26,7 +26,7 @@ const makePrompt = (clothing_type: ClothingType): string => {
       }
     }
     
-    範例：
+    可以參考以下範例：
     {
       "顏色": "藍色",
       "服裝類型": "襯衫",
@@ -47,9 +47,6 @@ const extractLabelsFromImage = async (
   image_url: string,
   clothing_type: ClothingType
 ): Promise<string | null> => {
-  /* TODO: The whole process of extracting labels from an image. */
-  /* You can utilize chatCompletionTextAndImage() to get response from gpt. */
-  /* You should utilize validateResponseFormat() to make sure your output has the correct format. */
   const model: string = "gpt-4o-mini";
   const prompt: string = makePrompt(clothing_type);
   console.log(prompt);
@@ -59,7 +56,6 @@ const extractLabelsFromImage = async (
       prompt,
       image_url,
     });
-    // TODO:  Validate response format
     if (response && validateResponseFormat(response)) {
       return response;
     }
@@ -67,33 +63,29 @@ const extractLabelsFromImage = async (
       console.error("Invalid response format:", response );
       return null;
     }
-    // END TODO
   } catch (error) {
     console.error("Error in extractLabelsFromImage:", error);
     return null;
   }
-  /* END TODO */
 };
 
 const validateResponseFormat = (image_label_string: string): boolean => {
   try {
-    const parsed_labels = JSON.parse(image_label_string);
-    const required_keys = ["顏色", "服裝類型", "剪裁版型", "設計特點", "材質", "配件", "細節"];
+    const parsedLabels = JSON.parse(image_label_string);
+    const requiredKeys = ["顏色", "服裝類型", "剪裁版型", "設計特點", "材質", "配件", "細節"];
 
-    const top_keys = ["領子", "袖子"];
-    const bottom_keys = ["褲管"];
+    const topKeys = ["領子", "袖子"];
+    const bottomKeys = ["褲管"];
     
-    const has_required_keys = required_keys.every(key => key in parsed_labels);
-    const has_specific_keys = top_keys.every(key => key in parsed_labels) || bottom_keys.every(key => key in parsed_labels);
+    const hasRequiredKeys = requiredKeys.every(key => key in parsedLabels);
+    const hasSpecificKeys = topKeys.every(key => key in parsedLabels) || bottomKeys.every(key => key in parsedLabels);
 
-    return has_required_keys && has_specific_keys;
+    return hasRequiredKeys && hasSpecificKeys;
   }
   catch (error) {
     console.error("Error in validateResponseFormat", error);
     return false;
   }
-  /* TODO: Validate the format of the response you get from GPT.
-       Implement your validation logic here. */
 };
 
 export { extractLabelsFromImage, validateResponseFormat };
