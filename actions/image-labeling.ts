@@ -3,6 +3,7 @@
 import { ClothingType } from "@/type";
 import { chatCompletionTextAndImage } from "./utils";
 import { Erica_One } from "next/font/google";
+import { error } from "console";
 
 const makePrompt = (clothing_type: ClothingType): string => {
   const prompt: string = `
@@ -59,9 +60,14 @@ const extractLabelsFromImage = async (
       image_url,
     });
     // TODO:  Validate response format
-    
+    if (response && validateResponseFormat(response)) {
+      return response;
+    }
+    else {
+      console.error("Invalid response format:", response );
+      return null;
+    }
     // END TODO
-    return response;
   } catch (error) {
     console.error("Error in extractLabelsFromImage:", error);
     return null;
@@ -70,9 +76,24 @@ const extractLabelsFromImage = async (
 };
 
 const validateResponseFormat = (image_label_string: string): boolean => {
+  try {
+    const parsed_labels = JSON.parse(image_label_string);
+    const required_keys = ["顏色", "服裝類型", "剪裁版型", "設計特點", "材質", "配件", "細節"];
+
+    const top_keys = ["領子", "袖子"];
+    const bottom_keys = ["褲管"];
+    
+    const has_required_keys = required_keys.every(key => key in parsed_labels);
+    const has_specific_keys = top_keys.every(key => key in parsed_labels) || bottom_keys.every(key => key in parsed_labels);
+
+    return has_required_keys && has_specific_keys;
+  }
+  catch (error) {
+    console.error("Error in validateResponseFormat", error);
+    return false;
+  }
   /* TODO: Validate the format of the response you get from GPT.
        Implement your validation logic here. */
-  return true;
 };
 
 export { extractLabelsFromImage, validateResponseFormat };
