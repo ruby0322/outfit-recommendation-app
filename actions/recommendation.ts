@@ -14,20 +14,21 @@ import { getParamById, getUploadById } from "./user-input";
 import { getItemsByIds } from "./item";
 
 // Fetches results based on a suggestion ID
-const getResults = async (suggestion_id: number): Promise<ResultTable[] | null> => {
+const getResults = async (
+  suggestion_id: number
+): Promise<ResultTable[] | null> => {
   try {
     const supabase = createClient();
     const { data, error } = await supabase
       .from("result")
       .select("*")
-      .eq("id", suggestion_id)
-      .single();
-    
+      .eq("suggestion_id", suggestion_id);
+
     if (error) {
       console.error("Error fetching results:", error);
       return null;
     }
-    
+
     return data as ResultTable[];
   } catch (error) {
     console.error("Unexpected error in getResults:", error);
@@ -36,10 +37,11 @@ const getResults = async (suggestion_id: number): Promise<ResultTable[] | null> 
 };
 
 // Inserts results into the database
-const insertResults = async (results: ResultTable[]): Promise<number[] | null> => {
-  const supabase = createClient();
-
+const insertResults = async (
+  results: ResultTable[]
+): Promise<number[] | null> => {
   try {
+    const supabase = createClient();
     const { data, error } = await supabase
       .from("result")
       .insert(results)
@@ -50,7 +52,7 @@ const insertResults = async (results: ResultTable[]): Promise<number[] | null> =
       return null;
     }
 
-    return data ? data.map(o => o.id) : null;
+    return data ? data.map((obj) => obj.id) : [];
   } catch (error) {
     console.error("Unexpected error in insertResults:", error);
     return null;
@@ -58,7 +60,9 @@ const insertResults = async (results: ResultTable[]): Promise<number[] | null> =
 };
 
 // Fetches suggestions based on a recommendation ID
-const getSuggestion = async (recommendation_id: number): Promise<SuggestionTable[] | null> => {
+const getSuggestion = async (
+  recommendation_id: number
+): Promise<SuggestionTable[] | null> => {
   try {
     const supabase = createClient();
     const { data, error } = await supabase
@@ -79,13 +83,15 @@ const getSuggestion = async (recommendation_id: number): Promise<SuggestionTable
 };
 
 // Inserts a suggestion into the database
-const insertSuggestion = async (
-  recommendation_id: number,
-  label_string: string
-): Promise<number> => {
-  const supabase = createClient();
-
+const insertSuggestion = async ({
+  recommendation_id,
+  label_string,
+}: {
+  recommendation_id: number;
+  label_string: string;
+}): Promise<number> => {
   try {
+    const supabase = createClient();
     const { data, error } = await supabase
       .from("suggestion")
       .insert({ recommendation_id, label_string })
@@ -107,9 +113,8 @@ const insertSuggestion = async (
 const getRecommendationById = async (
   recommendation_id: number
 ): Promise<Recommendation | null> => {
-  const supabase = createClient();
-
   try {
+    const supabase = createClient();
     const { data: recommendation, error } = await supabase
       .from("recommendation")
       .select("*")
@@ -129,28 +134,28 @@ const getRecommendationById = async (
 
     const param_id = recommendation[0].param_id as number;
     const upload_id = recommendation[0].upload_id as number;
-    const param = await getParamById(param_id) as ParamTable;
-    const upload = await getUploadById(upload_id) as UploadTable;
+    const params = (await getParamById(param_id)) as ParamTable;
+    const upload = (await getUploadById(upload_id)) as UploadTable;
 
-    recommendation_record.params = param;
+    recommendation_record.params = params;
     recommendation_record.upload = upload;
     recommendation_record.items = {};
 
-    const suggestions = await getSuggestion(recommendation_id) as SuggestionTable[];
+    const suggestions = (await getSuggestion(
+      recommendation_id
+    )) as SuggestionTable[];
     for (const s of suggestions) {
       const label_string = s.label_string as string;
-      const results = await getResults(s.id) as ResultTable[];
-      const item_ids = results.map(r => r.item_id) as number[];
-      const items = await getItemsByIds(item_ids) as ItemTable[];
+      const results = (await getResults(s.id)) as ResultTable[];
+      const item_ids = results.map((r) => r.item_id) as number[];
+      const items = (await getItemsByIds(item_ids)) as ItemTable[];
 
       // Create a map to associate item_id with distance
-      const itemIdToDistanceMapper: { [key: number]: ResultTable } = results.reduce(
-        (acc, item) => {
+      const itemIdToDistanceMapper: { [key: number]: ResultTable } =
+        results.reduce((acc, item) => {
           acc[item.item_id as number] = item;
           return acc;
-        }, 
-        {} as { [key: number]: ResultTable }
-      );
+        }, {} as { [key: number]: ResultTable });
 
       // Sort items by distance
       items.sort(
@@ -170,10 +175,15 @@ const getRecommendationById = async (
 };
 
 // Inserts a new recommendation into the database
-const insertRecommendation = async (param_id: number, upload_id: number): Promise<number> => {
-  const supabase = createClient();
-
+const insertRecommendation = async ({
+  param_id,
+  upload_id,
+}: {
+  param_id: number;
+  upload_id: number;
+}): Promise<number> => {
   try {
+    const supabase = createClient();
     const { data, error } = await supabase
       .from("recommendation")
       .insert([{ param_id, upload_id }])

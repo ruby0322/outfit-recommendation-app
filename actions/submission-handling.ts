@@ -29,10 +29,10 @@ const handleSuggestionMatching = async ({
   try {
     for (const s of suggested_label_strings) {
       // Store suggestions and get suggestion IDs
-      const suggestion_id: number = await insertSuggestion(
+      const suggestion_id: number = await insertSuggestion({
         recommendation_id,
-        s
-      );
+        label_string: s,
+      });
 
       // Get suggestion results (ResultTable[]) and store them to get result IDs
       const results: ResultTable[] = (await semanticSearch({
@@ -172,10 +172,10 @@ const handleSubmission = async ({
       console.log("The generated param_id:", param_id);
 
       // Store the recommendation
-      const recommendation_id: number = await insertRecommendation(
+      const recommendation_id: number = await insertRecommendation({
         param_id,
-        upload_id
-      );
+        upload_id,
+      });
       console.log("The generated recommendation_id:", recommendation_id);
 
       // Generate suggestions

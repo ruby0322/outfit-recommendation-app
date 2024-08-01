@@ -7,7 +7,7 @@ const askGPT = async (role: string, prompt: string): Promise<string> => {
       { role: "system", content: role },
       { role: "user", content: prompt },
     ],
-    model: "gpt-4o",
+    model: "gpt-4o-mini",
   });
   return completion.choices[0].message.content as string;
 };
