@@ -49,7 +49,7 @@ const extractLabelsFromImage = async (
 ): Promise<string | null> => {
   const model: string = "gpt-4o-mini";
   const prompt: string = makePrompt(clothing_type);
-  console.log(prompt);
+  console.log("prompt: ", prompt);
   try {
     const response: string | null = await chatCompletionTextAndImage({
       model,
@@ -71,7 +71,8 @@ const extractLabelsFromImage = async (
 
 const validateResponseFormat = (image_label_string: string): boolean => {
   try {
-    const parsedLabels = JSON.parse(image_label_string);
+    const cleanedString = image_label_string.replace(/```json\n?|\n?```/g, '').trim();
+    const parsedLabels = JSON.parse(cleanedString);
     const requiredKeys = ["顏色", "服裝類型", "剪裁版型", "設計特點", "材質", "配件", "細節"];
 
     const topKeys = ["領子", "袖子"];
