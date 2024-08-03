@@ -18,10 +18,11 @@ const semanticSearch = async ({
     // TODO: Replace the query logic below with actual Supabase semantic search query
     // Example: Use supabase.rpc or supabase.from to call a stored procedure or a custom SQL query
     const { data, error } = await supabase
-      .from('your_table_name') // Replace with the actual table name
+      .from('item')
       .select('*')
-      .ilike('label_string_column', `%${suggested_label_string}%`) // Replace with actual column
+      // Implement your code here
       .limit(max_num_item);
+      
 
     if (error) {
       console.error("Error fetching results from Supabase:", error);

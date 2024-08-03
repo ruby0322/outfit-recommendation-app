@@ -1,14 +1,14 @@
 "use client";
 
+import { storeImageToStorage } from "@/actions/storage";
+import { handleSubmission } from "@/actions/submission-handling";
 import { Button } from "@/components/ui/button";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { FormProvider, useForm } from "react-hook-form";
-import { string, z } from "zod";
+import { z } from "zod";
 import CustomizationFields from "./customization-fields";
 import ImageUploader from "./image-uploader";
-import { handleSubmission } from "@/actions/submission-handling";
-import { storeImageToStorage } from "@/actions/storage";
 
 const schema = z.object({
   clothingType: z.enum(["top", "bottom"], {
@@ -26,9 +26,12 @@ const schema = z.object({
     .min(30, "至少 30 公斤")
     .max(200, "不可超過 200 公斤"),
   stylePreferences: z.array(z.string()).optional(),
-  uploadedImage: z
-    .instanceof(FileList, { message: "請上傳圖片" })
-    .refine((files) => files.length > 0, "請上傳圖片"),
+  uploadedImage: (typeof window === "undefined"
+    ? z.any()
+    : z.instanceof(FileList, {
+        message: "請上傳圖片",
+      })
+  ).refine((files) => files.length > 0, "請上傳圖片"),
 });
 
 type FormData = z.infer<typeof schema>;
@@ -56,8 +59,8 @@ const UploadPage = () => {
           /* END TODO */
           console.log("public image url:", imageUrl);
           const style_preference = data.stylePreferences
-          ? data.stylePreferences.join(", ")
-          : null;
+            ? data.stylePreferences.join(", ")
+            : null;
           console.log(style_preference);
           const recommendationId = await handleSubmission({
             clothing_type: data.clothingType,
@@ -83,15 +86,15 @@ const UploadPage = () => {
   };
 
   return (
-    <div className="w-full mt-16">
+    <div className='w-full mt-16'>
       <FormProvider {...methods}>
         <form onSubmit={methods.handleSubmit(onSubmit)}>
-          <div className="w-full flex flex-col gap-8 items-center justify-center">
-            <div className="w-full flex flex-col md:flex-row gap-8 justify-center items-center">
+          <div className='w-full flex flex-col gap-8 items-center justify-center'>
+            <div className='w-full flex flex-col md:flex-row gap-8 justify-center items-center'>
               <ImageUploader />
               <CustomizationFields />
             </div>
-            <Button variant="outline" type="submit">
+            <Button variant='outline' type='submit'>
               一鍵成為穿搭達人！
             </Button>
           </div>
