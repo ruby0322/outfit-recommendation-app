@@ -62,22 +62,56 @@ const makePrompt = ({
   max_num_suggestion: number;
   label_string: string;
 }): string => {
-  /* TODO: make a good prompt based on input to generate suggestions */
   const prompt: string = `
-  你現在是我的造型師。
-  請你根據這件${
-    clothing_type === "top" ? "上衣" : "下身"
-  }的描述："${label_string}"
-  ，並加上我提供的額外資訊輔助判斷，${
-    height === null ? "" : `身高：${height}`
-  }、${style_preferences === null ? "" : `偏好風格：${style_preferences}`}
-  推薦我${max_num_suggestion}種與之搭配的${
-    clothing_type === "top" ? "下身" : "上衣"
-  }
-  請仿照以下格式，回答無需包含其他資訊：
-  "顏色:[顏色], 服裝類型:[類型], 剪裁版型:[描述], 設計特點:[描述], 材質:[材質], 配件:[描述]（無的話可略）, 細節:[描述], 褲管:[描述]",
-  "顏色:[顏色], 服裝類型:[類型], 剪裁版型:[描述], 設計特點:[描述], 材質:[材質], 配件:[描述]（無的話可略）, 細節:[描述], 褲管:[描述]",
-  "顏色:[顏色], 服裝類型:[類型], 剪裁版型:[描述], 設計特點:[描述], 材質:[材質], 配件:[描述]（無的話可略）, 細節:[描述], 褲管:[描述]"
+    請擔任我的造型師，根據這件${
+      clothing_type === "top" ? "上衣" : "下身類衣物"
+    }的描述："${label_string}"，並加上我提供的額外資訊輔助判斷，${
+      height === null ? "" : `身高：${height}`
+    }、${style_preferences === null ? "" : `偏好風格：${style_preferences}`}
+    ，推薦${max_num_suggestion}種與之搭配的${
+      clothing_type === "top" ? "下身類衣物" : "上衣"
+    }
+    請使用下方 JSON 格式回覆，回答無需包含其他資訊：
+    [
+      {
+        "顏色: "[顏色]", 
+        "服裝類型": "[類型]", 
+        "剪裁版型": "[描述]", 
+        "設計特點": "[描述]", 
+        "材質": "[材質]", 
+        "配件": "[描述]（若無可略過）", 
+        "細節: "[描述]", 
+        ${
+          clothing_type === "top"
+            ? "\"褲管\": \"[描述]\""
+            : "\"領子\": \"[描述]\", \"袖子\": \"[描述]\""
+        }
+      }
+    ]
+    
+    可以參考以下範例：
+    [
+      {
+        "顏色": "藍色",
+        "服裝類型": "牛仔褲",
+        "剪裁版型": "修身剪裁",
+        "設計特點": "有口袋",
+        "材質": "棉",
+        "配件": "無",
+        "細節": "有破洞",
+        "褲管": "直筒"
+      },
+      {
+        "顏色": "黑色",
+        "服裝類型": "運動褲",
+        "剪裁版型": "寬鬆",
+        "設計特點": "抽繩",
+        "材質": "聚酯纖維",
+        "配件": "無",
+        "細節": "有條紋",
+        "褲管": "窄口"
+      }
+    ]
   `;
   return prompt;
 };
@@ -105,21 +139,56 @@ const makeSuggestions = async ({
     label_string,
   });
 
-  const suggestions = await chatCompletionTextOnly({ model, prompt });
-  console.log("Suggestions:", suggestions);
+  console.log("Prompt" + prompt);
 
-  // TODO: Validation(Data cleansing and format checking) is done here
-  // const suggestedLabelStrings: string[] = validation(suggestions);
-  // Example: Parsing the response into a list of suggested label strings
-  const suggestedLabelStrings: string[] = [
-    "顏色: 黑色, 服裝類型: 高腰直筒褲, 剪裁版型: 修身高腰, 設計特點: 極簡設計, 材質: 西裝布料, 細節: 無口袋設計, 褲管: 直筒",
-    "顏色: 深藍色, 服裝類型: 窄管牛仔褲, 剪裁版型: 緊身高腰, 設計特點: 修身剪裁, 材質: 彈性牛仔布, 細節: 無破損設計, 褲管: 窄管",
-    "顏色: 黑色, 服裝類型: A字短裙, 剪裁版型: 高腰A字, 設計特點: 簡約俐落, 材質: 羊毛混紡, 細節: 隱藏拉鍊, 褲管: 略展",
-    "顏色: 灰色, 服裝類型: 西裝闊腿褲, 剪裁版型: 寬鬆高腰, 設計特點: 俐落剪裁, 材質: 西裝布料, 細節: 腰部打褶設計, 褲管: 闊腿",
-    "顏色: 黑色, 服裝類型: 高腰皮褲, 剪裁版型: 緊身高腰, 設計特點: 光澤皮革, 材質: 皮革, 細節: 金屬拉鍊, 褲管: 窄管",
-  ];
-  /* TODO: some data cleansing and format checking */
-  return suggestedLabelStrings;
+  try {
+    const suggestions = await chatCompletionTextOnly({ 
+      model, 
+      prompt 
+    });
+    console.log("Suggestions:", suggestions);
+  
+    if (!suggestions) {
+      throw new Error("No suggestions");
+    }
+  
+    const suggestedLabelStrings: string[] = validateAndCleanSuggestions(suggestions, clothing_type);
+    return suggestedLabelStrings;
+  } catch (error) {
+    console.error("Error in makeSuggestions:", error);
+    return [];
+  }
+};
+
+const validateAndCleanSuggestions = (suggestions: string, clothing_type: ClothingType) : string[] => {
+  try {
+    const suggestionsArray: any[] = JSON.parse(suggestions);
+    if (!Array.isArray(suggestionsArray)) {
+      throw new Error("Invalid suggestion format: " + suggestions);
+    }
+
+    return suggestionsArray
+      .filter(suggestion => validateSuggestionFormat(suggestion, clothing_type))
+      .map(suggestion => formatSuggestion(suggestion, clothing_type));
+  } catch (error) {
+    console.error("Error in validateAndCleanSuggestions", error);
+    return [];
+  }
+}
+
+const validateSuggestionFormat = (suggestion: any, clothing_type: ClothingType) : boolean => {
+  const requiredKeys = ["顏色", "服裝類型", "剪裁版型", "設計特點", "材質", "細節"];
+  const specificKeys = clothing_type === "top" ? ["褲管"] : ["領子", "袖子"];
+
+  const hasRequiredKeys = requiredKeys.every(key => key in suggestion);
+  const hasSpecificKeys = specificKeys.every(key => key in suggestion);
+
+  return hasRequiredKeys && hasSpecificKeys;
+}
+
+
+const formatSuggestion = (suggestion: any, clothing_type: ClothingType): string => {
+  return `顏色: ${suggestion.顏色}, 服裝類型: ${suggestion.服裝類型}, 剪裁版型: ${suggestion.剪裁版型}, 設計特點: ${suggestion.設計特點}, 材質: ${suggestion.材質}, ${suggestion.配件 ? `配件: ${suggestion.配件}, ` : ""}細節: ${suggestion.細節}, ${clothing_type === "top" ? `褲管: ${suggestion.褲管}` : `領子: ${suggestion.領子}, 袖子: ${suggestion.袖子}`}`;
 };
 
 // Handles the submission of clothing details and generates recommendations
