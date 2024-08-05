@@ -10,7 +10,7 @@ export type ResultTable = Tables<"result">;
 export type ClothingType = Enums<"clothing_type">;
 
 export interface Recommendation {
-  params: ParamTable;
+  param: ParamTable;
   upload: UploadTable;
   items: {
     [style: string]: ItemTable[];

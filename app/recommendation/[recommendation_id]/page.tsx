@@ -6,7 +6,6 @@ import Link from "next/link";
 import FeedbackCard from "./feedback-card";
 import ItemList from "./item-list";
 import UserInfoCard from "./user-info-card";
-import { getRecommendationById } from "@/actions/recommendation";
 
 const EXAMPLE_RECOMMENDATION: Recommendation = {
   items: {
@@ -182,7 +181,7 @@ const EXAMPLE_RECOMMENDATION: Recommendation = {
       },
     ],
   },
-  params: {
+  param: {
     clothing_type: "top",
     created_at: new Date().toString(),
     height: 170,
@@ -205,7 +204,7 @@ const RecommendationPage = async ({
   params: { recommendation_id: number };
 }) => {
   /* TODO: Fetch recommendation result with `recommendation_id` */
-  const recommendation: Recommendation =  EXAMPLE_RECOMMENDATION;
+  const recommendation: Recommendation = EXAMPLE_RECOMMENDATION;
   // const recommendation: Recommendation = await getRecommendationById(params.recommendation_id) as Recommendation;
   /* END TODO */
   return (
@@ -216,7 +215,7 @@ const RecommendationPage = async ({
         </h2>
         <UserInfoCard
           upload={recommendation.upload}
-          params={recommendation.params}
+          params={recommendation.param}
         />
       </div>
       <div className='w-full flex flex-col items-center justify-center gap-8 py-8 mt-2'>

@@ -10,8 +10,8 @@ import {
   UploadTable,
 } from "@/type";
 import { createClient } from "@/utils/supabase/server";
-import { getParamById, getUploadById } from "./user-input";
 import { getItemsByIds } from "./item";
+import { getParamById, getUploadById } from "./user-input";
 
 // Fetches results based on a suggestion ID
 const getResults = async (
@@ -134,10 +134,10 @@ const getRecommendationById = async (
 
     const param_id = recommendation[0].param_id as number;
     const upload_id = recommendation[0].upload_id as number;
-    const params = (await getParamById(param_id)) as ParamTable;
+    const param = (await getParamById(param_id)) as ParamTable;
     const upload = (await getUploadById(upload_id)) as UploadTable;
 
-    recommendation_record.params = params;
+    recommendation_record.param = param;
     recommendation_record.upload = upload;
     recommendation_record.items = {};
 
@@ -204,6 +204,6 @@ const insertRecommendation = async ({
 export {
   getRecommendationById,
   insertRecommendation,
-  insertSuggestion,
   insertResults,
+  insertSuggestion,
 };
