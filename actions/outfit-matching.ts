@@ -24,9 +24,7 @@ const semanticSearch = async ({
         // throw new TypeError('emb1 is not array');
         embedding1 = JSON.parse(embedding1);
       }
-      return Math.sqrt(
-        embedding1.reduce((sum, value, index) => sum + Math.pow(value - embedding2[index], 2), 0)
-      );
+      return 1-embedding1.reduce((sum, value, index) => sum + value*embedding2[index], 0);
     };
 
     const suggestedEmbedding = await generateEmbedding(suggested_label_string);
@@ -35,38 +33,30 @@ const semanticSearch = async ({
     // TODO: Replace the query logic below with actual Supabase semantic search query
     // Example: Use supabase.rpc or supabase.from to call a stored procedure or a custom SQL query
 
-    const cat = await supabase.rpc('test');
-    console.log(cat)
-
-    const { data, error } = await supabase
-      .from('item')
-      .select('*')
-      // .order(`embedding <=> array[${embeddingString}]`, { ascending: true })
-      .order(`embedding <=> '[${suggestedEmbedding}]'`, { ascending: true })
-      // Implement your code here
-      .limit(max_num_item);
+    const { data: similarItems, error: err } = await supabase.rpc('query_similar_items', {
+      query_embedding: suggestedEmbedding, 
+      match_threshold: 0.2,
+      max_item_count: 5,
+    })
       
 
-    if (error) {
-      console.error("Error fetching results from Supabase:", error);
+    if (err) {
+      console.error("Error fetching results from Supabase:", err);
       return null;
     }
-    if (suggestedEmbedding){
-      // console.log(typeof(data[0].embedding));
-      console.log(calculateDistance(data[0].embedding, suggestedEmbedding));
+
+    let results: ResultTable[] = [];
+
+    for(const item of similarItems) {
+      const { data: insertedResult } : {data: ResultTable | null} = await supabase.from('result').insert({
+        distance: calculateDistance(item.embedding, suggestedEmbedding as number[]),
+        item_id: item.id,
+        suggestion_id,
+      }).select().single()
+      results.push(insertedResult as ResultTable);
     }
 
-    const resultTable: ResultTable[] = data.map((item: any) => ({
-      created_at: item.created_at,
-      distance: null, // calculateDistance(item.embedding, suggestedEmbedding); (Distance is already sorted by the query)
-      id: Date.now(), // id 還要再想要用啥
-      item_id: item.id,
-      suggestion_id,
-    }));
-
-    return resultTable;
-    // return [];
-    // END TODO
+    return results;
   } catch (error) {
     console.error("Error in semanticSearch:", error);
     return null;
