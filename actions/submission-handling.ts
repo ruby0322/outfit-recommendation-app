@@ -139,7 +139,7 @@ const makeSuggestions = async ({
     label_string,
   });
 
-  console.log("Prompt" + prompt);
+  // console.log("Prompt" + prompt);
 
   try {
     const suggestions = await chatCompletionTextOnly({ 

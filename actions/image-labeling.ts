@@ -49,7 +49,7 @@ const extractLabelsFromImage = async (
 ): Promise<string | null> => {
   const model: string = "gpt-4o-mini";
   const prompt: string = makePrompt(clothing_type);
-  console.log("prompt: ", prompt);
+  // console.log("prompt: ", prompt);
   try {
     const response: string | null = await chatCompletionTextAndImage({
       model,
@@ -57,7 +57,9 @@ const extractLabelsFromImage = async (
       image_url,
     });
     if (response && validateResponseFormat(response)) {
-      return response;
+      console.log("Original JSON: ", response);
+      // console.log("Extracted Labels: ", transformResponse(response));
+      return transformResponse(response);
     }
     else {
       console.error("Invalid response format:", response );
@@ -88,5 +90,24 @@ const validateResponseFormat = (image_label_string: string): boolean => {
     return false;
   }
 };
+
+function transformResponse(jsonString: string): string {
+  try {
+    const cleanedString = jsonString.replace(/```json\n?|\n?```/g, '').trim();
+    const parsedJson = JSON.parse(cleanedString);
+
+    const transformEntries = Object.entries(parsedJson).map(([key, value]) => {
+      const valueArray = Array.isArray(value) ? value : [value];
+      const filteredValues = valueArray.filter(item => item && item !== "無").join(", ");
+      const finalValue = filteredValues || "無";
+      return `${key}: ${finalValue}`;
+    });
+
+    return transformEntries.join(", ");
+  } catch (error) {
+    console.error("Error in transformResponse", error);
+    return "";
+  };
+}
 
 export { extractLabelsFromImage, validateResponseFormat };
