@@ -4,7 +4,7 @@ import {
   extractLabelsFromImage,
   validateResponseFormat,
 } from "./image-labeling";
-import { semanticSearch } from "./outfit-matching";
+import { semanticSearch, UnstoredResult } from "./outfit-matching";
 import { chatCompletionTextAndImage, chatCompletionTextOnly } from "./utils";
 import { getItemsByIds } from "./item";
 import { ClothingType, ItemTable, ResultTable } from "@/type";
@@ -35,11 +35,11 @@ const handleSuggestionMatching = async ({
       });
 
       // Get suggestion results (ResultTable[]) and store them to get result IDs
-      const results: ResultTable[] = (await semanticSearch({
+      const results: UnstoredResult[] = (await semanticSearch({
         suggestion_id,
         suggested_label_string: s,
         max_num_item,
-      })) as ResultTable[];
+      })) as UnstoredResult[];
 
       await insertResults(results);
     }

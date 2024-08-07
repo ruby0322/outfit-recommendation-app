@@ -6,6 +6,7 @@ import Link from "next/link";
 import FeedbackCard from "./feedback-card";
 import ItemList from "./item-list";
 import UserInfoCard from "./user-info-card";
+import { getRecommendationById } from "@/actions/recommendation";
 
 const EXAMPLE_RECOMMENDATION: Recommendation = {
   items: {
@@ -204,8 +205,8 @@ const RecommendationPage = async ({
   params: { recommendation_id: number };
 }) => {
   /* TODO: Fetch recommendation result with `recommendation_id` */
-  const recommendation: Recommendation = EXAMPLE_RECOMMENDATION;
-  // const recommendation: Recommendation = await getRecommendationById(params.recommendation_id) as Recommendation;
+  // const recommendation: Recommendation = EXAMPLE_RECOMMENDATION;
+  const recommendation: Recommendation = await getRecommendationById(params.recommendation_id) as Recommendation;
   /* END TODO */
   return (
     <div className='w-full flex flex-col items-center justify-center'>

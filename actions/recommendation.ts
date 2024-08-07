@@ -12,6 +12,7 @@ import {
 import { createClient } from "@/utils/supabase/server";
 import { getItemsByIds } from "./item";
 import { getParamById, getUploadById } from "./user-input";
+import { UnstoredResult } from "./outfit-matching";
 
 // Fetches results based on a suggestion ID
 const getResults = async (
@@ -38,7 +39,7 @@ const getResults = async (
 
 // Inserts results into the database
 const insertResults = async (
-  results: ResultTable[]
+  results: UnstoredResult[]
 ): Promise<number[] | null> => {
   try {
     const supabase = createClient();
