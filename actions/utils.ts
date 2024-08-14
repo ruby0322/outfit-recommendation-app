@@ -1,6 +1,7 @@
 "use server";
 import openai from "@/utils/openai";
 import { ImageURL } from "openai/resources/beta/threads/messages";
+import { setTimeout } from "timers/promises";
 
 // Function to handle chat completion with both text and image input
 const chatCompletionTextAndImage = async ({
@@ -29,6 +30,8 @@ const chatCompletionTextAndImage = async ({
 
     // Extracting and returning the response content
     const response = completion.choices[0].message.content;
+    await setTimeout(5000);
+    console.log("Waited 5s");
     return response;
   } catch (e) {
     console.log("Failed to get response from GPT API.");
