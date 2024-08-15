@@ -13,6 +13,8 @@ const ItemList = ({
   items: ItemTable[];
   index: number;
 }) => {
+  // console.log("title:", title);
+  // console.log("items:", items);
   return (
     <div
       id={id}

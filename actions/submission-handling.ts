@@ -1,8 +1,8 @@
 "use server";
 
-import { ClothingType, ResultTable } from "@/type";
+import { ClothingType } from "@/type";
 import { extractLabelsFromImage } from "./image-labeling";
-import { semanticSearch } from "./outfit-matching";
+import { UnstoredResult, semanticSearch } from "./outfit-matching";
 import {
   insertRecommendation,
   insertResults,
@@ -30,11 +30,11 @@ const handleSuggestionMatching = async ({
       });
 
       // Get suggestion results (ResultTable[]) and store them to get result IDs
-      const results: ResultTable[] = (await semanticSearch({
+      const results: UnstoredResult[] = (await semanticSearch({
         suggestion_id,
         suggested_label_string: s,
         max_num_item,
-      })) as ResultTable[];
+      })) as UnstoredResult[];
 
       await insertResults(results);
     }

@@ -8,6 +8,8 @@ import Image from "next/image";
 import Link from "next/link";
 
 const ItemCard = ({ item }: { item: ItemTable }) => {
+  // console.log("This is the item image url: ");
+  // console.log(item.image_url);
   return (
     <Card className='cursor-pointer overflow-hidden rounded-none flex flex-col gap-1 shadow-none border-0'>
       <div className='relative inline-block'>
@@ -22,9 +24,9 @@ const ItemCard = ({ item }: { item: ItemTable }) => {
           alt={`Image of product "${item.title}"`}
         />
       </div>
-      <Link href={item.external_link ? item.external_link : "#"}>
-        <h3 className='p-2 text-md underline'>{item.title}</h3>
-      </Link>
+      {/* <Link href={item.external_link ? item.external_link : "#"}> */}
+        {/* <h3 className='p-2 text-md underline'>{item.title}</h3> */}
+      {/* </Link> */}
       <div className='px-2 pb-2 flex justify-between'>
         <p>NTD {item.price}</p>
         <div className='flex justify-end gap-1'>
