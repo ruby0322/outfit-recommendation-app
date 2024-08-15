@@ -1,7 +1,6 @@
 "use server";
 import openai from "@/utils/openai";
 import { ImageURL } from "openai/resources/beta/threads/messages";
-import { setTimeout } from "timers/promises";
 
 // Function to handle chat completion with both text and image input
 const chatCompletionTextAndImage = async ({
