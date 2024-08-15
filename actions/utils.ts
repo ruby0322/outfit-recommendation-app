@@ -30,8 +30,6 @@ const chatCompletionTextAndImage = async ({
 
     // Extracting and returning the response content
     const response = completion.choices[0].message.content;
-    await setTimeout(5000);
-    console.log("Waited 5s");
     return response;
   } catch (e) {
     console.log("Failed to get response from GPT API.");
