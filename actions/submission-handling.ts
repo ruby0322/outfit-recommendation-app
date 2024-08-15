@@ -163,9 +163,10 @@ const validateAndCleanSuggestions = (
   clothing_type: ClothingType
 ): string[] => {
   try {
-    const suggestionsArray: any[] = JSON.parse(suggestions);
+    const cleanedString = suggestions.replace(/```json\n?|\n?```/g, '').trim();
+    const suggestionsArray: any[] = JSON.parse(cleanedString);
     if (!Array.isArray(suggestionsArray)) {
-      throw new Error("Invalid suggestion format: " + suggestions);
+      throw new Error("Invalid suggestion format: " + cleanedString);
     }
 
     return suggestionsArray
