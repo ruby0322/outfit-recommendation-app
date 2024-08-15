@@ -4,8 +4,6 @@ import { cookies } from "next/headers";
 export const createClient = () => {
   const cookieStore = cookies();
 
-  console.log(process.env.NEXT_PUBLIC_SUPABASE_URL);
-
   return createServerClient(
     process.env.NEXT_PUBLIC_TESTING === "true"
       ? process.env.NEXT_PUBLIC_TESTING_SUPABASE_URL!
