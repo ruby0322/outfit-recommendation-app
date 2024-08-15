@@ -20,7 +20,10 @@ const storeImageToStorage = async (base64: string) => {
   /* Upload picture to supabase storage */
   const filename = `image-${uuidv4()}`;
   console.log(filename);
-  await supabase.storage.from("image").upload(filename, blob);
+  await supabase.storage.from("image").upload(filename, blob, {
+    cacheControl: "3600",
+    upsert: false,
+  });
   /* Retrieve avatar URL */
   const {
     data: { publicUrl },
