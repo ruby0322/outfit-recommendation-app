@@ -1,20 +1,15 @@
 "use server";
 
-import {
-  extractLabelsFromImage,
-  validateResponseFormat,
-} from "./image-labeling";
+import { ClothingType, ResultTable } from "@/type";
+import { extractLabelsFromImage } from "./image-labeling";
 import { semanticSearch } from "./outfit-matching";
-import { chatCompletionTextAndImage, chatCompletionTextOnly } from "./utils";
-import { getItemsByIds } from "./item";
-import { ClothingType, ItemTable, ResultTable } from "@/type";
-import { v4 as uuidv4 } from "uuid";
-import { insertParam, insertUpload } from "./user-input";
 import {
   insertRecommendation,
   insertResults,
   insertSuggestion,
 } from "./recommendation";
+import { insertParam, insertUpload } from "./user-input";
+import { chatCompletionTextOnly } from "./utils";
 
 // Handles matching suggestions with results and storing them
 const handleSuggestionMatching = async ({
@@ -66,11 +61,11 @@ const makePrompt = ({
     請擔任我的造型師，根據這件${
       clothing_type === "top" ? "上衣" : "下身類衣物"
     }的描述："${label_string}"，並加上我提供的額外資訊輔助判斷，${
-      height === null ? "" : `身高：${height}`
-    }、${style_preferences === null ? "" : `偏好風格：${style_preferences}`}
+    height === null ? "" : `身高：${height}`
+  }、${style_preferences === null ? "" : `偏好風格：${style_preferences}`}
     ，推薦${max_num_suggestion}種與之搭配的${
-      clothing_type === "top" ? "下身類衣物" : "上衣"
-    }
+    clothing_type === "top" ? "下身類衣物" : "上衣"
+  }
     請使用下方 JSON 格式回覆，回答無需包含其他資訊：
     [
       {
@@ -83,8 +78,8 @@ const makePrompt = ({
         "細節: "[描述]", 
         ${
           clothing_type === "top"
-            ? "\"褲管\": \"[描述]\""
-            : "\"領子\": \"[描述]\", \"袖子\": \"[描述]\""
+            ? '"褲管": "[描述]"'
+            : '"領子": "[描述]", "袖子": "[描述]"'
         }
       }
     ]
@@ -142,17 +137,20 @@ const makeSuggestions = async ({
   // console.log("Prompt" + prompt);
 
   try {
-    const suggestions = await chatCompletionTextOnly({ 
-      model, 
-      prompt 
+    const suggestions = await chatCompletionTextOnly({
+      model,
+      prompt,
     });
     console.log("Suggestions:", suggestions);
-  
+
     if (!suggestions) {
       throw new Error("No suggestions");
     }
-  
-    const suggestedLabelStrings: string[] = validateAndCleanSuggestions(suggestions, clothing_type);
+
+    const suggestedLabelStrings: string[] = validateAndCleanSuggestions(
+      suggestions,
+      clothing_type
+    );
     return suggestedLabelStrings;
   } catch (error) {
     console.error("Error in makeSuggestions:", error);
@@ -160,7 +158,10 @@ const makeSuggestions = async ({
   }
 };
 
-const validateAndCleanSuggestions = (suggestions: string, clothing_type: ClothingType) : string[] => {
+const validateAndCleanSuggestions = (
+  suggestions: string,
+  clothing_type: ClothingType
+): string[] => {
   try {
     const suggestionsArray: any[] = JSON.parse(suggestions);
     if (!Array.isArray(suggestionsArray)) {
@@ -168,27 +169,51 @@ const validateAndCleanSuggestions = (suggestions: string, clothing_type: Clothin
     }
 
     return suggestionsArray
-      .filter(suggestion => validateSuggestionFormat(suggestion, clothing_type))
-      .map(suggestion => formatSuggestion(suggestion, clothing_type));
+      .filter((suggestion) =>
+        validateSuggestionFormat(suggestion, clothing_type)
+      )
+      .map((suggestion) => formatSuggestion(suggestion, clothing_type));
   } catch (error) {
     console.error("Error in validateAndCleanSuggestions", error);
     return [];
   }
-}
+};
 
-const validateSuggestionFormat = (suggestion: any, clothing_type: ClothingType) : boolean => {
-  const requiredKeys = ["顏色", "服裝類型", "剪裁版型", "設計特點", "材質", "細節"];
+const validateSuggestionFormat = (
+  suggestion: any,
+  clothing_type: ClothingType
+): boolean => {
+  const requiredKeys = [
+    "顏色",
+    "服裝類型",
+    "剪裁版型",
+    "設計特點",
+    "材質",
+    "細節",
+  ];
   const specificKeys = clothing_type === "top" ? ["褲管"] : ["領子", "袖子"];
 
-  const hasRequiredKeys = requiredKeys.every(key => key in suggestion);
-  const hasSpecificKeys = specificKeys.every(key => key in suggestion);
+  const hasRequiredKeys = requiredKeys.every((key) => key in suggestion);
+  const hasSpecificKeys = specificKeys.every((key) => key in suggestion);
 
   return hasRequiredKeys && hasSpecificKeys;
-}
+};
 
-
-const formatSuggestion = (suggestion: any, clothing_type: ClothingType): string => {
-  return `顏色: ${suggestion.顏色}, 服裝類型: ${suggestion.服裝類型}, 剪裁版型: ${suggestion.剪裁版型}, 設計特點: ${suggestion.設計特點}, 材質: ${suggestion.材質}, ${suggestion.配件 ? `配件: ${suggestion.配件}, ` : ""}細節: ${suggestion.細節}, ${clothing_type === "top" ? `褲管: ${suggestion.褲管}` : `領子: ${suggestion.領子}, 袖子: ${suggestion.袖子}`}`;
+const formatSuggestion = (
+  suggestion: any,
+  clothing_type: ClothingType
+): string => {
+  return `顏色: ${suggestion.顏色}, 服裝類型: ${
+    suggestion.服裝類型
+  }, 剪裁版型: ${suggestion.剪裁版型}, 設計特點: ${
+    suggestion.設計特點
+  }, 材質: ${suggestion.材質}, ${
+    suggestion.配件 ? `配件: ${suggestion.配件}, ` : ""
+  }細節: ${suggestion.細節}, ${
+    clothing_type === "top"
+      ? `褲管: ${suggestion.褲管}`
+      : `領子: ${suggestion.領子}, 袖子: ${suggestion.袖子}`
+  }`;
 };
 
 // Handles the submission of clothing details and generates recommendations
@@ -218,10 +243,7 @@ const handleSubmission = async ({
       clothing_type
     );
 
-    console.log(
-      "The string of labels extracted from the clothing:",
-      label_string
-    );
+    console.log("Labels extracted from the clothing:", label_string);
 
     if (label_string) {
       // Store the upload details
@@ -276,4 +298,4 @@ const handleSubmission = async ({
   }
 };
 
-export { handleSuggestionMatching, makeSuggestions, handleSubmission };
+export { handleSubmission, handleSuggestionMatching, makeSuggestions };

@@ -46,17 +46,10 @@ const UploadPage = () => {
     console.log("data:", data);
     const reader = new FileReader();
     reader.onloadend = async () => {
-      /* TODO: Store uploaded image to file storage and retrieve its filepath. */
-      // const base64 = reader.result as string;
       if (typeof reader.result === "string") {
         const base64 = reader.result;
-        console.log("created base64 url:", base64);
         try {
-          console.log("try to convert base64 to blob object");
           const imageUrl = await storeImageToStorage(base64);
-
-          /* upload to file storage here */
-          /* END TODO */
           console.log("public image url:", imageUrl);
           const style_preference = data.stylePreferences
             ? data.stylePreferences.join(", ")
@@ -71,8 +64,6 @@ const UploadPage = () => {
             max_num_suggestion: MAX_NUM_SUGGESTION,
             max_num_item: MAX_NUM_ITEM,
           });
-          /* TODO: Store submission data to DB and retrieve its corresponding recommendation id. */
-          // const recommendationId = "a0091a7b-5d62-4c74-8f0e-b43f686b5331";
           router.push(`/recommendation/${recommendationId}`);
         } catch (error) {
           console.error("Error in onSubmit:", error);

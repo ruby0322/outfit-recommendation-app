@@ -1,6 +1,6 @@
 "use server";
-import { v4 as uuidv4 } from "uuid";
 import { createClient } from "@/utils/supabase/server";
+import { v4 as uuidv4 } from "uuid";
 
 const base64ToBlob = (base64: string): Blob => {
   const byteString = atob(base64.split(",")[1]);
@@ -16,18 +16,15 @@ const base64ToBlob = (base64: string): Blob => {
 
 const storeImageToStorage = async (base64: string) => {
   const blob: Blob = base64ToBlob(base64);
-  console.log("called storeImageToStorage()");
   const supabase = createClient();
   /* Upload picture to supabase storage */
   const filename = `image-${uuidv4()}`;
   console.log(filename);
   await supabase.storage.from("image").upload(filename, blob);
-  console.log("done storage");
   /* Retrieve avatar URL */
   const {
     data: { publicUrl },
   } = supabase.storage.from("image").getPublicUrl(filename);
-  console.log(publicUrl);
   return publicUrl;
 };
 
