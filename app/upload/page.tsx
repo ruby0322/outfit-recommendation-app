@@ -2,9 +2,10 @@
 
 import { storeImageToStorage } from "@/actions/storage";
 import { handleSubmission } from "@/actions/submission-handling";
-import { Button } from "@/components/ui/button";
+import { LoadingButton } from "@/components/ui/loading-button";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { z } from "zod";
 import CustomizationFields from "./customization-fields";
@@ -43,9 +44,11 @@ const UploadPage = () => {
   const methods = useForm({
     resolver: zodResolver(schema),
   });
+  const [loading, setLoading] = useState<boolean>(false);
 
   const onSubmit = async (data: any) => {
     console.log("data:", data);
+    setLoading(true);
     const reader = new FileReader();
     reader.onloadend = async () => {
       if (typeof reader.result === "string") {
@@ -57,7 +60,7 @@ const UploadPage = () => {
             ? data.stylePreferences.join(", ")
             : null;
           console.log(style_preference);
-          await delay(4000);
+          await delay(5000);
           const recommendationId = await handleSubmission({
             clothing_type: data.clothingType,
             image_url: imageUrl,
@@ -88,9 +91,9 @@ const UploadPage = () => {
               <ImageUploader />
               <CustomizationFields />
             </div>
-            <Button variant='outline' type='submit'>
+            <LoadingButton loading={loading} variant='outline' type='submit'>
               一鍵成為穿搭達人！
-            </Button>
+            </LoadingButton>
           </div>
         </form>
       </FormProvider>
