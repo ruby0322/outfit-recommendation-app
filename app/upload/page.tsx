@@ -36,6 +36,8 @@ const schema = z.object({
 
 type FormData = z.infer<typeof schema>;
 
+const delay = (ms: number) => new Promise((res) => setTimeout(res, ms));
+
 const UploadPage = () => {
   const router = useRouter();
   const methods = useForm({
@@ -55,6 +57,7 @@ const UploadPage = () => {
             ? data.stylePreferences.join(", ")
             : null;
           console.log(style_preference);
+          await delay(4000);
           const recommendationId = await handleSubmission({
             clothing_type: data.clothingType,
             image_url: imageUrl,

@@ -1,9 +1,7 @@
 "use server";
 
 import { getRecommendationById } from "@/actions/recommendation";
-import { Button } from "@/components/ui/button";
 import { Recommendation } from "@/type";
-import Link from "next/link";
 import FeedbackCard from "./feedback-card";
 import ItemList from "./item-list";
 import UserInfoCard from "./user-info-card";
@@ -32,7 +30,7 @@ const RecommendationPage = async ({
       </div>
       <div className='w-full flex flex-col items-center justify-center gap-8 py-8 mt-2'>
         <h2 className='text-muted-foreground'>推薦風格</h2>
-        <div className='flex gap-4 w-fit items-center justify-center'>
+        {/* <div className='flex gap-4 w-fit items-center justify-center'>
           {Object.keys(recommendation.items).map((recommendedStyle, index) => {
             return (
               <Button key={`recommended-style-${index}`} asChild variant='link'>
@@ -40,7 +38,7 @@ const RecommendationPage = async ({
               </Button>
             );
           })}
-        </div>
+        </div> */}
       </div>
       <div className='flex flex-col gap-4 justify-center items-center'>
         {Object.keys(recommendation.items).map((recommendedStyle, index) => {

@@ -21,7 +21,10 @@ const chatCompletionTextAndImage = async ({
           role: "user",
           content: [
             { type: "text", text: prompt },
-            { type: "image_url", image_url: { url: image_url, detail: "high" } as ImageURL  },
+            {
+              type: "image_url",
+              image_url: { url: image_url } as ImageURL,
+            },
           ],
         },
       ],
@@ -61,4 +64,18 @@ const chatCompletionTextOnly = async ({
   }
 };
 
-export { chatCompletionTextAndImage, chatCompletionTextOnly };
+const isImageUrlValid = async (url: string): Promise<boolean> => {
+  try {
+    const response = await fetch(url, { method: "HEAD" });
+    // Check if the response is ok and content type is an image
+    if (response.ok) {
+      return true;
+    }
+    return false;
+  } catch (error) {
+    console.error("Error checking image URL:", error);
+    return false;
+  }
+};
+
+export { chatCompletionTextAndImage, chatCompletionTextOnly, isImageUrlValid };

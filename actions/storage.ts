@@ -17,14 +17,12 @@ const base64ToBlob = (base64: string): Blob => {
 const storeImageToStorage = async (base64: string) => {
   const blob: Blob = base64ToBlob(base64);
   const supabase = createClient();
-  /* Upload picture to supabase storage */
   const filename = `image-${uuidv4()}`;
   console.log(filename);
   await supabase.storage.from("image").upload(filename, blob, {
     cacheControl: "3600",
     upsert: false,
   });
-  /* Retrieve avatar URL */
   const {
     data: { publicUrl },
   } = supabase.storage.from("image").getPublicUrl(filename);
