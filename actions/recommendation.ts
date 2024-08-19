@@ -1,140 +1,36 @@
-"use server";
-
+"user server";
+import { createClient } from "@/utils/supabase/server";
 import {
-  ItemTable,
-  ParamTable,
   Recommendation,
   RecommendationTable,
+  ParamTable,
+  UploadTable,
   ResultTable,
   SuggestionTable,
-  UploadTable,
+  ItemTable,
 } from "@/type";
-import { createClient } from "@/utils/supabase/server";
-import { getItemsByIds } from "./item";
-import { getParamById, getUploadById } from "./user-input";
-import { UnstoredResult } from "./outfit-matching";
-
-// Fetches results based on a suggestion ID
-const getResults = async (
-  suggestion_id: number
-): Promise<ResultTable[] | null> => {
-  try {
-    const supabase = createClient();
-    const { data, error } = await supabase
-      .from("result")
-      .select("*")
-      .eq("suggestion_id", suggestion_id);
-
-    if (error) {
-      console.error("Error fetching results:", error);
-      return null;
-    }
-
-    return data as ResultTable[];
-  } catch (error) {
-    console.error("Unexpected error in getResults:", error);
-    return null;
-  }
-};
-
-// Inserts results into the database
-const insertResults = async (
-  results: UnstoredResult[]
-): Promise<number[] | null> => {
-  try {
-    const supabase = createClient();
-    const { data, error } = await supabase
-      .from("result")
-      .insert(results)
-      .select("id");
-
-    if (error) {
-      console.error("Error inserting results:", error);
-      return null;
-    }
-
-    return data ? data.map((obj) => obj.id) : [];
-  } catch (error) {
-    console.error("Unexpected error in insertResults:", error);
-    return null;
-  }
-};
-
-// Fetches suggestions based on a recommendation ID
-const getSuggestion = async (
-  recommendation_id: number
-): Promise<SuggestionTable[] | null> => {
-  try {
-    const supabase = createClient();
-    const { data, error } = await supabase
-      .from("suggestion")
-      .select("*")
-      .eq("recommendation_id", recommendation_id);
-
-    if (error) {
-      console.error("Error fetching suggestions:", error);
-      return null;
-    }
-
-    return data as SuggestionTable[];
-  } catch (error) {
-    console.error("Unexpected error in getSuggestion:", error);
-    return null;
-  }
-};
-
-// Inserts a suggestion into the database
-const insertSuggestion = async ({
-  recommendation_id,
-  label_string,
-}: {
-  recommendation_id: number;
-  label_string: string;
-}): Promise<number> => {
-  try {
-    const supabase = createClient();
-    const { data, error } = await supabase
-      .from("suggestion")
-      .insert({ recommendation_id, label_string })
-      .select("id");
-
-    if (error) {
-      console.error("Error inserting suggestion:", error);
-      return -1;
-    }
-
-    return data && data.length > 0 ? data[0].id : -1;
-  } catch (error) {
-    console.error("Unexpected error in insertSuggestion:", error);
-    return -1;
-  }
-};
+import {
+  getRecommendationById,
+  getParamById,
+  getUploadById,
+  getSuggestion,
+  getItemsByIds,
+  getResults,
+} from "./utils/fetch";
 
 // Fetches a recommendation by its ID
-const getRecommendationById = async (
+const getRecommendationRecordById = async (
   recommendation_id: number
 ): Promise<Recommendation | null> => {
   try {
     const supabase = createClient();
-    const { data: recommendation, error } = await supabase
-      .from("recommendation")
-      .select("*")
-      .eq("id", recommendation_id)
-      .returns<RecommendationTable[]>();
-
-    if (error) {
-      console.error("Error fetching recommendation:", error);
-      return null;
-    }
-
-    if (!recommendation || recommendation.length === 0) {
-      return null;
-    }
-
+    const recommendation = (await getRecommendationById(
+      recommendation_id
+    )) as RecommendationTable;
     const recommendation_record: Partial<Recommendation> = {};
 
-    const param_id = recommendation[0].param_id as number;
-    const upload_id = recommendation[0].upload_id as number;
+    const param_id = recommendation.param_id as number;
+    const upload_id = recommendation.upload_id as number;
     const param = (await getParamById(param_id)) as ParamTable;
     const upload = (await getUploadById(upload_id)) as UploadTable;
 
@@ -175,36 +71,4 @@ const getRecommendationById = async (
   }
 };
 
-// Inserts a new recommendation into the database
-const insertRecommendation = async ({
-  param_id,
-  upload_id,
-}: {
-  param_id: number;
-  upload_id: number;
-}): Promise<number> => {
-  try {
-    const supabase = createClient();
-    const { data, error } = await supabase
-      .from("recommendation")
-      .insert([{ param_id, upload_id }])
-      .select("id");
-
-    if (error) {
-      console.error("Error inserting recommendation:", error);
-      return -1;
-    }
-
-    return data && data.length > 0 ? data[0].id : -1;
-  } catch (error) {
-    console.error("Unexpected error in insertRecommendation:", error);
-    return -1;
-  }
-};
-
-export {
-  getRecommendationById,
-  insertRecommendation,
-  insertResults,
-  insertSuggestion,
-};
+export { getRecommendationRecordById };

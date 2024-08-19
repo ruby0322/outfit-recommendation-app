@@ -1,15 +1,15 @@
 "use server";
-
-import { ClothingType } from "@/type";
-import { extractLabelsFromImage } from "./image-labeling";
-import { UnstoredResult, semanticSearch } from "./outfit-matching";
 import {
-  insertRecommendation,
-  insertResults,
   insertSuggestion,
-} from "./recommendation";
-import { insertParam, insertUpload } from "./user-input";
-import { chatCompletionTextOnly } from "./utils";
+  insertResults,
+  insertParam,
+  insertRecommendation,
+  insertUpload,
+} from "./utils/insert";
+import { UnstoredResult, semanticSearch } from "./utils/matching";
+import { ClothingType } from "@/type";
+import { chatCompletionTextOnly } from "./utils/chat";
+import { extractLabelsFromImage } from "./utils/labeling";
 
 // Handles matching suggestions with results and storing them
 const handleSuggestionMatching = async ({
@@ -44,7 +44,7 @@ const handleSuggestionMatching = async ({
 };
 
 // Constructs a prompt based on input to generate suggestions
-const makePrompt = ({
+const makePromptForSuggestions = ({
   clothing_type,
   height,
   style_preferences,
@@ -126,7 +126,7 @@ const makeSuggestions = async ({
   label_string: string;
 }): Promise<string[]> => {
   const model = "gpt-4o-mini";
-  const prompt: string = makePrompt({
+  const prompt: string = makePromptForSuggestions({
     clothing_type,
     height,
     style_preferences,
@@ -163,7 +163,7 @@ const validateAndCleanSuggestions = (
   clothing_type: ClothingType
 ): string[] => {
   try {
-    const cleanedString = suggestions.replace(/```json\n?|\n?```/g, '').trim();
+    const cleanedString = suggestions.replace(/```json\n?|\n?```/g, "").trim();
     const suggestionsArray: any[] = JSON.parse(cleanedString);
     if (!Array.isArray(suggestionsArray)) {
       throw new Error("Invalid suggestion format: " + cleanedString);
@@ -299,4 +299,4 @@ const handleSubmission = async ({
   }
 };
 
-export { handleSubmission, handleSuggestionMatching, makeSuggestions };
+export { handleSubmission };

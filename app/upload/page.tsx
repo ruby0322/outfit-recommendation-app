@@ -1,7 +1,7 @@
 "use client";
 
-import { storeImageToStorage } from "@/actions/storage";
-import { handleSubmission } from "@/actions/submission-handling";
+import { storeImageToStorage } from "@/actions/utils/insert";
+import { handleSubmission } from "@/actions/upload";
 import { LoadingButton } from "@/components/ui/loading-button";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";

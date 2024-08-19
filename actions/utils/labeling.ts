@@ -1,11 +1,8 @@
 "use server";
-
 import { ClothingType } from "@/type";
-import { chatCompletionTextAndImage } from "./utils";
-import { Erica_One } from "next/font/google";
-import { error } from "console";
+import { chatCompletionTextAndImage } from "./chat";
 
-const makePrompt = (clothing_type: ClothingType): string => {
+const makePromptForLabeling = (clothing_type: ClothingType): string => {
   const prompt: string = `
     仔細觀察這張圖片中的${
       clothing_type === "top" ? "上衣" : "下身類衣物"
@@ -21,8 +18,8 @@ const makePrompt = (clothing_type: ClothingType): string => {
       "細節": "[描述]",
       ${
         clothing_type === "top"
-          ? "\"領子\": \"[描述]\", \"袖子\": \"[描述]\""
-          : "\"褲管\": \"[描述]\""
+          ? '"領子": "[描述]", "袖子": "[描述]"'
+          : '"褲管": "[描述]"'
       }
     }
     
@@ -42,13 +39,64 @@ const makePrompt = (clothing_type: ClothingType): string => {
   return prompt;
 };
 
+const validateResponseFormat = (image_label_string: string): boolean => {
+  try {
+    const cleanedString = image_label_string
+      .replace(/```json\n?|\n?```/g, "")
+      .trim();
+    const parsedLabels = JSON.parse(cleanedString);
+    const requiredKeys = [
+      "顏色",
+      "服裝類型",
+      "剪裁版型",
+      "設計特點",
+      "材質",
+      "配件",
+      "細節",
+    ];
+
+    const topKeys = ["領子", "袖子"];
+    const bottomKeys = ["褲管"];
+
+    const hasRequiredKeys = requiredKeys.every((key) => key in parsedLabels);
+    const hasSpecificKeys =
+      topKeys.every((key) => key in parsedLabels) ||
+      bottomKeys.every((key) => key in parsedLabels);
+
+    return hasRequiredKeys && hasSpecificKeys;
+  } catch (error) {
+    console.error("Error in validateResponseFormat", error);
+    return false;
+  }
+};
+
+function transformResponse(jsonString: string): string {
+  try {
+    const cleanedString = jsonString.replace(/```json\n?|\n?```/g, "").trim();
+    const parsedJson = JSON.parse(cleanedString);
+
+    const transformEntries = Object.entries(parsedJson).map(([key, value]) => {
+      const valueArray = Array.isArray(value) ? value : [value];
+      const filteredValues = valueArray
+        .filter((item) => item && item !== "無")
+        .join(", ");
+      const finalValue = filteredValues || "無";
+      return `${key}: ${finalValue}`;
+    });
+
+    return transformEntries.join(", ");
+  } catch (error) {
+    console.error("Error in transformResponse", error);
+    return "";
+  }
+}
 
 const extractLabelsFromImage = async (
   image_url: string,
   clothing_type: ClothingType
 ): Promise<string | null> => {
   const model: string = "gpt-4o-mini";
-  const prompt: string = makePrompt(clothing_type);
+  const prompt: string = makePromptForLabeling(clothing_type);
   // console.log("prompt: ", prompt);
   try {
     const response: string | null = await chatCompletionTextAndImage({
@@ -60,9 +108,8 @@ const extractLabelsFromImage = async (
       console.log("Original JSON: ", response);
       // console.log("Extracted Labels: ", transformResponse(response));
       return transformResponse(response);
-    }
-    else {
-      console.error("Invalid response format:", response );
+    } else {
+      console.error("Invalid response format:", response);
       return null;
     }
   } catch (error) {
@@ -71,43 +118,4 @@ const extractLabelsFromImage = async (
   }
 };
 
-const validateResponseFormat = (image_label_string: string): boolean => {
-  try {
-    const cleanedString = image_label_string.replace(/```json\n?|\n?```/g, '').trim();
-    const parsedLabels = JSON.parse(cleanedString);
-    const requiredKeys = ["顏色", "服裝類型", "剪裁版型", "設計特點", "材質", "配件", "細節"];
-
-    const topKeys = ["領子", "袖子"];
-    const bottomKeys = ["褲管"];
-    
-    const hasRequiredKeys = requiredKeys.every(key => key in parsedLabels);
-    const hasSpecificKeys = topKeys.every(key => key in parsedLabels) || bottomKeys.every(key => key in parsedLabels);
-
-    return hasRequiredKeys && hasSpecificKeys;
-  }
-  catch (error) {
-    console.error("Error in validateResponseFormat", error);
-    return false;
-  }
-};
-
-function transformResponse(jsonString: string): string {
-  try {
-    const cleanedString = jsonString.replace(/```json\n?|\n?```/g, '').trim();
-    const parsedJson = JSON.parse(cleanedString);
-
-    const transformEntries = Object.entries(parsedJson).map(([key, value]) => {
-      const valueArray = Array.isArray(value) ? value : [value];
-      const filteredValues = valueArray.filter(item => item && item !== "無").join(", ");
-      const finalValue = filteredValues || "無";
-      return `${key}: ${finalValue}`;
-    });
-
-    return transformEntries.join(", ");
-  } catch (error) {
-    console.error("Error in transformResponse", error);
-    return "";
-  };
-}
-
-export { extractLabelsFromImage, validateResponseFormat };
+export { extractLabelsFromImage };

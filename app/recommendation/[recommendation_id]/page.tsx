@@ -1,6 +1,6 @@
 "use server";
 
-import { getRecommendationById } from "@/actions/recommendation";
+import { getRecommendationRecordById } from "@/actions/recommendation";
 import { Recommendation } from "@/type";
 import FeedbackCard from "./feedback-card";
 import ItemList from "./item-list";
@@ -13,7 +13,7 @@ const RecommendationPage = async ({
 }) => {
   /* TODO: Fetch recommendation result with `recommendation_id` */
   // const recommendation: Recommendation = EXAMPLE_RECOMMENDATION;
-  const recommendation: Recommendation = (await getRecommendationById(
+  const recommendation: Recommendation = (await getRecommendationRecordById(
     params.recommendation_id
   )) as Recommendation;
   /* END TODO */
