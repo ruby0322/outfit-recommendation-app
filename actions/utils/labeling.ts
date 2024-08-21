@@ -6,7 +6,8 @@ const makePromptForLabeling = (clothingType: ClothingType): string => {
   const prompt: string = `
     仔細觀察這張圖片中的${
       clothingType === "top" ? "上衣" : "下身類衣物"
-    }後，提供一個詳細的 multi-tags 列表。確保涵蓋每一個細節，包括顏色、材質、設計、功能等。每類可有多個標籤以涵蓋所有細節。需要的話，你可以使用規範以外的標籤來完成你的任務。
+    }後，提供一個詳細的 multi-tags 列表。確保涵蓋每一個細節，包括顏色、材質、設計、功能等。每類可有多個標籤以涵蓋所有細節。
+    需要的話，你可以使用規範以外的標籤來完成你的任務。
     請使用下方 JSON 格式回覆，回答無需包含其他資訊：
     {
       "顏色": "[顏色]",
@@ -98,6 +99,7 @@ const extractLabelsFromImage = async (
   const model: string = "gpt-4o-mini";
   const prompt: string = makePromptForLabeling(clothingType);
   // console.log("prompt: ", prompt);
+  console.log("imageUrl in extractLabelsFromImage:", imageUrl);
   try {
     const response: string | null = await chatCompletionTextAndImage({
       model,

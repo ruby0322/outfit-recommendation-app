@@ -239,6 +239,7 @@ const handleSubmission = async ({
     console.log("Handling submission...");
 
     // Extract labels from the image
+    console.log("imageUrl in handleSubmission:", imageUrl);
     const labelString: string | null = await extractLabelsFromImage(
       imageUrl,
       clothingType
