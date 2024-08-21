@@ -1,7 +1,7 @@
 "use client";
 
-import { storeImageToStorage } from "@/actions/utils/insert";
 import { handleSubmission } from "@/actions/upload";
+import { storeImageToStorage } from "@/actions/utils/insert";
 import { LoadingButton } from "@/components/ui/loading-button";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
@@ -68,7 +68,7 @@ const UploadPage = () => {
             stylePreferences: style_preference,
             userId: USER_ID,
             maxNumSuggestion: MAX_NUM_SUGGESTION,
-            maxNumItem: MAX_NUM_ITEM,
+            numMaxItem: NUM_MAX_ITEM,
           });
           router.push(`/recommendation/${recommendationId}`);
         } catch (error) {
@@ -79,7 +79,7 @@ const UploadPage = () => {
     reader.readAsDataURL(data.uploadedImage[0]);
     const USER_ID: number = 90;
     const MAX_NUM_SUGGESTION: number = 3;
-    const MAX_NUM_ITEM: number = 3;
+    const NUM_MAX_ITEM: number = 10;
   };
 
   return (

@@ -1,7 +1,6 @@
 "use server";
-import { ResultTable } from "@/type";
 import { createClient } from "@/utils/supabase/server";
-import { generateEmbedding, calculateDistance } from "./embedding";
+import { calculateDistance, generateEmbedding } from "./embedding";
 
 export interface UnstoredResult {
   distance: number;
@@ -13,11 +12,11 @@ export interface UnstoredResult {
 const semanticSearch = async ({
   suggestionId,
   suggestedLabelString,
-  maxNumItem,
+  numMaxItem,
 }: {
   suggestionId: number;
   suggestedLabelString: string;
-  maxNumItem: number;
+  numMaxItem: number;
 }): Promise<UnstoredResult[] | null> => {
   try {
     const supabase = createClient();
@@ -32,7 +31,7 @@ const semanticSearch = async ({
       {
         query_embedding: suggestedEmbedding,
         match_threshold: 0.2,
-        max_item_count: maxNumItem,
+        max_item_count: numMaxItem,
       }
     );
 

@@ -1,3 +1,6 @@
+Need to install the following packages:
+supabase@1.190.0
+Ok to proceed? (y) 
 export type Json =
   | string
   | number
@@ -13,6 +16,7 @@ export type Database = {
         Row: {
           created_at: string
           embedding: string | null
+          external_link: string | null
           id: number
           image_url: string | null
           label_string: string | null
@@ -23,6 +27,7 @@ export type Database = {
         Insert: {
           created_at?: string
           embedding?: string | null
+          external_link?: string | null
           id?: number
           image_url?: string | null
           label_string?: string | null
@@ -33,6 +38,7 @@ export type Database = {
         Update: {
           created_at?: string
           embedding?: string | null
+          external_link?: string | null
           id?: number
           image_url?: string | null
           label_string?: string | null
@@ -221,6 +227,7 @@ export type Database = {
             Returns: {
               created_at: string
               embedding: string | null
+              external_link: string | null
               id: number
               image_url: string | null
               label_string: string | null
@@ -238,6 +245,7 @@ export type Database = {
             Returns: {
               created_at: string
               embedding: string | null
+              external_link: string | null
               id: number
               image_url: string | null
               label_string: string | null

@@ -8,15 +8,14 @@ import UserInfoCard from "./user-info-card";
 
 const RecommendationPage = async ({
   params,
+  searchParams,
 }: {
   params: { recommendation_id: number };
+  searchParams?: { [key: string]: string | undefined };
 }) => {
-  /* TODO: Fetch recommendation result with `recommendation_id` */
-  // const recommendation: Recommendation = EXAMPLE_RECOMMENDATION;
   const recommendation: Recommendation = (await getRecommendationRecordById(
     params.recommendation_id
   )) as Recommendation;
-  /* END TODO */
   return (
     <div className='w-full flex flex-col items-center justify-center'>
       <div className='py-10 w-full flex flex-col items-center justify-center bg-muted'>
@@ -30,31 +29,31 @@ const RecommendationPage = async ({
       </div>
       <div className='w-full flex flex-col items-center justify-center gap-8 py-8 mt-2'>
         <h2 className='text-muted-foreground'>推薦風格</h2>
-        {/* <div className='flex gap-4 w-fit items-center justify-center'>
-          {Object.keys(recommendation.items).map((recommendedStyle, index) => {
+      </div>
+      <div className='flex flex-col gap-4 justify-center items-center md:max-w-[70vw]'>
+        {searchParams?.see_more ? (
+          <ItemList
+            id={searchParams?.see_more}
+            index={-1}
+            title={searchParams?.see_more}
+            items={recommendation.items[searchParams?.see_more]}
+          />
+        ) : (
+          Object.keys(recommendation.items).map((recommendedStyle, index) => {
             return (
-              <Button key={`recommended-style-${index}`} asChild variant='link'>
-                <Link href={`#${recommendedStyle}`}>{recommendedStyle}</Link>
-              </Button>
+              <ItemList
+                key={`recommended-style-${index}`}
+                id={recommendedStyle}
+                index={index}
+                title={recommendedStyle}
+                items={recommendation.items[recommendedStyle].slice(0, 4)}
+              />
             );
-          })}
-        </div> */}
+          })
+        )}
       </div>
-      <div className='flex flex-col gap-4 justify-center items-center'>
-        {Object.keys(recommendation.items).map((recommendedStyle, index) => {
-          return (
-            <ItemList
-              key={`recommended-style-${index}`}
-              id={recommendedStyle}
-              index={index}
-              title={recommendedStyle}
-              items={recommendation.items[recommendedStyle]}
-            />
-          );
-        })}
-        <br />
-        <FeedbackCard />
-      </div>
+      <br />
+      <FeedbackCard />
     </div>
   );
 };

@@ -1,24 +1,24 @@
 "use server";
-import {
-  insertSuggestion,
-  insertResults,
-  insertParam,
-  insertRecommendation,
-  insertUpload,
-} from "./utils/insert";
-import { UnstoredResult, semanticSearch } from "./utils/matching";
 import { ClothingType } from "@/type";
 import { chatCompletionTextOnly } from "./utils/chat";
+import {
+  insertParam,
+  insertRecommendation,
+  insertResults,
+  insertSuggestion,
+  insertUpload,
+} from "./utils/insert";
 import { extractLabelsFromImage } from "./utils/labeling";
+import { UnstoredResult, semanticSearch } from "./utils/matching";
 
 // Handles matching suggestions with results and storing them
 const handleSuggestionMatching = async ({
   suggestedLabelStrings,
-  maxNumItem,
+  numMaxItem,
   recommendationId,
 }: {
   suggestedLabelStrings: string[];
-  maxNumItem: number;
+  numMaxItem: number;
   recommendationId: number;
 }): Promise<void> => {
   try {
@@ -33,7 +33,7 @@ const handleSuggestionMatching = async ({
       const results: UnstoredResult[] = (await semanticSearch({
         suggestionId: suggestionId,
         suggestedLabelString: s,
-        maxNumItem,
+        numMaxItem,
       })) as UnstoredResult[];
 
       await insertResults(results);
@@ -225,7 +225,7 @@ const handleSubmission = async ({
   stylePreferences,
   userId,
   maxNumSuggestion,
-  maxNumItem,
+  numMaxItem,
 }: {
   clothingType: ClothingType;
   imageUrl: string;
@@ -233,7 +233,7 @@ const handleSubmission = async ({
   stylePreferences: string | null;
   userId: number;
   maxNumSuggestion: number;
-  maxNumItem: number;
+  numMaxItem: number;
 }): Promise<number> => {
   try {
     console.log("Handling submission...");
@@ -286,7 +286,7 @@ const handleSubmission = async ({
       // Handle suggestion matching
       await handleSuggestionMatching({
         suggestedLabelStrings,
-        maxNumItem,
+        numMaxItem,
         recommendationId,
       });
       console.log("Done handleSuggestionMatching.");
