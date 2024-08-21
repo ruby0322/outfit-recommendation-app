@@ -62,13 +62,13 @@ const UploadPage = () => {
           console.log(style_preference);
           await delay(5000);
           const recommendationId = await handleSubmission({
-            clothing_type: data.clothingType,
-            image_url: imageUrl,
+            clothingType: data.clothingType,
+            imageUrl: imageUrl,
             height: data.height,
-            style_preferences: style_preference,
-            user_id: USER_ID,
-            max_num_suggestion: MAX_NUM_SUGGESTION,
-            max_num_item: MAX_NUM_ITEM,
+            stylePreferences: style_preference,
+            userId: USER_ID,
+            maxNumSuggestion: MAX_NUM_SUGGESTION,
+            maxNumItem: MAX_NUM_ITEM,
           });
           router.push(`/recommendation/${recommendationId}`);
         } catch (error) {

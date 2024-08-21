@@ -12,6 +12,7 @@ const chatCompletionTextAndImage = async ({
   prompt: string;
   imageUrl: string;
 }): Promise<string | null> => {
+  console.log("imageUrl in chatCompletionTextAndImage:", imageUrl);
   try {
     // Sending a request to the OpenAI API with both text and image inputs
     const completion = await openai.chat.completions.create({

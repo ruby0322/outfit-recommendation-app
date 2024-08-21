@@ -146,7 +146,9 @@ const insertUpload = async (
   const supabase = createClient();
   const { data, error } = await supabase
     .from("upload")
-    .insert([{ imageUrl, labelString, userId }])
+    .insert([
+      { image_url: imageUrl, label_string: labelString, user_id: userId },
+    ])
     .select("id");
   if (error) {
     console.log(error);
