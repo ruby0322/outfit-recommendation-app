@@ -56,6 +56,16 @@ const ItemList = ({
           </span>
         </div>
       )}
+      {index !== -1 && (
+        <div className='w-full flex justify-end'>
+          <span
+            onClick={seeMore}
+            className=' text-sm text-semibold underline text-blue-400 cursor-pointer'
+          >
+            查看更多
+          </span>
+        </div>
+      )}
       <div className='flex flex-wrap gap-2'>
         {parseTags(title).map((tag, index) => {
           return (
@@ -69,16 +79,6 @@ const ItemList = ({
           );
         })}
       </div>
-      {index !== -1 && (
-        <div className='w-full flex justify-end'>
-          <span
-            onClick={seeMore}
-            className=' text-sm text-semibold underline text-blue-400 cursor-pointer'
-          >
-            查看更多
-          </span>
-        </div>
-      )}
 
       <div className='flex gap-4 flex-wrap items-start justify-center'>
         {items.map((item) => {
