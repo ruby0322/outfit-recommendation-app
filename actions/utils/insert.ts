@@ -56,17 +56,20 @@ const insertResults = async (
 
 // Inserts a suggestion into the database
 const insertSuggestion = async ({
-  recommendation_id,
-  label_string,
+  recommendationId,
+  labelString,
 }: {
-  recommendation_id: number;
-  label_string: string;
+  recommendationId: number;
+  labelString: string;
 }): Promise<number> => {
   try {
     const supabase = createClient();
     const { data, error } = await supabase
       .from("suggestion")
-      .insert({ recommendation_id, label_string })
+      .insert({
+        recommendation_id: recommendationId,
+        label_string: labelString,
+      })
       .select("id");
 
     if (error) {
@@ -83,17 +86,17 @@ const insertSuggestion = async ({
 
 // Inserts a new recommendation into the database
 const insertRecommendation = async ({
-  param_id,
-  upload_id,
+  paramId,
+  uploadId,
 }: {
-  param_id: number;
-  upload_id: number;
+  paramId: number;
+  uploadId: number;
 }): Promise<number> => {
   try {
     const supabase = createClient();
     const { data, error } = await supabase
       .from("recommendation")
-      .insert([{ param_id, upload_id }])
+      .insert([{ param_id: paramId, upload_id: uploadId }])
       .select("id");
 
     if (error) {
@@ -110,41 +113,47 @@ const insertRecommendation = async ({
 
 const insertParam = async (
   height: number | null,
-  clothing_type: ClothingType,
-  style_preferences: string | null
+  clothinType: ClothingType,
+  stylePreferences: string | null
 ): Promise<number> => {
   const supabase = createClient();
   const { data, error } = await supabase
     .from("param")
-    .insert([{ height, clothing_type, style_preferences }])
+    .insert([
+      {
+        height: height,
+        clothing_type: clothinType,
+        style_preferences: stylePreferences,
+      },
+    ])
     .select("id");
   if (error) {
     console.log(error);
   }
   if (data && data.length > 0) {
-    const param_id = data[0].id;
-    return param_id as number;
+    const paramId = data[0].id;
+    return paramId as number;
   } else {
     return -1;
   }
 };
 
 const insertUpload = async (
-  image_url: string,
-  label_string: string,
-  user_id: number
+  imageUrl: string,
+  labelString: string,
+  userId: number
 ) => {
   const supabase = createClient();
   const { data, error } = await supabase
     .from("upload")
-    .insert([{ image_url, label_string, user_id }])
+    .insert([{ imageUrl, labelString, userId }])
     .select("id");
   if (error) {
     console.log(error);
   }
   if (data && data.length > 0) {
-    const upload_id = data[0].id;
-    return upload_id as number;
+    const uploadId = data[0].id;
+    return uploadId as number;
   } else {
     return -1;
   }

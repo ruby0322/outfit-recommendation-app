@@ -15,7 +15,7 @@ const generateEmbedding = async (text: string) => {
     console.error("Error generating embedding:", error);
     return null;
   }
-}
+};
 
 const handler = async () => {
   const supabase = createClient();
@@ -58,20 +58,20 @@ const handler = async () => {
 };
 
 const calculateDistance = (
-    embedding1: number[],
-    embedding2: number[]
-  ): number => {
-    if (!Array.isArray(embedding2)) {
-      throw new TypeError("emb2 is not array");
-    }
-    if (!Array.isArray(embedding1)) {
-      // throw new TypeError('emb1 is not array');
-      embedding1 = JSON.parse(embedding1);
-    }
-    return (
-      1 -
-      embedding1.reduce((sum, value, index) => sum + value * embedding2[index], 0)
-    );
-  };
+  embedding1: number[],
+  embedding2: number[]
+): number => {
+  if (!Array.isArray(embedding2)) {
+    throw new TypeError("emb2 is not array");
+  }
+  if (!Array.isArray(embedding1)) {
+    // throw new TypeError('emb1 is not array');
+    embedding1 = JSON.parse(embedding1);
+  }
+  return (
+    1 -
+    embedding1.reduce((sum, value, index) => sum + value * embedding2[index], 0)
+  );
+};
 
 export { generateEmbedding, handler, calculateDistance };

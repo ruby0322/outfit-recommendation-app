@@ -1,16 +1,16 @@
 "user server";
 import { createClient } from "@/utils/supabase/server";
 
-const deleteParamById = async (param_id: number) => {
+const deleteParamById = async (paramId: number) => {
   const supabase = createClient();
-  const response = await supabase.from("param").delete().eq("id", param_id);
+  const response = await supabase.from("param").delete().eq("id", paramId);
   console.log(response);
   return;
 };
 
-const deleteUploadById = async (upload_id: number) => {
+const deleteUploadById = async (uploadId: number) => {
   const supabase = createClient();
-  const response = await supabase.from("upload").delete().eq("id", upload_id);
+  const response = await supabase.from("upload").delete().eq("id", uploadId);
   console.log(response);
   return;
 };

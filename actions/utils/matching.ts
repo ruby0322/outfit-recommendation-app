@@ -11,18 +11,18 @@ export interface UnstoredResult {
 
 // Function to perform semantic search using Supabase API
 const semanticSearch = async ({
-  suggestion_id,
-  suggested_label_string,
-  max_num_item,
+  suggestionId,
+  suggestedLabelString,
+  maxNumItem,
 }: {
-  suggestion_id: number;
-  suggested_label_string: string;
-  max_num_item: number;
+  suggestionId: number;
+  suggestedLabelString: string;
+  maxNumItem: number;
 }): Promise<UnstoredResult[] | null> => {
   try {
     const supabase = createClient();
 
-    const suggestedEmbedding = await generateEmbedding(suggested_label_string);
+    const suggestedEmbedding = await generateEmbedding(suggestedLabelString);
     // const embeddingString = JSON.stringify(suggestedEmbedding).replace(/^\[|\]$/g, '');
 
     // TODO: Replace the query logic below with actual Supabase semantic search query
@@ -32,7 +32,7 @@ const semanticSearch = async ({
       {
         query_embedding: suggestedEmbedding,
         match_threshold: 0.2,
-        max_item_count: 5,
+        max_item_count: maxNumItem,
       }
     );
 
@@ -50,7 +50,7 @@ const semanticSearch = async ({
           suggestedEmbedding as number[]
         ),
         item_id: item.id,
-        suggestion_id,
+        suggestion_id: suggestionId,
       };
       results.push(result);
     }

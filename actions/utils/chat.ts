@@ -6,11 +6,11 @@ import { ImageURL } from "openai/resources/beta/threads/messages";
 const chatCompletionTextAndImage = async ({
   model,
   prompt,
-  image_url,
+  imageUrl,
 }: {
   model: string;
   prompt: string;
-  image_url: string;
+  imageUrl: string;
 }): Promise<string | null> => {
   try {
     // Sending a request to the OpenAI API with both text and image inputs
@@ -23,7 +23,7 @@ const chatCompletionTextAndImage = async ({
             { type: "text", text: prompt },
             {
               type: "image_url",
-              image_url: { url: image_url } as ImageURL,
+              image_url: { url: imageUrl } as ImageURL,
             },
           ],
         },

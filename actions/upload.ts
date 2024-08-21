@@ -13,27 +13,27 @@ import { extractLabelsFromImage } from "./utils/labeling";
 
 // Handles matching suggestions with results and storing them
 const handleSuggestionMatching = async ({
-  suggested_label_strings,
-  max_num_item,
-  recommendation_id,
+  suggestedLabelStrings,
+  maxNumItem,
+  recommendationId,
 }: {
-  suggested_label_strings: string[];
-  max_num_item: number;
-  recommendation_id: number;
+  suggestedLabelStrings: string[];
+  maxNumItem: number;
+  recommendationId: number;
 }): Promise<void> => {
   try {
-    for (const s of suggested_label_strings) {
+    for (const s of suggestedLabelStrings) {
       // Store suggestions and get suggestion IDs
-      const suggestion_id: number = await insertSuggestion({
-        recommendation_id,
-        label_string: s,
+      const suggestionId: number = await insertSuggestion({
+        recommendationId,
+        labelString: s,
       });
 
       // Get suggestion results (ResultTable[]) and store them to get result IDs
       const results: UnstoredResult[] = (await semanticSearch({
-        suggestion_id,
-        suggested_label_string: s,
-        max_num_item,
+        suggestionId: suggestionId,
+        suggestedLabelString: s,
+        maxNumItem,
       })) as UnstoredResult[];
 
       await insertResults(results);
@@ -45,26 +45,26 @@ const handleSuggestionMatching = async ({
 
 // Constructs a prompt based on input to generate suggestions
 const makePromptForSuggestions = ({
-  clothing_type,
+  clothingType,
   height,
-  style_preferences,
-  max_num_suggestion,
-  label_string,
+  stylePreferences,
+  maxNumSuggestion,
+  labelString,
 }: {
-  clothing_type: ClothingType;
+  clothingType: ClothingType;
   height: number | null;
-  style_preferences: string | null;
-  max_num_suggestion: number;
-  label_string: string;
+  stylePreferences: string | null;
+  maxNumSuggestion: number;
+  labelString: string;
 }): string => {
   const prompt: string = `
     請擔任我的造型師，根據這件${
-      clothing_type === "top" ? "上衣" : "下身類衣物"
-    }的描述："${label_string}"，並加上我提供的額外資訊輔助判斷，${
+      clothingType === "top" ? "上衣" : "下身類衣物"
+    }的描述："${labelString}"，並加上我提供的額外資訊輔助判斷，${
     height === null ? "" : `身高：${height}`
-  }、${style_preferences === null ? "" : `偏好風格：${style_preferences}`}
-    ，推薦${max_num_suggestion}種與之搭配的${
-    clothing_type === "top" ? "下身類衣物" : "上衣"
+  }、${stylePreferences === null ? "" : `偏好風格：${stylePreferences}`}
+    ，推薦${maxNumSuggestion}種與之搭配的${
+    clothingType === "top" ? "下身類衣物" : "上衣"
   }
     請使用下方 JSON 格式回覆，回答無需包含其他資訊：
     [
@@ -77,7 +77,7 @@ const makePromptForSuggestions = ({
         "配件": "[描述]（若無可略過）", 
         "細節: "[描述]", 
         ${
-          clothing_type === "top"
+          clothingType === "top"
             ? '"褲管": "[描述]"'
             : '"領子": "[描述]", "袖子": "[描述]"'
         }
@@ -113,25 +113,25 @@ const makePromptForSuggestions = ({
 
 // Generates suggestions based on the clothing details
 const makeSuggestions = async ({
-  clothing_type,
+  clothingType,
   height,
-  style_preferences,
-  max_num_suggestion,
-  label_string,
+  stylePreferences,
+  maxNumSuggestion,
+  labelString,
 }: {
-  clothing_type: ClothingType;
+  clothingType: ClothingType;
   height: number | null;
-  style_preferences: string | null;
-  max_num_suggestion: number;
-  label_string: string;
+  stylePreferences: string | null;
+  maxNumSuggestion: number;
+  labelString: string;
 }): Promise<string[]> => {
   const model = "gpt-4o-mini";
   const prompt: string = makePromptForSuggestions({
-    clothing_type,
+    clothingType,
     height,
-    style_preferences,
-    max_num_suggestion,
-    label_string,
+    stylePreferences,
+    maxNumSuggestion,
+    labelString,
   });
 
   // console.log("Prompt" + prompt);
@@ -149,7 +149,7 @@ const makeSuggestions = async ({
 
     const suggestedLabelStrings: string[] = validateAndCleanSuggestions(
       suggestions,
-      clothing_type
+      clothingType
     );
     return suggestedLabelStrings;
   } catch (error) {
@@ -160,7 +160,7 @@ const makeSuggestions = async ({
 
 const validateAndCleanSuggestions = (
   suggestions: string,
-  clothing_type: ClothingType
+  clothingType: ClothingType
 ): string[] => {
   try {
     const cleanedString = suggestions.replace(/```json\n?|\n?```/g, "").trim();
@@ -171,9 +171,9 @@ const validateAndCleanSuggestions = (
 
     return suggestionsArray
       .filter((suggestion) =>
-        validateSuggestionFormat(suggestion, clothing_type)
+        validateSuggestionFormat(suggestion, clothingType)
       )
-      .map((suggestion) => formatSuggestion(suggestion, clothing_type));
+      .map((suggestion) => formatSuggestion(suggestion, clothingType));
   } catch (error) {
     console.error("Error in validateAndCleanSuggestions", error);
     return [];
@@ -182,7 +182,7 @@ const validateAndCleanSuggestions = (
 
 const validateSuggestionFormat = (
   suggestion: any,
-  clothing_type: ClothingType
+  clothingType: ClothingType
 ): boolean => {
   const requiredKeys = [
     "顏色",
@@ -192,7 +192,7 @@ const validateSuggestionFormat = (
     "材質",
     "細節",
   ];
-  const specificKeys = clothing_type === "top" ? ["褲管"] : ["領子", "袖子"];
+  const specificKeys = clothingType === "top" ? ["褲管"] : ["領子", "袖子"];
 
   const hasRequiredKeys = requiredKeys.every((key) => key in suggestion);
   const hasSpecificKeys = specificKeys.every((key) => key in suggestion);
@@ -202,7 +202,7 @@ const validateSuggestionFormat = (
 
 const formatSuggestion = (
   suggestion: any,
-  clothing_type: ClothingType
+  clothingType: ClothingType
 ): string => {
   return `顏色: ${suggestion.顏色}, 服裝類型: ${
     suggestion.服裝類型
@@ -211,7 +211,7 @@ const formatSuggestion = (
   }, 材質: ${suggestion.材質}, ${
     suggestion.配件 ? `配件: ${suggestion.配件}, ` : ""
   }細節: ${suggestion.細節}, ${
-    clothing_type === "top"
+    clothingType === "top"
       ? `褲管: ${suggestion.褲管}`
       : `領子: ${suggestion.領子}, 袖子: ${suggestion.袖子}`
   }`;
@@ -219,77 +219,77 @@ const formatSuggestion = (
 
 // Handles the submission of clothing details and generates recommendations
 const handleSubmission = async ({
-  clothing_type,
-  image_url,
+  clothingType,
+  imageUrl,
   height,
-  style_preferences,
-  user_id,
-  max_num_suggestion,
-  max_num_item,
+  stylePreferences,
+  userId,
+  maxNumSuggestion,
+  maxNumItem,
 }: {
-  clothing_type: ClothingType;
-  image_url: string;
+  clothingType: ClothingType;
+  imageUrl: string;
   height: number | null;
-  style_preferences: string | null;
-  user_id: number;
-  max_num_suggestion: number;
-  max_num_item: number;
+  stylePreferences: string | null;
+  userId: number;
+  maxNumSuggestion: number;
+  maxNumItem: number;
 }): Promise<number> => {
   try {
     console.log("Handling submission...");
 
     // Extract labels from the image
-    const label_string: string | null = await extractLabelsFromImage(
-      image_url,
-      clothing_type
+    const labelString: string | null = await extractLabelsFromImage(
+      imageUrl,
+      clothingType
     );
 
-    console.log("Labels extracted from the clothing:", label_string);
+    console.log("Labels extracted from the clothing:", labelString);
 
-    if (label_string) {
+    if (labelString) {
       // Store the upload details
-      const upload_id: number = await insertUpload(
-        image_url,
-        label_string,
-        user_id
+      const uploadId: number = await insertUpload(
+        imageUrl,
+        labelString,
+        userId
       );
-      console.log("The generated upload_id:", upload_id);
+      console.log("The generated uploadId:", uploadId);
 
       // Store the parameters
-      const param_id: number = await insertParam(
+      const paramId: number = await insertParam(
         height,
-        clothing_type,
-        style_preferences
+        clothingType,
+        stylePreferences
       );
-      console.log("The generated param_id:", param_id);
+      console.log("The generated param_id:", paramId);
 
       // Store the recommendation
-      const recommendation_id: number = await insertRecommendation({
-        param_id,
-        upload_id,
+      const recommendationId: number = await insertRecommendation({
+        paramId,
+        uploadId,
       });
-      console.log("The generated recommendation_id:", recommendation_id);
+      console.log("The generated recommendation_id:", recommendationId);
 
       // Generate suggestions
-      const suggested_label_strings: string[] = await makeSuggestions({
-        clothing_type,
+      const suggestedLabelStrings: string[] = await makeSuggestions({
+        clothingType,
         height,
-        style_preferences,
-        max_num_suggestion,
-        label_string,
+        stylePreferences,
+        maxNumSuggestion,
+        labelString,
       });
       console.log(
         "The generated suggested_label_strings:",
-        suggested_label_strings
+        suggestedLabelStrings
       );
       // Handle suggestion matching
       await handleSuggestionMatching({
-        suggested_label_strings,
-        max_num_item,
-        recommendation_id,
+        suggestedLabelStrings,
+        maxNumItem,
+        recommendationId,
       });
       console.log("Done handleSuggestionMatching.");
-      return recommendation_id;
+      return recommendationId;
     } else {
       return -1;
     }

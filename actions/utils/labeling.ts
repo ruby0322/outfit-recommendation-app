@@ -2,10 +2,10 @@
 import { ClothingType } from "@/type";
 import { chatCompletionTextAndImage } from "./chat";
 
-const makePromptForLabeling = (clothing_type: ClothingType): string => {
+const makePromptForLabeling = (clothingType: ClothingType): string => {
   const prompt: string = `
     仔細觀察這張圖片中的${
-      clothing_type === "top" ? "上衣" : "下身類衣物"
+      clothingType === "top" ? "上衣" : "下身類衣物"
     }後，提供一個詳細的 multi-tags 列表。確保涵蓋每一個細節，包括顏色、材質、設計、功能等。每類可有多個標籤以涵蓋所有細節。需要的話，你可以使用規範以外的標籤來完成你的任務。
     請使用下方 JSON 格式回覆，回答無需包含其他資訊：
     {
@@ -17,7 +17,7 @@ const makePromptForLabeling = (clothing_type: ClothingType): string => {
       "配件": "[描述]（若無可略過）",
       "細節": "[描述]",
       ${
-        clothing_type === "top"
+        clothingType === "top"
           ? '"領子": "[描述]", "袖子": "[描述]"'
           : '"褲管": "[描述]"'
       }
@@ -39,9 +39,9 @@ const makePromptForLabeling = (clothing_type: ClothingType): string => {
   return prompt;
 };
 
-const validateResponseFormat = (image_label_string: string): boolean => {
+const validateResponseFormat = (imageLabelString: string): boolean => {
   try {
-    const cleanedString = image_label_string
+    const cleanedString = imageLabelString
       .replace(/```json\n?|\n?```/g, "")
       .trim();
     const parsedLabels = JSON.parse(cleanedString);
@@ -92,17 +92,17 @@ function transformResponse(jsonString: string): string {
 }
 
 const extractLabelsFromImage = async (
-  image_url: string,
-  clothing_type: ClothingType
+  imageUrl: string,
+  clothingType: ClothingType
 ): Promise<string | null> => {
   const model: string = "gpt-4o-mini";
-  const prompt: string = makePromptForLabeling(clothing_type);
+  const prompt: string = makePromptForLabeling(clothingType);
   // console.log("prompt: ", prompt);
   try {
     const response: string | null = await chatCompletionTextAndImage({
       model,
       prompt,
-      image_url,
+      imageUrl,
     });
     if (response && validateResponseFormat(response)) {
       console.log("Original JSON: ", response);
