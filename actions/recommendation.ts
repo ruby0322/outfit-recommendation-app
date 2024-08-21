@@ -1,21 +1,21 @@
-"user server";
-import { createClient } from "@/utils/supabase/server";
+"use server";
 import {
+  ItemTable,
+  ParamTable,
   Recommendation,
   RecommendationTable,
-  ParamTable,
-  UploadTable,
   ResultTable,
   SuggestionTable,
-  ItemTable,
+  UploadTable,
 } from "@/type";
+import { createClient } from "@/utils/supabase/server";
 import {
-  getRecommendationById,
-  getParamById,
-  getUploadById,
-  getSuggestion,
   getItemsByIds,
+  getParamById,
+  getRecommendationById,
   getResults,
+  getSuggestion,
+  getUploadById,
 } from "./utils/fetch";
 
 // Fetches a recommendation by its ID
