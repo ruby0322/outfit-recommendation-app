@@ -139,7 +139,7 @@ const getItemById = async (itemId: number): Promise<ItemTable | null> => {
 
 // Fetch multiple items by their IDs
 const getItemsByIds = async (
-  itemIds: number[]
+  itemIds: string[]
 ): Promise<ItemTable[] | null> => {
   const supabase = createClient();
   try {

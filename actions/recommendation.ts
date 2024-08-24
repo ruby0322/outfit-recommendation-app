@@ -43,16 +43,16 @@ const getRecommendationRecordById = async (
     )) as SuggestionTable[];
     for (const s of suggestions) {
       const label_string = s.label_string as string;
-      const results = (await getResults(s.id)) as ResultTable[];
-      const item_ids = results.map((r) => r.item_id) as number[];
+      const results = (await getResults(s.id)) as ResultTable[]; // getResults()'s return type: Series[]
+      const item_ids = results.map((r) => r.item_id) as string[];
       const items = (await getItemsByIds(item_ids)) as ItemTable[];
 
       // Create a map to associate item_id with distance
-      const itemIdToDistanceMapper: { [key: number]: ResultTable } =
+      const itemIdToDistanceMapper: { [key: string]: ResultTable } =
         results.reduce((acc, item) => {
-          acc[item.item_id as number] = item;
+          acc[item.item_id as string] = item;
           return acc;
-        }, {} as { [key: number]: ResultTable });
+        }, {} as { [key: string]: ResultTable });
 
       // Sort items by distance
       items.sort(

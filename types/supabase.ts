@@ -1,6 +1,3 @@
-Need to install the following packages:
-supabase@1.190.0
-Ok to proceed? (y) 
 export type Json =
   | string
   | number
@@ -14,39 +11,78 @@ export type Database = {
     Tables: {
       item: {
         Row: {
-          created_at: string
+          color: string | null
           embedding: string | null
-          external_link: string | null
+          id: string
+          image_url: string
+          label_string: string | null
+        }
+        Insert: {
+          color?: string | null
+          embedding?: string | null
+          id?: string
+          image_url: string
+          label_string?: string | null
+        }
+        Update: {
+          color?: string | null
+          embedding?: string | null
+          id?: string
+          image_url?: string
+          label_string?: string | null
+        }
+        Relationships: []
+      }
+      item_old: {
+        Row: {
+          embedding: string | null
           id: number
           image_url: string | null
           label_string: string | null
-          price: number | null
-          provider: string | null
-          title: string | null
         }
         Insert: {
-          created_at?: string
           embedding?: string | null
-          external_link?: string | null
           id?: number
           image_url?: string | null
           label_string?: string | null
-          price?: number | null
-          provider?: string | null
-          title?: string | null
         }
         Update: {
-          created_at?: string
           embedding?: string | null
-          external_link?: string | null
           id?: number
           image_url?: string | null
           label_string?: string | null
-          price?: number | null
-          provider?: string | null
-          title?: string | null
         }
         Relationships: []
+      }
+      item_to_series: {
+        Row: {
+          item_id: string
+          series_id: string
+        }
+        Insert: {
+          item_id?: string
+          series_id?: string
+        }
+        Update: {
+          item_id?: string
+          series_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "item_to_series_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "item"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "item_to_series_series_id_fkey"
+            columns: ["series_id"]
+            isOneToOne: false
+            referencedRelation: "series"
+            referencedColumns: ["series_id"]
+          },
+        ]
       }
       param: {
         Row: {
@@ -116,24 +152,31 @@ export type Database = {
           created_at: string
           distance: number | null
           id: number
-          item_id: number | null
+          item_id: string | null
           suggestion_id: number | null
         }
         Insert: {
           created_at?: string
           distance?: number | null
           id?: number
-          item_id?: number | null
+          item_id?: string | null
           suggestion_id?: number | null
         }
         Update: {
           created_at?: string
           distance?: number | null
           id?: number
-          item_id?: number | null
+          item_id?: string | null
           suggestion_id?: number | null
         }
         Relationships: [
+          {
+            foreignKeyName: "result_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "item"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "result_suggestion_id_fkey"
             columns: ["suggestion_id"]
@@ -141,14 +184,37 @@ export type Database = {
             referencedRelation: "suggestion"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "results_item_id_fkey"
-            columns: ["item_id"]
-            isOneToOne: false
-            referencedRelation: "item"
-            referencedColumns: ["id"]
-          },
         ]
+      }
+      series: {
+        Row: {
+          clothing_type: string | null
+          external_link: string | null
+          gender: string | null
+          price: string | null
+          provider: string | null
+          series_id: string
+          title: string | null
+        }
+        Insert: {
+          clothing_type?: string | null
+          external_link?: string | null
+          gender?: string | null
+          price?: string | null
+          provider?: string | null
+          series_id: string
+          title?: string | null
+        }
+        Update: {
+          clothing_type?: string | null
+          external_link?: string | null
+          gender?: string | null
+          price?: string | null
+          provider?: string | null
+          series_id?: string
+          title?: string | null
+        }
+        Relationships: []
       }
       suggestion: {
         Row: {
@@ -225,15 +291,10 @@ export type Database = {
               match_threshold: number
             }
             Returns: {
-              created_at: string
               embedding: string | null
-              external_link: string | null
               id: number
               image_url: string | null
               label_string: string | null
-              price: number | null
-              provider: string | null
-              title: string | null
             }[]
           }
         | {
@@ -243,15 +304,11 @@ export type Database = {
               max_item_count: number
             }
             Returns: {
-              created_at: string
+              color: string | null
               embedding: string | null
-              external_link: string | null
-              id: number
-              image_url: string | null
+              id: string
+              image_url: string
               label_string: string | null
-              price: number | null
-              provider: string | null
-              title: string | null
             }[]
           }
       test: {

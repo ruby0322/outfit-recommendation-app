@@ -2,6 +2,23 @@
 import openai from "@/utils/openai";
 import { createClient } from "@/utils/supabase/server";
 
+const getAllItems = async () => {
+  const supabase = createClient();
+  try {
+    let { data, error, status } = await supabase
+      .from("item")
+      .select("id, label_string")
+      .range(1000, 2000)
+    console.log(data?.length);
+    if(data){
+      console.log(data[0])
+    }
+    
+  } catch (error) {
+    console.error("Error getting items:", error);
+  }
+}
+
 const generateEmbedding = async (text: string) => {
   try {
     const response = await openai.embeddings.create({
@@ -23,11 +40,13 @@ const handler = async () => {
     let { data, error, status } = await supabase
       .from("item")
       .select("id, label_string")
-      .is("embedding", null);
+      .is("embedding", null)
+      // .range(1000, 1999);
 
     if (error && status !== 406) {
       throw error;
     }
+    console.log(data?.length);
 
     if (data) {
       for (const item of data) {
@@ -74,4 +93,4 @@ const calculateDistance = (
   );
 };
 
-export { generateEmbedding, handler, calculateDistance };
+export { generateEmbedding, handler, calculateDistance, getAllItems };
