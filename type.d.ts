@@ -10,12 +10,10 @@ export type SeriesTable = Tables<"series">;
 
 export type ClothingType = Enums<"clothing_type">;
 
-export type Series = SeriesTable & { items: ItemTable[] };
-
 export interface Recommendation {
   param: ParamTable;
   upload: UploadTable;
   items: {
-    [style: string]: Series[];
+    [style: string]: ItemTable[];
   };
 }
