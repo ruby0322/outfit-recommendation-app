@@ -8,6 +8,7 @@ const nextConfig = {
       "media.discordapp.net",
       "eapzlwxcyrinipmcdoir.supabase.co",
       "image.uniqlo.com",
+      "www.uniqlo.com"
     ],
   },
   experimental: {
