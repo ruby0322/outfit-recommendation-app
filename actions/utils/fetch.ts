@@ -1,14 +1,12 @@
 "use server";
 import {
-  ResultTable,
-  SuggestionTable,
-  RecommendationTable,
-  Recommendation,
-  ParamTable,
-  UploadTable,
   ItemTable,
+  ParamTable,
+  RecommendationTable,
+  ResultTable,
   SeriesTable,
-  Series,
+  SuggestionTable,
+  UploadTable,
 } from "@/type";
 import { createClient } from "@/utils/supabase/server";
 
@@ -169,14 +167,15 @@ const getSeriesIDByItemId = async (itemId: string): Promise<string | null> => {
     const { data, error } = await supabase
       .from("item_to_series")
       .select("series_id")
-      .eq("item_id", itemId);
+      .eq("item_id", itemId)
+      .single();
 
     if (error) {
       console.error("Error fetching series ID:", error);
       return null;
     }
 
-    return data[0].series_id as string;
+    return data.series_id as string;
   } catch (error) {
     console.error("Unexpected error:", error);
     return null;
@@ -219,7 +218,9 @@ const getSeriesById = async (seriesId: string): Promise<SeriesTable | null> => {
 };
 
 // Fetch the items by series ID
-const getItemsIDBySeriesId = async (seriesId: string): Promise<string[] | null> => {
+const getItemsIDBySeriesId = async (
+  seriesId: string
+): Promise<string[] | null> => {
   const supabase = createClient();
   try {
     const { data, error } = await supabase
@@ -232,7 +233,7 @@ const getItemsIDBySeriesId = async (seriesId: string): Promise<string[] | null> 
       return null;
     }
     // console.log(data);
-    const itemIDs = data.map(item => item.item_id);
+    const itemIDs = data.map((item) => item.item_id);
 
     return itemIDs;
   } catch (error) {
@@ -242,14 +243,14 @@ const getItemsIDBySeriesId = async (seriesId: string): Promise<string[] | null> 
 };
 
 export {
+  getItemById,
+  getItemsByIds,
+  getItemsIDBySeriesId,
   getParamById,
   getRecommendationById,
   getResults,
+  getSeriesById,
+  getSeriesIdsByItemIds,
   getSuggestion,
   getUploadById,
-  getItemById,
-  getItemsByIds,
-  getSeriesIdsByItemIds,
-  getSeriesById,
-  getItemsIDBySeriesId
 };

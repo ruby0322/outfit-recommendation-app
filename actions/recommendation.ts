@@ -5,9 +5,9 @@ import {
   Recommendation,
   RecommendationTable,
   ResultTable,
+  Series,
   SuggestionTable,
   UploadTable,
-  Series,
 } from "@/type";
 import { createClient } from "@/utils/supabase/server";
 import {
@@ -23,39 +23,38 @@ import {
 } from "./utils/fetch";
 
 // util function for getRecommendationRecordById()
-const getSeries = async (
-  series_ids: string[]
-): Promise<Series[] | null> => {
+const getSeries = async (series_ids: string[]): Promise<Series[] | null> => {
   try {
     const seriesArray: Series[] = [];
+    const threads = [];
 
     for (const seriesId of series_ids) {
-      const seriesTable = await getSeriesById(seriesId);
-      if (!seriesTable) {
-        continue;
-      }
+      const thread = async () => {
+        const seriesTable = await getSeriesById(seriesId);
+        if (!seriesTable) {
+          return;
+        }
+        const itemIds = await getItemsIDBySeriesId(seriesId);
+        if (itemIds) {
+          const items = await getItemsByIds(itemIds);
 
-      const itemIds = await getItemsIDBySeriesId(seriesId);
-
-      if(itemIds){
-        const items = await getItemsByIds(itemIds);
-
-        const series: Series = {
-          ...seriesTable,
-          items: items as ItemTable[],
-        };
-
-        seriesArray.push(series);
-      }
-      return seriesArray;
+          const series: Series = {
+            ...seriesTable,
+            items: items as ItemTable[],
+          };
+          seriesArray.push(series);
+        }
+      };
+      threads.push(thread());
     }
-      
+    await Promise.all(threads);
+    return seriesArray;
   } catch (error) {
     console.error("Unexpected error in getSeries:", error);
     return null;
   }
   return null;
-}
+};
 
 // Fetches a recommendation by its ID
 const getRecommendationRecordById = async (

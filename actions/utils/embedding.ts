@@ -8,16 +8,11 @@ const getAllItems = async () => {
     let { data, error, status } = await supabase
       .from("item")
       .select("id, label_string")
-      .range(1000, 2000)
-    console.log(data?.length);
-    if(data){
-      console.log(data[0])
-    }
-    
+      .range(1000, 2000);
   } catch (error) {
     console.error("Error getting items:", error);
   }
-}
+};
 
 const generateEmbedding = async (text: string) => {
   try {
@@ -40,8 +35,7 @@ const handler = async () => {
     let { data, error, status } = await supabase
       .from("item")
       .select("id, label_string")
-      .is("embedding", null)
-      // .range(1000, 1999);
+      .is("embedding", null);
 
     if (error && status !== 406) {
       throw error;
@@ -93,4 +87,4 @@ const calculateDistance = (
   );
 };
 
-export { generateEmbedding, handler, calculateDistance, getAllItems };
+export { calculateDistance, generateEmbedding, getAllItems, handler };
