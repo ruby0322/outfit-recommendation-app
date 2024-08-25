@@ -23,7 +23,7 @@ import {
 } from "./utils/fetch";
 
 // util function for getRecommendationRecordById()
-const getSeries = async (series_ids: string[]): Promise<Series[] | null> => {
+const getSeries = async (series_ids: string[], originalItemIds: string[]): Promise<Series[] | null> => {
   try {
     const seriesArray: Series[] = [];
     const threads: Promise<void>[] = [];
@@ -36,13 +36,29 @@ const getSeries = async (series_ids: string[]): Promise<Series[] | null> => {
         }
         const itemIds = await getItemsIDBySeriesId(seriesId);
         if (itemIds) {
-          const items = await getItemsByIds(itemIds);
+          let items = await getItemsByIds(itemIds);
 
-          const series: Series = {
-            ...seriesTable,
-            items: items as ItemTable[],
-          };
-          seriesArray.push(series);
+          // items = items.sort((a, b) => {
+          //   const aIndex = originalItemIds.indexOf(a.item_id);
+          //   const bIndex = originalItemIds.indexOf(b.item_id);
+          //   return aIndex - bIndex;
+          // });
+          if(items) {
+            originalItemIds.forEach(originalItemId => {
+              const index = items.findIndex(item => item.id === originalItemId);
+              if (index !== -1) {
+                const [matchedItem] = items.splice(index, 1);
+                items.unshift(matchedItem);
+              }
+            });
+
+            const series: Series = {
+              ...seriesTable,
+              items: items as ItemTable[],
+            };
+            seriesArray.push(series);
+          }
+          
         }
       };
       threads.push(thread());
@@ -85,7 +101,7 @@ const getRecommendationRecordById = async (
       console.log(results);
       const item_ids = results.map((r) => r.item_id) as string[];
       const series_ids = (await getSeriesIdsByItemIds(item_ids)) as string[];
-      const series = (await getSeries(series_ids)) as Series[];
+      const series = (await getSeries(series_ids, item_ids)) as Series[];
       const items = (await getItemsByIds(item_ids)) as ItemTable[];
 
       // Create a map to associate item_id with distance
