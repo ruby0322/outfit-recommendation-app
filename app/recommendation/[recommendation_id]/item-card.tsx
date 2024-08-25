@@ -26,32 +26,42 @@ const ItemCard = ({ series }: { series: Series }) => {
         <Badge className='bg-muted text-muted-foreground border-0 shadow-none absolute top-0 left-0 m-2'>
           {series.provider}
         </Badge>
-        <Carousel>
-          <CarouselNext />
-          <CarouselPrevious />
-          <div className='relative '>
-            <CarouselMainContainer className='h-60'>
-              {series.items.map((item, index) => (
-                <SliderMainItem key={item.id} className='bg-transparent'>
-                  <Image
-                    src={item.image_url}
-                    width={256}
-                    height={256}
-                    className='object-cover'
-                    alt={`Image of product "${series.title}" ${index}`}
-                  />
-                </SliderMainItem>
-              ))}
-            </CarouselMainContainer>
-            <div className='absolute bottom-2 left-1/2 -translate-x-1/2'>
-              <CarouselThumbsContainer className='gap-x-1 '>
-                {series.items.map((_, index) => (
-                  <CarouselIndicator key={index} index={index} />
+        {series.items.length > 1 ? (
+          <Carousel>
+            <CarouselNext />
+            <CarouselPrevious />
+            <div className='relative '>
+              <CarouselMainContainer className='h-60'>
+                {series.items.map((item, index) => (
+                  <SliderMainItem key={item.id} className='bg-transparent'>
+                    <Image
+                      src={item.image_url}
+                      width={256}
+                      height={256}
+                      className='object-cover'
+                      alt={`Image of product "${series.title}" ${index}`}
+                    />
+                  </SliderMainItem>
                 ))}
-              </CarouselThumbsContainer>
+              </CarouselMainContainer>
+              <div className='absolute bottom-2 left-1/2 -translate-x-1/2'>
+                <CarouselThumbsContainer className='gap-x-1 '>
+                  {series.items.map((_, index) => (
+                    <CarouselIndicator key={index} index={index} />
+                  ))}
+                </CarouselThumbsContainer>
+              </div>
             </div>
-          </div>
-        </Carousel>
+          </Carousel>
+        ) : (
+          <Image
+            src={series.items[0].image_url}
+            width={256}
+            height={256}
+            className='object-cover'
+            alt={`Image of product "${series.title}" 0`}
+          />
+        )}
       </div>
       <Link href={series.external_link ? series.external_link : "#"}>
         <h3 className='py-2 text-md underline break-words ...'>

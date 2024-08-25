@@ -86,6 +86,7 @@ export type Database = {
       }
       param: {
         Row: {
+          body_type: Database["public"]["Enums"]["body_type"] | null
           clothing_type: Database["public"]["Enums"]["clothing_type"] | null
           created_at: string
           gender: Database["public"]["Enums"]["gender"] | null
@@ -95,6 +96,7 @@ export type Database = {
           weight: number | null
         }
         Insert: {
+          body_type?: Database["public"]["Enums"]["body_type"] | null
           clothing_type?: Database["public"]["Enums"]["clothing_type"] | null
           created_at?: string
           gender?: Database["public"]["Enums"]["gender"] | null
@@ -104,6 +106,7 @@ export type Database = {
           weight?: number | null
         }
         Update: {
+          body_type?: Database["public"]["Enums"]["body_type"] | null
           clothing_type?: Database["public"]["Enums"]["clothing_type"] | null
           created_at?: string
           gender?: Database["public"]["Enums"]["gender"] | null
@@ -326,7 +329,7 @@ export type Database = {
       }
     }
     Enums: {
-      body_type: "slim" | "normal" | "masculine" | "obese"
+      body_type: "slim" | "average" | "athletic" | "curvy"
       clothing_type: "top" | "bottom"
       gender: "male" | "female"
     }
