@@ -26,10 +26,10 @@ import {
 const getSeries = async (series_ids: string[]): Promise<Series[] | null> => {
   try {
     const seriesArray: Series[] = [];
-    const threads = [];
+    const threads: Promise<void>[] = [];
 
     for (const seriesId of series_ids) {
-      const thread = async () => {
+      const thread = async (): Promise<void> => {
         const seriesTable = await getSeriesById(seriesId);
         if (!seriesTable) {
           return;
