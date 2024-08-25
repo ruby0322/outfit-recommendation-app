@@ -326,6 +326,7 @@ export type Database = {
       }
     }
     Enums: {
+      body_type: "slim" | "normal" | "masculine" | "obese"
       clothing_type: "top" | "bottom"
       gender: "male" | "female"
     }
