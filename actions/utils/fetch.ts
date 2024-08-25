@@ -7,6 +7,8 @@ import {
   ParamTable,
   UploadTable,
   ItemTable,
+  SeriesTable,
+  Series,
 } from "@/type";
 import { createClient } from "@/utils/supabase/server";
 
@@ -116,7 +118,7 @@ const getUploadById = async (uploadId: number): Promise<UploadTable | null> => {
 };
 
 // Fetch a single item by its ID
-const getItemById = async (itemId: number): Promise<ItemTable | null> => {
+const getItemById = async (itemId: string): Promise<ItemTable | null> => {
   const supabase = createClient();
   try {
     const { data, error } = await supabase
@@ -160,6 +162,85 @@ const getItemsByIds = async (
   }
 };
 
+// Fetch the series ID by item ID
+const getSeriesIDByItemId = async (itemId: string): Promise<string | null> => {
+  const supabase = createClient();
+  try {
+    const { data, error } = await supabase
+      .from("item_to_series")
+      .select("series_id")
+      .eq("item_id", itemId);
+
+    if (error) {
+      console.error("Error fetching series ID:", error);
+      return null;
+    }
+
+    return data[0].series_id as string;
+  } catch (error) {
+    console.error("Unexpected error:", error);
+    return null;
+  }
+};
+
+const getSeriesIdsByItemIds = async (item_ids: string[]): Promise<string[]> => {
+  const seriesIdsSet = new Set<string>();
+
+  for (const itemId of item_ids) {
+    const seriesId = await getSeriesIDByItemId(itemId);
+    if (seriesId) {
+      seriesIdsSet.add(seriesId);
+    }
+  }
+
+  return Array.from(seriesIdsSet);
+};
+
+// Fetch the series by series ID
+const getSeriesById = async (seriesId: string): Promise<SeriesTable | null> => {
+  const supabase = createClient();
+  try {
+    const { data, error } = await supabase
+      .from("series")
+      .select("*")
+      .eq("series_id", seriesId)
+      .single();
+
+    if (error) {
+      console.error("Error fetching series ID:", error);
+      return null;
+    }
+
+    return data as SeriesTable;
+  } catch (error) {
+    console.error("Unexpected error:", error);
+    return null;
+  }
+};
+
+// Fetch the items by series ID
+const getItemsIDBySeriesId = async (seriesId: string): Promise<string[] | null> => {
+  const supabase = createClient();
+  try {
+    const { data, error } = await supabase
+      .from("item_to_series")
+      .select("item_id")
+      .eq("series_id", seriesId);
+
+    if (error) {
+      console.error("Error fetching series ID:", error);
+      return null;
+    }
+    // console.log(data);
+    const itemIDs = data.map(item => item.item_id);
+
+    return itemIDs;
+  } catch (error) {
+    console.error("Unexpected error:", error);
+    return null;
+  }
+};
+
 export {
   getParamById,
   getRecommendationById,
@@ -168,4 +249,7 @@ export {
   getUploadById,
   getItemById,
   getItemsByIds,
+  getSeriesIdsByItemIds,
+  getSeriesById,
+  getItemsIDBySeriesId
 };
