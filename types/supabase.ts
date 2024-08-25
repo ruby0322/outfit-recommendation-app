@@ -80,7 +80,7 @@ export type Database = {
             columns: ["series_id"]
             isOneToOne: false
             referencedRelation: "series"
-            referencedColumns: ["series_id"]
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -191,27 +191,27 @@ export type Database = {
           clothing_type: string | null
           external_link: string | null
           gender: string | null
+          id: string
           price: string | null
           provider: string | null
-          series_id: string
           title: string | null
         }
         Insert: {
           clothing_type?: string | null
           external_link?: string | null
           gender?: string | null
+          id: string
           price?: string | null
           provider?: string | null
-          series_id: string
           title?: string | null
         }
         Update: {
           clothing_type?: string | null
           external_link?: string | null
           gender?: string | null
+          id?: string
           price?: string | null
           provider?: string | null
-          series_id?: string
           title?: string | null
         }
         Relationships: []

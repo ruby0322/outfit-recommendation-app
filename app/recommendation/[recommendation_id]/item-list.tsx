@@ -2,7 +2,7 @@
 
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import { ItemTable } from "@/type";
+import { Series } from "@/type";
 import { useRouter } from "next/navigation";
 import ItemCard from "./item-card";
 
@@ -13,12 +13,12 @@ const parseTags = (stylePreferencesString: string) => {
 const ItemList = ({
   title,
   id,
-  items,
+  series,
   index,
 }: {
   title: string;
   id: string;
-  items: ItemTable[];
+  series: Series[];
   index: number;
 }) => {
   const router = useRouter();
@@ -81,8 +81,8 @@ const ItemList = ({
       </div>
 
       <div className='flex gap-4 flex-wrap items-start justify-center'>
-        {items.map((item) => {
-          return <ItemCard item={item} key={`item-card-${item.id}`} />;
+        {series.map((s) => {
+          return <ItemCard series={s} key={`item-card-${s.id}`} />;
         })}
       </div>
     </div>

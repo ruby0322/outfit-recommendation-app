@@ -16,6 +16,7 @@ const RecommendationPage = async ({
   const recommendation: Recommendation = (await getRecommendationRecordById(
     params.recommendation_id
   )) as Recommendation;
+  console.log(recommendation);
   return (
     <div className='w-full flex flex-col items-center justify-center'>
       <div className='py-10 w-full flex flex-col items-center justify-center bg-muted'>
@@ -36,17 +37,17 @@ const RecommendationPage = async ({
             id={searchParams?.see_more}
             index={-1}
             title={searchParams?.see_more}
-            items={recommendation.items[searchParams?.see_more]}
+            series={recommendation.series[searchParams?.see_more]}
           />
         ) : (
-          Object.keys(recommendation.items).map((recommendedStyle, index) => {
+          Object.keys(recommendation.series).map((recommendedStyle, index) => {
             return (
               <ItemList
                 key={`recommended-style-${index}`}
                 id={recommendedStyle}
                 index={index}
                 title={recommendedStyle}
-                items={recommendation.items[recommendedStyle].slice(0, 4)}
+                series={recommendation.series[recommendedStyle].slice(0, 4)}
               />
             );
           })
