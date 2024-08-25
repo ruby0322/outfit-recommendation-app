@@ -66,9 +66,12 @@ const UploadPage = () => {
             clothingType: data.clothingType,
             imageUrl: imageUrl,
             height: data.height,
+            weight: data.weight,
+            gender: data.gender,
+            bodyType: data.bodyType,
             stylePreferences: style_preference,
             userId: USER_ID,
-            maxNumSuggestion: MAX_NUM_SUGGESTION,
+            numMaxSuggestion: NUM_MAX_SUGGESTION,
             numMaxItem: NUM_MAX_ITEM,
           });
           router.push(`/recommendation/${recommendationId}`);
@@ -79,7 +82,7 @@ const UploadPage = () => {
     };
     reader.readAsDataURL(data.uploadedImage[0]);
     const USER_ID: number = 90;
-    const MAX_NUM_SUGGESTION: number = 3;
+    const NUM_MAX_SUGGESTION: number = 3;
     const NUM_MAX_ITEM: number = 10;
   };
 

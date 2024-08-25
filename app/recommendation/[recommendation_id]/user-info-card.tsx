@@ -24,22 +24,29 @@ const UserInfoCard = ({
         height={256}
         className='object-cover'
       />
-      <div className='flex gap-4'>
+      <div className='flex gap-4 flex-wrap'>
         <div className='flex items-center justify-center gap-2'>
           <div className='text-sm font-medium text-muted-foreground'>身高</div>
           <div className='text-md'>{params?.height as number} 公分</div>
         </div>
         <div className='flex items-center justify-center gap-2'>
           <div className='text-sm font-medium text-muted-foreground'>體重</div>
-          <div className='text-md'>{params?.height as number} 公斤</div>
+          <div className='text-md'>{params?.weight as number} 公斤</div>
         </div>
         <div className='flex items-center justify-center gap-2'>
           <div className='text-sm font-medium text-muted-foreground'>身型</div>
           <div className='text-md'>適中</div>
         </div>
+        <div className='flex items-center justify-center gap-2'>
+          <div className='text-sm font-medium text-muted-foreground'>性別</div>
+          <div className='text-md'>
+            {params?.gender === "male" ? "男性" : "女性"}
+          </div>
+        </div>
       </div>
       <div className='flex flex-wrap gap-2'>
         {parseTags(params.style_preferences as string).map((tag, index) => {
+          if (!tag) return <></>;
           return (
             <Badge
               className='bg-white'

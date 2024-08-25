@@ -1,7 +1,7 @@
 "use server";
+import { BodyType, ClothingType, Gender } from "@/type";
 import { createClient } from "@/utils/supabase/server";
 import { v4 as uuidv4 } from "uuid";
-import { ClothingType, ParamTable, UploadTable, ItemTable } from "@/type";
 import { UnstoredResult } from "./matching";
 
 const base64ToBlob = (base64: string): Blob => {
@@ -113,6 +113,9 @@ const insertRecommendation = async ({
 
 const insertParam = async (
   height: number | null,
+  weight: number | null,
+  gender: Gender,
+  bodyType: BodyType,
   clothinType: ClothingType,
   stylePreferences: string | null
 ): Promise<number> => {
@@ -121,7 +124,10 @@ const insertParam = async (
     .from("param")
     .insert([
       {
-        height: height,
+        height,
+        weight,
+        gender,
+        body_type: bodyType,
         clothing_type: clothinType,
         style_preferences: stylePreferences,
       },
@@ -162,10 +168,10 @@ const insertUpload = async (
 };
 
 export {
-  storeImageToStorage,
+  insertParam,
   insertRecommendation,
   insertResults,
-  insertParam,
   insertSuggestion,
   insertUpload,
+  storeImageToStorage,
 };
