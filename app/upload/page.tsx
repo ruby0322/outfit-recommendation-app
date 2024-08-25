@@ -18,6 +18,7 @@ const schema = z.object({
   bodyType: z.enum(["slim", "average", "athletic", "curvy"], {
     message: "請選擇身型",
   }),
+  gender: z.enum(["male", "female"], { message: "請選擇性別" }),
   height: z
     .number({ message: "身高必須是數字" })
     .min(120, "至少 120 公分")

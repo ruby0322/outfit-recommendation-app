@@ -88,6 +88,7 @@ export type Database = {
         Row: {
           clothing_type: Database["public"]["Enums"]["clothing_type"] | null
           created_at: string
+          gender: Database["public"]["Enums"]["gender"] | null
           height: number | null
           id: number
           style_preferences: string | null
@@ -96,6 +97,7 @@ export type Database = {
         Insert: {
           clothing_type?: Database["public"]["Enums"]["clothing_type"] | null
           created_at?: string
+          gender?: Database["public"]["Enums"]["gender"] | null
           height?: number | null
           id?: number
           style_preferences?: string | null
@@ -104,6 +106,7 @@ export type Database = {
         Update: {
           clothing_type?: Database["public"]["Enums"]["clothing_type"] | null
           created_at?: string
+          gender?: Database["public"]["Enums"]["gender"] | null
           height?: number | null
           id?: number
           style_preferences?: string | null
@@ -324,6 +327,7 @@ export type Database = {
     }
     Enums: {
       clothing_type: "top" | "bottom"
+      gender: "male" | "female"
     }
     CompositeTypes: {
       [_ in never]: never

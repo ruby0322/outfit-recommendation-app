@@ -22,6 +22,7 @@ const CustomizationFields = () => {
   } = useFormContext();
 
   const clothingType = watch("clothingType");
+  const gender = watch("gender");
   const bodyType = watch("bodyType");
 
   return (
@@ -33,6 +34,46 @@ const CustomizationFields = () => {
         </CardDescription>
       </CardHeader>
       <CardContent className='grid gap-6'>
+        <div className='grid gap-2'>
+          <Label htmlFor='gender'>我的生理性別是</Label>
+          <div className='flex flex-wrap gap-2'>
+            <Label
+              htmlFor='gender-male'
+              className={`flex items-center gap-2 rounded-md border px-3 py-2 cursor-pointer ${
+                gender === "male" ? "bg-muted" : ""
+              }`}
+            >
+              <input
+                id='gender-male'
+                type='radio'
+                value='male'
+                {...register("gender")}
+                onChange={() => setValue("gender", "male")}
+              />
+              男性
+            </Label>
+            <Label
+              htmlFor='gender-female'
+              className={`flex items-center gap-2 rounded-md border px-3 py-2 cursor-pointer ${
+                gender === "female" ? "bg-muted" : ""
+              }`}
+            >
+              <input
+                id='gender-female'
+                type='radio'
+                value='female'
+                {...register("gender")}
+                onChange={() => setValue("gender", "female")}
+              />
+              女性
+            </Label>
+          </div>
+          {errors.gender && (
+            <span className='text-red-600'>
+              {errors.gender.message?.toString()}
+            </span>
+          )}
+        </div>
         <div className='grid gap-2'>
           <Label htmlFor='clothing-type'>我上傳的服飾是</Label>
           <div className='flex flex-wrap gap-2'>
