@@ -117,7 +117,8 @@ const insertParam = async (
   gender: Gender,
   bodyType: BodyType,
   clothinType: ClothingType,
-  stylePreferences: string | null
+  stylePreferences: string | null,
+  model: string
 ): Promise<number> => {
   const supabase = createClient();
   const { data, error } = await supabase
@@ -130,6 +131,7 @@ const insertParam = async (
         body_type: bodyType,
         clothing_type: clothinType,
         style_preferences: stylePreferences,
+        model,
       },
     ])
     .select("id");

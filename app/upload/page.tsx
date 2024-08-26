@@ -28,6 +28,7 @@ const schema = z.object({
     .min(30, "至少 30 公斤")
     .max(200, "不可超過 200 公斤"),
   stylePreferences: z.array(z.string()).optional(),
+  model: z.string().default("gpt-4o"),
   uploadedImage: (typeof window === "undefined"
     ? z.any()
     : z.instanceof(FileList, {
@@ -70,6 +71,7 @@ const UploadPage = () => {
             gender: data.gender,
             bodyType: data.bodyType,
             stylePreferences: style_preference,
+            model: data.model,
             userId: USER_ID,
             numMaxSuggestion: NUM_MAX_SUGGESTION,
             numMaxItem: NUM_MAX_ITEM,
@@ -92,7 +94,9 @@ const UploadPage = () => {
         <form onSubmit={methods.handleSubmit(onSubmit)}>
           <div className='w-full flex flex-col gap-8 items-center justify-center'>
             <div className='w-full flex flex-col md:flex-row gap-8 justify-center items-center'>
-              <ImageUploader />
+              <div className='flex flex-col items-center gap-4'>
+                <ImageUploader />
+              </div>
               <CustomizationFields />
             </div>
             <LoadingButton loading={loading} variant='outline' type='submit'>

@@ -116,16 +116,18 @@ const makeSuggestions = async ({
   clothingType,
   height,
   stylePreferences,
+  model,
   numMaxSuggestion,
   labelString,
 }: {
   clothingType: ClothingType;
   height: number | null;
   stylePreferences: string | null;
+  model: string;
   numMaxSuggestion: number;
   labelString: string;
 }): Promise<string[]> => {
-  const model = "gpt-4o-mini";
+  // const model = "gpt-4o-mini";
   const prompt: string = makePromptForSuggestions({
     clothingType,
     height,
@@ -133,8 +135,6 @@ const makeSuggestions = async ({
     numMaxSuggestion,
     labelString,
   });
-
-  // console.log("Prompt" + prompt);
 
   try {
     const suggestions = await chatCompletionTextOnly({
@@ -225,6 +225,7 @@ const handleSubmission = async ({
   bodyType,
   height,
   weight,
+  model,
   stylePreferences,
   userId,
   numMaxSuggestion,
@@ -236,6 +237,7 @@ const handleSubmission = async ({
   bodyType: BodyType;
   height: number | null;
   weight: number | null;
+  model: string;
   stylePreferences: string | null;
   userId: number;
   numMaxSuggestion: number;
@@ -269,7 +271,8 @@ const handleSubmission = async ({
         gender,
         bodyType,
         clothingType,
-        stylePreferences
+        stylePreferences,
+        model
       );
       console.log("The generated param_id:", paramId);
 
@@ -285,6 +288,7 @@ const handleSubmission = async ({
         clothingType,
         height,
         stylePreferences,
+        model,
         numMaxSuggestion,
         labelString,
       });

@@ -12,6 +12,16 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Controller, useFormContext } from "react-hook-form";
 
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+
 const CustomizationFields = () => {
   const {
     register,
@@ -34,6 +44,25 @@ const CustomizationFields = () => {
         </CardDescription>
       </CardHeader>
       <CardContent className='grid gap-6'>
+        <div className='grid gap-2'>
+          <Label htmlFor='gender'>推薦模型</Label>
+          <Select onValueChange={(val: string) => setValue("model", val)}>
+            <SelectTrigger className='w-full'>
+              <SelectValue placeholder='請選擇推薦模型' />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                <SelectLabel>Basic</SelectLabel>
+                <SelectItem value='gpt-4o'>gpt-4o</SelectItem>
+                <SelectItem value='gpt-4o-mini'>gpt-4o-mini</SelectItem>
+                <SelectLabel>Finetuned</SelectLabel>
+                <SelectItem value='ft:gpt-4o-mini-2024-07-18:mmrfj:outfit-rcmnd-v1:9z8CHvqC'>
+                  gpt-finetuned-v0.1
+                </SelectItem>
+              </SelectGroup>
+            </SelectContent>
+          </Select>
+        </div>
         <div className='grid gap-2'>
           <Label htmlFor='gender'>我的生理性別是</Label>
           <div className='flex flex-wrap gap-2'>
