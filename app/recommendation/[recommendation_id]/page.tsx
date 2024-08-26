@@ -31,7 +31,7 @@ const RecommendationPage = async ({
       <div className='w-full flex flex-col items-center justify-center gap-8 py-8 mt-2'>
         <h2 className='text-muted-foreground'>推薦風格</h2>
       </div>
-      <div className='flex flex-col gap-4 justify-center items-center md:max-w-[70vw]'>
+      <div className='flex flex-col gap-4 justify-center items-center md:max-w-[80vw]'>
         {searchParams?.see_more ? (
           <ItemList
             id={searchParams?.see_more}
