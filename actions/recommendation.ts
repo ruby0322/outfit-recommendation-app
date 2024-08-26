@@ -23,7 +23,7 @@ import {
 } from "./utils/fetch";
 
 // util function for getRecommendationRecordById()
-const getSeries = async (series_ids: string[]): Promise<Series[] | null> => {
+const getSeries = async (series_ids: string[], originalItemIds: string[]): Promise<Series[] | null> => {
   try {
     const seriesArray: Series[] = [];
     const threads: Promise<void>[] = [];
@@ -36,13 +36,29 @@ const getSeries = async (series_ids: string[]): Promise<Series[] | null> => {
         }
         const itemIds = await getItemsIDBySeriesId(seriesId);
         if (itemIds) {
-          const items = await getItemsByIds(itemIds);
+          let items = await getItemsByIds(itemIds);
 
-          const series: Series = {
-            ...seriesTable,
-            items: items as ItemTable[],
-          };
-          seriesArray.push(series);
+          // items = items.sort((a, b) => {
+          //   const aIndex = originalItemIds.indexOf(a.item_id);
+          //   const bIndex = originalItemIds.indexOf(b.item_id);
+          //   return aIndex - bIndex;
+          // });
+          if(items) {
+            originalItemIds.forEach(originalItemId => {
+              const index = items.findIndex(item => item.id === originalItemId);
+              if (index !== -1) {
+                const [matchedItem] = items.splice(index, 1);
+                items.unshift(matchedItem);
+              }
+            });
+
+            const series: Series = {
+              ...seriesTable,
+              items: items as ItemTable[],
+            };
+            seriesArray.push(series);
+          }
+          
         }
       };
       threads.push(thread());
@@ -74,7 +90,7 @@ const getRecommendationRecordById = async (
 
     recommendation_record.param = param;
     recommendation_record.upload = upload;
-    recommendation_record.items = {};
+    recommendation_record.series = {};
 
     const suggestions = (await getSuggestion(
       recommendation_id
@@ -82,26 +98,25 @@ const getRecommendationRecordById = async (
     for (const s of suggestions) {
       const label_string = s.label_string as string;
       const results = (await getResults(s.id)) as ResultTable[]; // getResults()'s return type: Series[]
+      console.log(results);
       const item_ids = results.map((r) => r.item_id) as string[];
       const series_ids = (await getSeriesIdsByItemIds(item_ids)) as string[];
-      const series = (await getSeries(series_ids)) as Series[];
+      const series = (await getSeries(series_ids, item_ids)) as Series[];
       const items = (await getItemsByIds(item_ids)) as ItemTable[];
 
       // Create a map to associate item_id with distance
-      const itemIdToDistanceMapper: { [key: string]: ResultTable } =
-        results.reduce((acc, item) => {
-          acc[item.item_id as string] = item;
+      const itemIdToDistance: { [key: string]: number } = results.reduce(
+        (acc, item) => {
+          acc[item.item_id as string] = item.distance as number;
           return acc;
-        }, {} as { [key: string]: ResultTable });
-
-      // Sort items by distance
-      items.sort(
-        (a, b) =>
-          (itemIdToDistanceMapper[a.id].distance as number) -
-          (itemIdToDistanceMapper[b.id].distance as number)
+        },
+        {} as { [key: string]: number }
       );
 
-      recommendation_record.items![label_string] = series; // { [style: string]: Series[] }
+      // Sort items by distance
+      items.sort((a, b) => itemIdToDistance[a.id] - itemIdToDistance[b.id]);
+
+      recommendation_record.series![label_string] = series; // { [style: string]: Series[] }
     }
 
     return recommendation_record as Recommendation;

@@ -9,13 +9,15 @@ export type ResultTable = Tables<"result">;
 export type SeriesTable = Tables<"series">;
 
 export type ClothingType = Enums<"clothing_type">;
+export type BodyType = Enums<"body_type">;
+export type Gender = Enums<"gender">;
 
 export type Series = SeriesTable & { items: ItemTable[] };
 
 export interface Recommendation {
   param: ParamTable;
   upload: UploadTable;
-  items: {
+  series: {
     [style: string]: Series[];
   };
 }

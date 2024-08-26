@@ -80,30 +80,36 @@ export type Database = {
             columns: ["series_id"]
             isOneToOne: false
             referencedRelation: "series"
-            referencedColumns: ["series_id"]
+            referencedColumns: ["id"]
           },
         ]
       }
       param: {
         Row: {
+          body_type: Database["public"]["Enums"]["body_type"] | null
           clothing_type: Database["public"]["Enums"]["clothing_type"] | null
           created_at: string
+          gender: Database["public"]["Enums"]["gender"] | null
           height: number | null
           id: number
           style_preferences: string | null
           weight: number | null
         }
         Insert: {
+          body_type?: Database["public"]["Enums"]["body_type"] | null
           clothing_type?: Database["public"]["Enums"]["clothing_type"] | null
           created_at?: string
+          gender?: Database["public"]["Enums"]["gender"] | null
           height?: number | null
           id?: number
           style_preferences?: string | null
           weight?: number | null
         }
         Update: {
+          body_type?: Database["public"]["Enums"]["body_type"] | null
           clothing_type?: Database["public"]["Enums"]["clothing_type"] | null
           created_at?: string
+          gender?: Database["public"]["Enums"]["gender"] | null
           height?: number | null
           id?: number
           style_preferences?: string | null
@@ -191,27 +197,27 @@ export type Database = {
           clothing_type: string | null
           external_link: string | null
           gender: string | null
+          id: string
           price: string | null
           provider: string | null
-          series_id: string
           title: string | null
         }
         Insert: {
           clothing_type?: string | null
           external_link?: string | null
           gender?: string | null
+          id: string
           price?: string | null
           provider?: string | null
-          series_id: string
           title?: string | null
         }
         Update: {
           clothing_type?: string | null
           external_link?: string | null
           gender?: string | null
+          id?: string
           price?: string | null
           provider?: string | null
-          series_id?: string
           title?: string | null
         }
         Relationships: []
@@ -323,7 +329,9 @@ export type Database = {
       }
     }
     Enums: {
+      body_type: "slim" | "average" | "athletic" | "curvy"
       clothing_type: "top" | "bottom"
+      gender: "male" | "female"
     }
     CompositeTypes: {
       [_ in never]: never

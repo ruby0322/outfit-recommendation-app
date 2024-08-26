@@ -202,7 +202,7 @@ const getSeriesById = async (seriesId: string): Promise<SeriesTable | null> => {
     const { data, error } = await supabase
       .from("series")
       .select("*")
-      .eq("series_id", seriesId)
+      .eq("id", seriesId)
       .single();
 
     if (error) {

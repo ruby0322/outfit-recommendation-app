@@ -18,6 +18,7 @@ const schema = z.object({
   bodyType: z.enum(["slim", "average", "athletic", "curvy"], {
     message: "請選擇身型",
   }),
+  gender: z.enum(["male", "female"], { message: "請選擇性別" }),
   height: z
     .number({ message: "身高必須是數字" })
     .min(120, "至少 120 公分")
@@ -65,9 +66,12 @@ const UploadPage = () => {
             clothingType: data.clothingType,
             imageUrl: imageUrl,
             height: data.height,
+            weight: data.weight,
+            gender: data.gender,
+            bodyType: data.bodyType,
             stylePreferences: style_preference,
             userId: USER_ID,
-            maxNumSuggestion: MAX_NUM_SUGGESTION,
+            numMaxSuggestion: NUM_MAX_SUGGESTION,
             numMaxItem: NUM_MAX_ITEM,
           });
           router.push(`/recommendation/${recommendationId}`);
@@ -78,7 +82,7 @@ const UploadPage = () => {
     };
     reader.readAsDataURL(data.uploadedImage[0]);
     const USER_ID: number = 90;
-    const MAX_NUM_SUGGESTION: number = 3;
+    const NUM_MAX_SUGGESTION: number = 3;
     const NUM_MAX_ITEM: number = 10;
   };
 

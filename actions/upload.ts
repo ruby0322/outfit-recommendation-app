@@ -1,5 +1,5 @@
 "use server";
-import { ClothingType } from "@/type";
+import { BodyType, ClothingType, Gender } from "@/type";
 import { chatCompletionTextOnly } from "./utils/chat";
 import {
   insertParam,
@@ -48,13 +48,13 @@ const makePromptForSuggestions = ({
   clothingType,
   height,
   stylePreferences,
-  maxNumSuggestion,
+  numMaxSuggestion,
   labelString,
 }: {
   clothingType: ClothingType;
   height: number | null;
   stylePreferences: string | null;
-  maxNumSuggestion: number;
+  numMaxSuggestion: number;
   labelString: string;
 }): string => {
   const prompt: string = `
@@ -63,7 +63,7 @@ const makePromptForSuggestions = ({
     }的描述："${labelString}"，並加上我提供的額外資訊輔助判斷，${
     height === null ? "" : `身高：${height}`
   }、${stylePreferences === null ? "" : `偏好風格：${stylePreferences}`}
-    ，推薦${maxNumSuggestion}種與之搭配的${
+    ，推薦${numMaxSuggestion}種與之搭配的${
     clothingType === "top" ? "下身類衣物" : "上衣"
   }
     請使用下方 JSON 格式回覆，回答無需包含其他資訊：
@@ -116,13 +116,13 @@ const makeSuggestions = async ({
   clothingType,
   height,
   stylePreferences,
-  maxNumSuggestion,
+  numMaxSuggestion,
   labelString,
 }: {
   clothingType: ClothingType;
   height: number | null;
   stylePreferences: string | null;
-  maxNumSuggestion: number;
+  numMaxSuggestion: number;
   labelString: string;
 }): Promise<string[]> => {
   const model = "gpt-4o-mini";
@@ -130,7 +130,7 @@ const makeSuggestions = async ({
     clothingType,
     height,
     stylePreferences,
-    maxNumSuggestion,
+    numMaxSuggestion,
     labelString,
   });
 
@@ -221,18 +221,24 @@ const formatSuggestion = (
 const handleSubmission = async ({
   clothingType,
   imageUrl,
+  gender,
+  bodyType,
   height,
+  weight,
   stylePreferences,
   userId,
-  maxNumSuggestion,
+  numMaxSuggestion,
   numMaxItem,
 }: {
   clothingType: ClothingType;
   imageUrl: string;
+  gender: Gender;
+  bodyType: BodyType;
   height: number | null;
+  weight: number | null;
   stylePreferences: string | null;
   userId: number;
-  maxNumSuggestion: number;
+  numMaxSuggestion: number;
   numMaxItem: number;
 }): Promise<number> => {
   try {
@@ -259,6 +265,9 @@ const handleSubmission = async ({
       // Store the parameters
       const paramId: number = await insertParam(
         height,
+        weight,
+        gender,
+        bodyType,
         clothingType,
         stylePreferences
       );
@@ -276,7 +285,7 @@ const handleSubmission = async ({
         clothingType,
         height,
         stylePreferences,
-        maxNumSuggestion,
+        numMaxSuggestion,
         labelString,
       });
       console.log(
