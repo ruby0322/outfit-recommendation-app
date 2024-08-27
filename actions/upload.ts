@@ -69,10 +69,10 @@ const makePromptForSuggestions = ({
     }的描述："${labelString}"，並加上我提供的額外資訊輔助判斷，
     {
       性別: ${gender === "male" ? "男性" : "女性"},
-      身高: ${height ? `${height}公分`: "未知"},
-      體重: ${weight ? `${weight}公斤`: "未知"},
-      偏好風格: ${stylePreferences ? `${stylePreferences}`: "無"},
-      身材: ${bodyType ? `${bodyType}公斤`: "未知"}
+      身高: ${height ? `${height}公分` : "未知"},
+      體重: ${weight ? `${weight}公斤` : "未知"},
+      偏好風格: ${stylePreferences ? `${stylePreferences}` : "無"},
+      身材: ${bodyType ? `${bodyType}公斤` : "未知"}
     }
     ，推薦${numMaxSuggestion}種與之搭配的${
     clothingType === "top" ? "下身類衣物" : "上衣"
@@ -211,7 +211,8 @@ const validateSuggestionFormat = (
     "材質",
     "細節",
   ];
-  const specificKeys = clothingType === "top" ? ["褲管"] : ["領子", "袖子"];
+  const specificKeys =
+    clothingType === "top" ? ["褲管", "裙擺"] : ["領子", "袖子"];
 
   const hasRequiredKeys = requiredKeys.every((key) => key in suggestion);
   const hasSpecificKeys = specificKeys.every((key) => key in suggestion);
@@ -227,11 +228,9 @@ const formatSuggestion = (
     suggestion.服裝類型
   }, 剪裁版型: ${suggestion.剪裁版型}, 設計特點: ${
     suggestion.設計特點
-  }, 材質: ${suggestion.材質}, ${
-    suggestion.配件 ? `配件: ${suggestion.配件}, ` : ""
-  }細節: ${suggestion.細節}, ${
+  }, 材質: ${suggestion.材質}, 細節: ${suggestion.細節}, ${
     clothingType === "top"
-      ? `褲管: ${suggestion.褲管}`
+      ? `褲管: ${suggestion.褲管}, 裙擺: ${suggestion.裙擺}`
       : `領子: ${suggestion.領子}, 袖子: ${suggestion.袖子}`
   }`;
 };

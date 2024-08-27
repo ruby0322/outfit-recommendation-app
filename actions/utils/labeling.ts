@@ -64,12 +64,11 @@ const validateResponseFormat = (imageLabelString: string): boolean => {
       "剪裁版型",
       "設計特點",
       "材質",
-      "配件",
       "細節",
     ];
 
     const topKeys = ["領子", "袖子"];
-    const bottomKeys = ["褲管"];
+    const bottomKeys = ["褲管", "裙擺"];
 
     const hasRequiredKeys = requiredKeys.every((key) => key in parsedLabels);
     const hasSpecificKeys =
