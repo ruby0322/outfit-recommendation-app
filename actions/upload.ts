@@ -45,14 +45,20 @@ const handleSuggestionMatching = async ({
 
 // Constructs a prompt based on input to generate suggestions
 const makePromptForSuggestions = ({
-  clothingType,
   height,
+  weight,
+  gender,
+  bodyType,
+  clothingType,
   stylePreferences,
   numMaxSuggestion,
   labelString,
 }: {
-  clothingType: ClothingType;
   height: number | null;
+  weight: number | null;
+  gender: Gender;
+  bodyType: BodyType | null;
+  clothingType: ClothingType;
   stylePreferences: string | null;
   numMaxSuggestion: number;
   labelString: string;
@@ -60,9 +66,14 @@ const makePromptForSuggestions = ({
   const prompt: string = `
     請擔任我的造型師，根據這件${
       clothingType === "top" ? "上衣" : "下身類衣物"
-    }的描述："${labelString}"，並加上我提供的額外資訊輔助判斷，${
-    height === null ? "" : `身高：${height}`
-  }、${stylePreferences === null ? "" : `偏好風格：${stylePreferences}`}
+    }的描述："${labelString}"，並加上我提供的額外資訊輔助判斷，
+    {
+      性別: ${gender === "male" ? "男性" : "女性"},
+      身高: ${height ? `${height}公分`: "未知"},
+      體重: ${weight ? `${weight}公斤`: "未知"},
+      偏好風格: ${stylePreferences ? `${stylePreferences}`: "無"},
+      身材: ${bodyType ? `${bodyType}公斤`: "未知"}
+    }
     ，推薦${numMaxSuggestion}種與之搭配的${
     clothingType === "top" ? "下身類衣物" : "上衣"
   }
@@ -74,11 +85,10 @@ const makePromptForSuggestions = ({
         "剪裁版型": "[描述]", 
         "設計特點": "[描述]", 
         "材質": "[材質]", 
-        "配件": "[描述]（若無可略過）", 
         "細節: "[描述]", 
         ${
           clothingType === "top"
-            ? '"褲管": "[描述]"'
+            ? '"褲管": "[描述]", "裙擺": "[描述]"'
             : '"領子": "[描述]", "袖子": "[描述]"'
         }
       }
@@ -92,9 +102,9 @@ const makePromptForSuggestions = ({
         "剪裁版型": "修身剪裁",
         "設計特點": "有口袋",
         "材質": "棉",
-        "配件": "無",
         "細節": "有破洞",
-        "褲管": "直筒"
+        "褲管": "直筒",
+        "裙擺": "無"
       },
       {
         "顏色": "黑色",
@@ -102,9 +112,9 @@ const makePromptForSuggestions = ({
         "剪裁版型": "寬鬆",
         "設計特點": "抽繩",
         "材質": "聚酯纖維",
-        "配件": "無",
         "細節": "有條紋",
-        "褲管": "窄口"
+        "褲管": "窄口",
+        "裙擺": "無"
       }
     ]
   `;
@@ -113,24 +123,33 @@ const makePromptForSuggestions = ({
 
 // Generates suggestions based on the clothing details
 const makeSuggestions = async ({
-  clothingType,
   height,
+  weight,
+  gender,
+  bodyType,
+  clothingType,
   stylePreferences,
-  model,
   numMaxSuggestion,
   labelString,
+  model,
 }: {
-  clothingType: ClothingType;
   height: number | null;
+  weight: number | null;
+  gender: Gender;
+  bodyType: BodyType | null;
+  clothingType: ClothingType;
   stylePreferences: string | null;
-  model: string;
   numMaxSuggestion: number;
   labelString: string;
+  model: string;
 }): Promise<string[]> => {
   // const model = "gpt-4o-mini";
   const prompt: string = makePromptForSuggestions({
-    clothingType,
     height,
+    weight,
+    gender,
+    bodyType,
+    clothingType,
     stylePreferences,
     numMaxSuggestion,
     labelString,
@@ -234,7 +253,7 @@ const handleSubmission = async ({
   clothingType: ClothingType;
   imageUrl: string;
   gender: Gender;
-  bodyType: BodyType;
+  bodyType: BodyType | null;
   height: number | null;
   weight: number | null;
   model: string;
@@ -285,12 +304,15 @@ const handleSubmission = async ({
 
       // Generate suggestions
       const suggestedLabelStrings: string[] = await makeSuggestions({
-        clothingType,
         height,
+        weight,
+        gender,
+        bodyType,
+        clothingType,
         stylePreferences,
-        model,
         numMaxSuggestion,
         labelString,
+        model,
       });
       console.log(
         "The generated suggested_label_strings:",

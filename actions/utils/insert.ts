@@ -115,7 +115,7 @@ const insertParam = async (
   height: number | null,
   weight: number | null,
   gender: Gender,
-  bodyType: BodyType,
+  bodyType: BodyType | null,
   clothinType: ClothingType,
   stylePreferences: string | null,
   model: string
