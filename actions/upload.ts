@@ -16,10 +16,12 @@ const handleSuggestionMatching = async ({
   suggestedLabelStrings,
   numMaxItem,
   recommendationId,
+  gender,
 }: {
   suggestedLabelStrings: string[];
   numMaxItem: number;
   recommendationId: number;
+  gender: Gender;
 }): Promise<void> => {
   try {
     for (const s of suggestedLabelStrings) {
@@ -34,6 +36,7 @@ const handleSuggestionMatching = async ({
         suggestionId: suggestionId,
         suggestedLabelString: s,
         numMaxItem,
+        gender,
       })) as UnstoredResult[];
 
       await insertResults(results);
@@ -301,6 +304,7 @@ const handleSubmission = async ({
         suggestedLabelStrings,
         numMaxItem,
         recommendationId,
+        gender,
       });
       console.log("Done handleSuggestionMatching.");
       return recommendationId;

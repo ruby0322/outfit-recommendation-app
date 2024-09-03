@@ -22,7 +22,7 @@ const ItemCard = ({ series }: { series: Series }) => {
   // console.log(item.image_url);
   return (
     <Card className='w-64 rounded-none flex flex-col justify-between h-full gap-1 shadow-none border-0'>
-      <div className='relative inline-block'>
+      <div className='relative inline-block w-full h-full'>
         <Badge className='bg-muted text-muted-foreground border-0 shadow-none absolute top-0 left-0 m-2'>
           {series.provider}
         </Badge>
@@ -30,8 +30,8 @@ const ItemCard = ({ series }: { series: Series }) => {
           <Carousel>
             <CarouselNext />
             <CarouselPrevious />
-            <div className='relative '>
-              <CarouselMainContainer className='h-60'>
+            <div className='relative w-full h-full'>
+              <CarouselMainContainer className='h-full w-full'>
                 {series.items.map((item, index) => (
                   <SliderMainItem key={item.id} className='bg-transparent'>
                     <Image

@@ -1,4 +1,5 @@
 "use server";
+import { Gender } from "@/type";
 import { createClient } from "@/utils/supabase/server";
 import { calculateDistance, generateEmbedding } from "./embedding";
 
@@ -13,10 +14,12 @@ const semanticSearch = async ({
   suggestionId,
   suggestedLabelString,
   numMaxItem,
+  gender = "male",
 }: {
   suggestionId: number;
   suggestedLabelString: string;
   numMaxItem: number;
+  gender: Gender;
 }): Promise<UnstoredResult[] | null> => {
   try {
     const supabase = createClient();
@@ -27,7 +30,8 @@ const semanticSearch = async ({
     // TODO: Replace the query logic below with actual Supabase semantic search query
     // Example: Use supabase.rpc or supabase.from to call a stored procedure or a custom SQL query
     const { data: similarItems, error: err } = await supabase.rpc(
-      "query_similar_items",
+      `query_similar_${gender}_items`,
+      // `query_similar_items`,
       {
         query_embedding: suggestedEmbedding,
         match_threshold: 0.2,
