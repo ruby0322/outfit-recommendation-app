@@ -23,7 +23,7 @@ import {
 } from "./utils/fetch";
 
 // util function for getRecommendationRecordById()
-const getSeries = async (series_ids: string[], originalItemIds: string[]): Promise<Series[] | null> => {
+const getSeries = async (series_ids: string[], originalItemIds: string[], gender: string): Promise<Series[] | null> => {
   try {
     const seriesArray: Series[] = [];
     const threads: Promise<void>[] = [];
@@ -32,6 +32,9 @@ const getSeries = async (series_ids: string[], originalItemIds: string[]): Promi
       const thread = async (): Promise<void> => {
         const seriesTable = await getSeriesById(seriesId);
         if (!seriesTable) {
+          return;
+        }
+        if (seriesTable.gender !== gender) {
           return;
         }
         const itemIds = await getItemsIDBySeriesId(seriesId);
@@ -101,7 +104,8 @@ const getRecommendationRecordById = async (
       console.log(results);
       const item_ids = results.map((r) => r.item_id) as string[];
       const series_ids = (await getSeriesIdsByItemIds(item_ids)) as string[];
-      const series = (await getSeries(series_ids, item_ids)) as Series[];
+      const gender = recommendation_record.param.gender === "male" ? "man" : "woman";
+      const series = (await getSeries(series_ids, item_ids, gender)) as Series[];
       const items = (await getItemsByIds(item_ids)) as ItemTable[];
 
       // Create a map to associate item_id with distance

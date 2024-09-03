@@ -29,6 +29,7 @@ const semanticSearch = async ({
 
     // TODO: Replace the query logic below with actual Supabase semantic search query
     // Example: Use supabase.rpc or supabase.from to call a stored procedure or a custom SQL query
+
     const { data: similarItems, error: err } = await supabase.rpc(
       `query_similar_${gender}_items`,
       // `query_similar_items`,
@@ -38,7 +39,6 @@ const semanticSearch = async ({
         max_item_count: numMaxItem,
       }
     );
-
     if (err) {
       console.error("Error fetching results from Supabase:", err);
       return null;
