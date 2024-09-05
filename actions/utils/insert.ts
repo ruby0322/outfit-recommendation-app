@@ -17,6 +17,7 @@ const base64ToBlob = (base64: string): Blob => {
 };
 
 const storeImageToStorage = async (base64: string) => {
+  console.time("storeImageToStorage");
   const blob: Blob = base64ToBlob(base64);
   const supabase = createClient();
   const filename = `image-${uuidv4()}`;
@@ -28,6 +29,7 @@ const storeImageToStorage = async (base64: string) => {
   const {
     data: { publicUrl },
   } = supabase.storage.from("image").getPublicUrl(filename);
+  console.timeEnd("storeImageToStorage");
   return publicUrl;
 };
 

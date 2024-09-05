@@ -62,7 +62,7 @@ const UploadPage = () => {
             ? data.stylePreferences.join(", ")
             : null;
           console.log(style_preference);
-          await delay(5000);
+          // await delay(5000);
           const recommendationId = await handleSubmission({
             clothingType: data.clothingType,
             imageUrl: imageUrl,

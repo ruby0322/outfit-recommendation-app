@@ -12,6 +12,7 @@ const chatCompletionTextAndImage = async ({
   prompt: string;
   imageUrl: string;
 }): Promise<string | null> => {
+  console.time("chatCompletionTextAndImage");
   console.log("imageUrl in chatCompletionTextAndImage:", imageUrl);
   const NUM_MAX_RETRIES = 5;
   for (let numRetries = 0; numRetries < NUM_MAX_RETRIES; ++numRetries) {
@@ -34,6 +35,7 @@ const chatCompletionTextAndImage = async ({
       });
       // Extracting and returning the response content
       const response = completion.choices[0].message.content;
+      console.timeEnd("chatCompletionTextAndImage");
       return response;
     } catch (e) {
       console.log("Failed to get response from GPT API.");
@@ -55,6 +57,7 @@ const chatCompletionTextOnly = async ({
   prompt: string;
 }): Promise<string | null> => {
   try {
+    console.time("chatCompletionTextOnly");
     // Sending a request to the OpenAI API with only text input
     const completion = await openai.chat.completions.create({
       model,
@@ -62,6 +65,7 @@ const chatCompletionTextOnly = async ({
     });
     // Extracting and returning the response content
     const response = completion.choices[0].message.content;
+    console.timeEnd("chatCompletionTextOnly");
     return response;
   } catch (e) {
     console.log("Failed to get response from GPT API.");
