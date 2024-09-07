@@ -1,14 +1,35 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
-    domains: [
-      "oaidalleapiprodscus.blob.core.windows.net",
-      "dmbkhireuarjpvecjmds.supabase.co",
-      "jmgowbnhsejplwjfhpnv.supabase.co",
-      "media.discordapp.net",
-      "eapzlwxcyrinipmcdoir.supabase.co",
-      "image.uniqlo.com",
-      "www.uniqlo.com"
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'oaidalleapiprodscus.blob.core.windows.net',
+      },
+      {
+        protocol: 'https',
+        hostname: 'dmbkhireuarjpvecjmds.supabase.co',
+      },
+      {
+        protocol: 'https',
+        hostname: 'jmgowbnhsejplwjfhpnv.supabase.co',
+      },
+      {
+        protocol: 'https',
+        hostname: 'media.discordapp.net',
+      },
+      {
+        protocol: 'https',
+        hostname: 'eapzlwxcyrinipmcdoir.supabase.co',
+      },
+      {
+        protocol: 'https',
+        hostname: 'image.uniqlo.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'www.uniqlo.com',
+      },
     ],
   },
   experimental: {

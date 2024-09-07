@@ -1,4 +1,4 @@
-import { createClient } from "@/utils/supabase/server";
+import supabase from "@/lib/supabaseClient";
 import {
   AlarmClock,
   AreaChart,
@@ -9,7 +9,6 @@ import {
 import Link from "next/link";
 
 const Tabbar = async () => {
-  const supabase = createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();

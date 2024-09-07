@@ -9,7 +9,6 @@ import {
   SuggestionTable,
   UploadTable,
 } from "@/type";
-import { createClient } from "@/utils/supabase/server";
 import {
   getItemsByIds,
   getItemsIDBySeriesId,
@@ -36,36 +35,23 @@ const getSeries = async (
     for (const seriesId of series_ids) {
       const thread = async (): Promise<void> => {
         const seriesTable = await getSeriesById(seriesId);
-        if (!seriesTable) {
-          return;
-        }
-        if (seriesTable.gender !== gender) {
+        if (!seriesTable || seriesTable.gender !== gender) {
           return;
         }
         const itemIds = await getItemsIDBySeriesId(seriesId);
         if (itemIds) {
           let items = await getItemsByIds(itemIds);
-
-          // items = items.sort((a, b) => {
-          //   const aIndex = originalItemIds.indexOf(a.item_id);
-          //   const bIndex = originalItemIds.indexOf(b.item_id);
-          //   return aIndex - bIndex;
-          // });
           if (items) {
-            originalItemIds.forEach((originalItemId) => {
-              const index = items.findIndex(
-                (item) => item.id === originalItemId
-              );
-              if (index !== -1) {
-                const [matchedItem] = items.splice(index, 1);
-                items.unshift(matchedItem);
-              }
-            });
+            // 維持 SQL 完的順序
+            items = items.sort((a, b) => 
+              originalItemIds.indexOf(a.id) - originalItemIds.indexOf(b.id)
+            );
 
             const series: Series = {
               ...seriesTable,
               items: items as ItemTable[],
             };
+
             seriesArray.push(series);
           }
         }
@@ -88,7 +74,6 @@ const getRecommendationRecordById = async (
   try {
     console.time("getRecommendationRecordById");
     console.time("get param, upload, suggestion");
-    const supabase = createClient();
     const recommendation = (await getRecommendationById(
       recommendation_id
     )) as RecommendationTable;
@@ -112,30 +97,12 @@ const getRecommendationRecordById = async (
     for (const s of suggestions) {
       const label_string = s.label_string as string;
       const results = (await getResults(s.id)) as ResultTable[]; // getResults()'s return type: Series[]
-      console.log(results);
       const item_ids = results.map((r) => r.item_id) as string[];
       const series_ids = (await getSeriesIdsByItemIds(item_ids)) as string[];
-      const gender =
-        recommendation_record.param.gender === "male" ? "man" : "woman";
-      const series = (await getSeries(
-        series_ids,
-        item_ids,
-        gender
-      )) as Series[];
-      const items = (await getItemsByIds(item_ids)) as ItemTable[];
+      const gender = recommendation_record.param.gender === "male" ? "man" : "woman";
+      const series = (await getSeries(series_ids, item_ids, gender)) as Series[];
 
-      // Create a map to associate item_id with distance
-      const itemIdToDistance: { [key: string]: number } = results.reduce(
-        (acc, item) => {
-          acc[item.item_id as string] = item.distance as number;
-          return acc;
-        },
-        {} as { [key: string]: number }
-      );
-      // Sort items by distance
-      items.sort((a, b) => itemIdToDistance[a.id] - itemIdToDistance[b.id]);
-      
-      recommendation_record.series![label_string] = series; // { [style: string]: Series[] }
+      recommendation_record.series![label_string] = series;
     }
     console.timeEnd("get results, series, items");
     console.timeEnd("getRecommendationRecordById");

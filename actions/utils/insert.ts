@@ -1,6 +1,6 @@
 "use server";
 import { BodyType, ClothingType, Gender } from "@/type";
-import { createClient } from "@/utils/supabase/server";
+import supabase from "@/lib/supabaseClient";
 import { v4 as uuidv4 } from "uuid";
 import { UnstoredResult } from "./matching";
 
@@ -19,9 +19,8 @@ const base64ToBlob = (base64: string): Blob => {
 const storeImageToStorage = async (base64: string) => {
   console.time("storeImageToStorage");
   const blob: Blob = base64ToBlob(base64);
-  const supabase = createClient();
   const filename = `image-${uuidv4()}`;
-  console.log(filename);
+  // console.log(filename);
   await supabase.storage.from("image").upload(filename, blob, {
     cacheControl: "3600",
     upsert: false,
@@ -38,7 +37,6 @@ const insertResults = async (
   results: UnstoredResult[]
 ): Promise<number[] | null> => {
   try {
-    const supabase = createClient();
     const { data, error } = await supabase
       .from("result")
       .insert(results)
@@ -65,7 +63,6 @@ const insertSuggestion = async ({
   labelString: string;
 }): Promise<number> => {
   try {
-    const supabase = createClient();
     const { data, error } = await supabase
       .from("suggestion")
       .insert({
@@ -95,7 +92,6 @@ const insertRecommendation = async ({
   uploadId: number;
 }): Promise<number> => {
   try {
-    const supabase = createClient();
     const { data, error } = await supabase
       .from("recommendation")
       .insert([{ param_id: paramId, upload_id: uploadId }])
@@ -122,7 +118,6 @@ const insertParam = async (
   stylePreferences: string | null,
   model: string
 ): Promise<number> => {
-  const supabase = createClient();
   const { data, error } = await supabase
     .from("param")
     .insert([
@@ -153,7 +148,6 @@ const insertUpload = async (
   labelString: string,
   userId: number
 ) => {
-  const supabase = createClient();
   const { data, error } = await supabase
     .from("upload")
     .insert([

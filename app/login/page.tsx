@@ -1,5 +1,5 @@
 import { createProfile } from "@/actions/user";
-import { createClient } from "@/utils/supabase/server";
+import supabase from "@/lib/supabaseClient";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { SubmitButton } from "./submit-button";
@@ -14,8 +14,6 @@ export default function Login({
 
     const email = formData.get("email") as string;
     const password = formData.get("password") as string;
-    const supabase = createClient();
-
     const { error } = await supabase.auth.signInWithPassword({
       email,
       password,
@@ -34,7 +32,6 @@ export default function Login({
     const origin = headers().get("origin");
     const email = formData.get("email") as string;
     const password = formData.get("password") as string;
-    const supabase = createClient();
 
     const { data, error } = await supabase.auth.signUp({
       email,

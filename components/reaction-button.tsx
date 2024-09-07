@@ -6,7 +6,7 @@ import {
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { Reaction, ReactionType } from "@/type";
-import { createClient } from "@/utils/supabase/client";
+import supabase from "@/lib/supabaseClient";
 import {
   AngryIcon,
   Cat,
@@ -84,7 +84,6 @@ const ReactionButton = ({
   const [open, setOpen] = useState<boolean>(false);
   const onClick = (reactionType: ReactionType) => {
     return async () => {
-      const supabase = createClient();
       const {
         data: { user },
       } = await supabase.auth.getUser();
@@ -97,9 +96,9 @@ const ReactionButton = ({
 
       onReact(reactionType);
       setOpen(false);
-      console.log("optimistically updated");
+      // console.log("optimistically updated");
       await reactToPost(user.id as string, postId, reactionType);
-      console.log("database updated");
+      // console.log("database updated");
       return;
     };
   };

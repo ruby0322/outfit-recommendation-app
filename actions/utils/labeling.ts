@@ -111,7 +111,7 @@ const extractLabelsFromImage = async (
   const model: string = "gpt-4o-mini";
   const prompt: string = makePromptForLabeling(clothingType);
   // console.log("prompt: ", prompt);
-  console.log("imageUrl in extractLabelsFromImage:", imageUrl);
+  // console.log("imageUrl in extractLabelsFromImage:", imageUrl);
   try {
     
     const response: string | null = await chatCompletionTextAndImage({
@@ -121,7 +121,7 @@ const extractLabelsFromImage = async (
     });
     
     if (response && validateResponseFormat(response)) {
-      console.log("Original JSON: ", response);
+      // console.log("Original JSON: ", response);
       // console.log("Extracted Labels: ", transformResponse(response));
       
       return transformResponse(response);

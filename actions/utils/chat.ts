@@ -13,7 +13,7 @@ const chatCompletionTextAndImage = async ({
   imageUrl: string;
 }): Promise<string | null> => {
   console.time("chatCompletionTextAndImage");
-  console.log("imageUrl in chatCompletionTextAndImage:", imageUrl);
+  // console.log("imageUrl in chatCompletionTextAndImage:", imageUrl);
   const NUM_MAX_RETRIES = 5;
   for (let numRetries = 0; numRetries < NUM_MAX_RETRIES; ++numRetries) {
     try {

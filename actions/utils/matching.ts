@@ -1,12 +1,17 @@
 "use server";
 import { Gender } from "@/type";
-import { createClient } from "@/utils/supabase/server";
+import supabase from "@/lib/supabaseClient";
 import { calculateDistance, generateEmbedding } from "./embedding";
 
 export interface UnstoredResult {
   distance: number;
   item_id: number;
   suggestion_id: number;
+}
+
+interface SimilarItem {
+  id: string;
+  embedding: number[];
 }
 
 // Function to perform semantic search using Supabase API
@@ -22,23 +27,19 @@ const semanticSearch = async ({
   gender: Gender;
 }): Promise<UnstoredResult[] | null> => {
   try {
-    const supabase = createClient();
-
     const suggestedEmbedding = await generateEmbedding(suggestedLabelString);
-    // const embeddingString = JSON.stringify(suggestedEmbedding).replace(/^\[|\]$/g, '');
 
-    // TODO: Replace the query logic below with actual Supabase semantic search query
-    // Example: Use supabase.rpc or supabase.from to call a stored procedure or a custom SQL query
+    const rpcFunctionName = `query_similar_${gender}_items`;
 
     const { data: similarItems, error: err } = await supabase.rpc(
-      `query_similar_${gender}_items`,
-      // `query_similar_items`,
+      rpcFunctionName,
       {
         query_embedding: suggestedEmbedding,
         match_threshold: 0.2,
         max_item_count: numMaxItem,
       }
     );
+    
     if (err) {
       console.error("Error fetching results from Supabase:", err);
       return null;
