@@ -8,7 +8,6 @@ interface Item {
   embedding?: number[] | null;
 }
 
-
 const getAllItems = async (start: number = 1000, end: number = 2000): Promise<Item[] | null> => {
   try {
     const { data, error } = await supabase
