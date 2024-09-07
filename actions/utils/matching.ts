@@ -1,7 +1,7 @@
 "use server";
 import { Gender } from "@/type";
 import supabase from "@/lib/supabaseClient";
-import { generateEmbedding } from "./embedding";
+import { calculateDistance, generateEmbedding } from "./embedding";
 
 export interface UnstoredResult {
   distance: number;
@@ -45,11 +45,11 @@ const semanticSearch = async ({
       return null;
     }
 
-const results: UnstoredResult[] = similarItems.map((item: SimilarItem, index: number) => ({
-  distance: -1 * (item.embedding as unknown as number[]).indexOf(index), // Approximation of distance based on order
-  item_id: item.id,
-  suggestion_id: suggestionId,
-}));
+    const results: UnstoredResult[] = similarItems.map((item: { id: any; }, index: any) => ({
+      distance: index, // SQL Editor Sort 完直接用 (?)
+      item_id: item.id,
+      suggestion_id: suggestionId,
+    }));
 
     return results;
   } catch (error) {
