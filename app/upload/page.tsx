@@ -49,7 +49,7 @@ const UploadPage = () => {
   const [loading, setLoading] = useState<boolean>(false);
 
   const onSubmit = async (data: any) => {
-    console.log("data:", data);
+    // console.log("data:", data);
     setLoading(true);
     const reader = new FileReader();
     reader.onloadend = async () => {
@@ -57,12 +57,11 @@ const UploadPage = () => {
         const base64 = reader.result;
         try {
           const imageUrl = await storeImageToStorage(base64);
-          console.log("public image url:", imageUrl);
+          // console.log("public image url:", imageUrl);
           const style_preference = data.stylePreferences
             ? data.stylePreferences.join(", ")
             : null;
-          console.log(style_preference);
-          await delay(5000);
+          // console.log(style_preference);
           const recommendationId = await handleSubmission({
             clothingType: data.clothingType,
             imageUrl: imageUrl,

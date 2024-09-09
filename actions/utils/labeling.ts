@@ -54,6 +54,7 @@ const makePromptForLabeling = (clothingType: ClothingType): string => {
 
 const validateResponseFormat = (imageLabelString: string): boolean => {
   try {
+
     const cleanedString = imageLabelString
       .replace(/```json\n?|\n?```/g, "")
       .trim();
@@ -110,16 +111,19 @@ const extractLabelsFromImage = async (
   const model: string = "gpt-4o-mini";
   const prompt: string = makePromptForLabeling(clothingType);
   // console.log("prompt: ", prompt);
-  console.log("imageUrl in extractLabelsFromImage:", imageUrl);
+  // console.log("imageUrl in extractLabelsFromImage:", imageUrl);
   try {
+    
     const response: string | null = await chatCompletionTextAndImage({
       model,
       prompt,
       imageUrl,
     });
+    
     if (response && validateResponseFormat(response)) {
-      console.log("Original JSON: ", response);
+      // console.log("Original JSON: ", response);
       // console.log("Extracted Labels: ", transformResponse(response));
+      
       return transformResponse(response);
     } else {
       console.error("Invalid response format:", response);

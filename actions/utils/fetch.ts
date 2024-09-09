@@ -9,14 +9,13 @@ import {
   SuggestionTable,
   UploadTable,
 } from "@/type";
-import { createClient } from "@/utils/supabase/server";
+import supabase from "@/lib/supabaseClient";
 
 // Fetches results based on a suggestion ID
 const getResults = async (
   suggestionId: number
 ): Promise<ResultTable[] | null> => {
   try {
-    const supabase = createClient();
     const { data, error } = await supabase
       .from("result")
       .select("*")
@@ -39,7 +38,6 @@ const getSuggestion = async (
   recommendationId: number
 ): Promise<SuggestionTable[] | null> => {
   try {
-    const supabase = createClient();
     const { data, error } = await supabase
       .from("suggestion")
       .select("*")
@@ -61,7 +59,6 @@ const getRecommendationById = async (
   recommendationId: number
 ): Promise<RecommendationTable | null> => {
   try {
-    const supabase = createClient();
     const { data: recommendation, error } = await supabase
       .from("recommendation")
       .select("*")
@@ -80,7 +77,6 @@ const getRecommendationById = async (
 
 const getParamById = async (paramId: number): Promise<ParamTable | null> => {
   try {
-    const supabase = createClient();
     const { data, error } = await supabase
       .from("param")
       .select("*")
@@ -99,7 +95,6 @@ const getParamById = async (paramId: number): Promise<ParamTable | null> => {
 
 const getUploadById = async (uploadId: number): Promise<UploadTable | null> => {
   try {
-    const supabase = createClient();
     const { data, error } = await supabase
       .from("upload")
       .select("*")
@@ -118,7 +113,6 @@ const getUploadById = async (uploadId: number): Promise<UploadTable | null> => {
 
 // Fetch a single item by its ID
 const getItemById = async (itemId: string): Promise<ItemTable | null> => {
-  const supabase = createClient();
   try {
     const { data, error } = await supabase
       .from("item")
@@ -142,7 +136,6 @@ const getItemById = async (itemId: string): Promise<ItemTable | null> => {
 const getItemsByIds = async (
   itemIds: string[]
 ): Promise<ItemTable[] | null> => {
-  const supabase = createClient();
   try {
     const { data, error } = await supabase
       .from("item")
@@ -163,7 +156,6 @@ const getItemsByIds = async (
 
 // Fetch the series ID by item ID
 const getSeriesIDByItemId = async (itemId: string): Promise<string | null> => {
-  const supabase = createClient();
   try {
     const { data, error } = await supabase
       .from("item_to_series")
@@ -198,7 +190,6 @@ const getSeriesIdsByItemIds = async (item_ids: string[]): Promise<string[]> => {
 
 // Fetch the series by series ID
 const getSeriesById = async (seriesId: string): Promise<SeriesTable | null> => {
-  const supabase = createClient();
   try {
     const { data, error } = await supabase
       .from("series")
@@ -222,7 +213,6 @@ const getSeriesById = async (seriesId: string): Promise<SeriesTable | null> => {
 const getItemsIDBySeriesId = async (
   seriesId: string
 ): Promise<string[] | null> => {
-  const supabase = createClient();
   try {
     const { data, error } = await supabase
       .from("item_to_series")
@@ -233,7 +223,6 @@ const getItemsIDBySeriesId = async (
       console.error("Error fetching series ID:", error);
       return null;
     }
-    // console.log(data);
     const itemIDs = data.map((item) => item.item_id);
 
     return itemIDs;

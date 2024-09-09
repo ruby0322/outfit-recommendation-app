@@ -1,38 +1,45 @@
 "use server";
 import openai from "@/utils/openai";
-import { createClient } from "@/utils/supabase/server";
+import supabase from "@/lib/supabaseClient";
 
-const getAllItems = async () => {
-  const supabase = createClient();
+interface Item {
+  id: string;
+  label_string: string;
+  embedding?: number[] | null;
+}
+
+const getAllItems = async (start: number = 1000, end: number = 2000): Promise<Item[] | null> => {
   try {
-    let { data, error, status } = await supabase
+    const { data, error } = await supabase
       .from("item")
       .select("id, label_string")
-      .range(1000, 2000);
+      .range(start, end);
+    
+    if(error) throw error;
+    return data;
   } catch (error) {
     console.error("Error getting items:", error);
+    return null;
   }
 };
 
-const generateEmbedding = async (text: string) => {
+const generateEmbedding = async (text: string): Promise<number[] | null> => {
   try {
     const response = await openai.embeddings.create({
       model: "text-embedding-ada-002",
       input: text,
     });
 
-    const embedding = response.data[0].embedding;
-    return embedding;
+    return response.data[0].embedding;
   } catch (error) {
     console.error("Error generating embedding:", error);
     return null;
   }
 };
 
-const handler = async () => {
-  const supabase = createClient();
+const handler = async (): Promise<void> => {
   try {
-    let { data, error, status } = await supabase
+    const { data, error, status } = await supabase
       .from("item")
       .select("id, label_string")
       .is("embedding", null);
@@ -40,10 +47,9 @@ const handler = async () => {
     if (error && status !== 406) {
       throw error;
     }
-    console.log(data?.length);
 
     if (data) {
-      for (const item of data) {
+      const updates = data.map(async (item) => {
         const embedding = await generateEmbedding(item.label_string);
 
         if (embedding) {
@@ -51,40 +57,37 @@ const handler = async () => {
             .from("item")
             .update({ embedding })
             .eq("id", item.id);
-
-          if (error) {
-            console.error(
-              `Error updating embedding for item ${item.id}:`,
-              error
-            );
+        
+          if(error) {
+            console.error(`Error updating embedding for item ${item.id}:`, error);
           }
         } else {
           console.error(`Error generating embedding for item ${item.id}`);
         }
-      }
+      });
+    
+      await Promise.all(updates);
     }
-
-    console.log("Embeddings generated and saved successfully");
   } catch (error) {
     console.error("Error generating embeddings:", error);
   }
 };
 
 const calculateDistance = (
-  embedding1: number[],
+  embedding1: number[] | string,
   embedding2: number[]
 ): number => {
-  if (!Array.isArray(embedding2)) {
-    throw new TypeError("emb2 is not array");
+  const emb1 = Array.isArray(embedding1) ? embedding1 : JSON.parse(embedding1);
+
+  if (!Array.isArray(emb1) || !Array.isArray(embedding2)) {
+    throw new TypeError("Both embeddings should be arrays");
   }
-  if (!Array.isArray(embedding1)) {
-    // throw new TypeError('emb1 is not array');
-    embedding1 = JSON.parse(embedding1);
+
+  if (emb1.length !== embedding2.length) {
+    throw new Error("Embeddings must have the same length");
   }
-  return (
-    1 -
-    embedding1.reduce((sum, value, index) => sum + value * embedding2[index], 0)
-  );
+
+  return 1 - emb1.reduce((sum, value, index) => sum + value * embedding2[index], 0);
 };
 
 export { calculateDistance, generateEmbedding, getAllItems, handler };

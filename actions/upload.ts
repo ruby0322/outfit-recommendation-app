@@ -147,6 +147,7 @@ const makeSuggestions = async ({
   model: string;
 }): Promise<string[]> => {
   // const model = "gpt-4o-mini";
+  
   const prompt: string = makePromptForSuggestions({
     height,
     weight,
@@ -159,25 +160,28 @@ const makeSuggestions = async ({
   });
 
   try {
+
     const suggestions = await chatCompletionTextOnly({
       model,
       prompt,
     });
-    console.log("Suggestions:", suggestions);
+    // console.log("Suggestions:", suggestions);
 
     if (!suggestions) {
       throw new Error("No suggestions");
     }
-
+    // console.time("makeSuggestions");
     const suggestedLabelStrings: string[] = validateAndCleanSuggestions(
       suggestions,
       clothingType
     );
+    // console.timeEnd("makeSuggestions");
     return suggestedLabelStrings;
   } catch (error) {
     console.error("Error in makeSuggestions:", error);
     return [];
   }
+
 };
 
 const validateAndCleanSuggestions = (
@@ -265,17 +269,20 @@ const handleSubmission = async ({
   numMaxItem: number;
 }): Promise<number> => {
   try {
-    console.log("Handling submission...");
+    console.time("handleSubmission");
+    // console.log("Handling submission...");
 
     // Extract labels from the image
-    console.log("imageUrl in handleSubmission:", imageUrl);
+    // console.log("imageUrl in handleSubmission:", imageUrl);
+    console.time("extractLabelsFromImage");
     const labelString: string | null = await extractLabelsFromImage(
       imageUrl,
       clothingType
     );
+    console.timeEnd("extractLabelsFromImage");
+    // console.log("Labels extracted from the clothing:", labelString);
 
-    console.log("Labels extracted from the clothing:", labelString);
-
+    console.time("insert upload, param, recommendation");
     if (labelString) {
       // Store the upload details
       const uploadId: number = await insertUpload(
@@ -283,7 +290,7 @@ const handleSubmission = async ({
         labelString,
         userId
       );
-      console.log("The generated uploadId:", uploadId);
+      // console.log("The generated uploadId:", uploadId);
 
       // Store the parameters
       const paramId: number = await insertParam(
@@ -295,16 +302,18 @@ const handleSubmission = async ({
         stylePreferences,
         model
       );
-      console.log("The generated param_id:", paramId);
+      // console.log("The generated param_id:", paramId);
 
       // Store the recommendation
       const recommendationId: number = await insertRecommendation({
         paramId,
         uploadId,
       });
-      console.log("The generated recommendation_id:", recommendationId);
+      console.timeEnd("insert upload, param, recommendation");
+      // console.log("The generated recommendation_id:", recommendationId);
 
       // Generate suggestions
+      console.time("makeSuggestions");
       const suggestedLabelStrings: string[] = await makeSuggestions({
         height,
         weight,
@@ -316,18 +325,23 @@ const handleSubmission = async ({
         labelString,
         model,
       });
-      console.log(
-        "The generated suggested_label_strings:",
-        suggestedLabelStrings
-      );
+      console.timeEnd("makeSuggestions");
+      // console.log(
+      //   "The generated suggested_label_strings:",
+      //   suggestedLabelStrings
+      // );
       // Handle suggestion matching
+      console.time("handleSuggestionMatching");
       await handleSuggestionMatching({
         suggestedLabelStrings,
         numMaxItem,
         recommendationId,
         gender,
       });
-      console.log("Done handleSuggestionMatching.");
+      console.timeEnd("handleSuggestionMatching");
+      // console.log("Done handleSuggestionMatching.");
+
+      console.timeEnd("handleSubmission");
       return recommendationId;
     } else {
       return -1;
@@ -336,6 +350,7 @@ const handleSubmission = async ({
     console.error("Error in handleSubmission:", error);
     return -1;
   }
+  
 };
 
 export { handleSubmission };
