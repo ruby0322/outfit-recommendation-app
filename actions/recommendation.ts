@@ -29,7 +29,7 @@ const getSeries = async (
 ): Promise<Series[] | null> => {
   try {
     console.time("getSeries");
-    console.log(`Starting getSeries with ${series_ids.length} series IDs, gender: ${gender}`);
+    // console.log(`Starting getSeries with ${series_ids.length} series IDs, gender: ${gender}`);
     const seriesArray: Series[] = [];
     const threads: Promise<void>[] = [];
     const dbGender = gender === "man" ? "male" : "female";
@@ -68,7 +68,7 @@ const getSeries = async (
           };
 
           seriesArray.push(series);
-          console.log(`Successfully added series ${seriesId} with ${items.length} items`);
+          // console.log(`Successfully added series ${seriesId} with ${items.length} items`);
         } catch (error) {
           console.error(`Error processing series ${seriesId}:`, error);
         }
@@ -76,7 +76,7 @@ const getSeries = async (
       threads.push(thread());
     }
     await Promise.all(threads);
-    console.log(`Finished processing. Found ${seriesArray.length} matching series.`);
+    // console.log(`Finished processing. Found ${seriesArray.length} matching series.`);
     console.timeEnd("getSeries");
     return seriesArray.length > 0 ? seriesArray : null;
   } catch (error) {
@@ -131,7 +131,7 @@ const getRecommendationRecordById = async (
     }
     console.timeEnd("get results, series, items");
     console.timeEnd("getRecommendationRecordById");
-    console.log("recommendation record", recommendation_record)
+    // console.log("recommendation record", recommendation_record)
     return recommendation_record as Recommendation;
   } catch (error) {
     console.error("Unexpected error in getRecommendationById:", error);
