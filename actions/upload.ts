@@ -294,12 +294,12 @@ const handleSubmission = async ({
 
       // Store the parameters
       const paramId: number = await insertParam(
-        height,
-        weight,
+        // height,
+        // weight,
         gender,
         bodyType,
         clothingType,
-        stylePreferences,
+        // stylePreferences,
         model
       );
       // console.log("The generated param_id:", paramId);
@@ -308,6 +308,7 @@ const handleSubmission = async ({
       const recommendationId: number = await insertRecommendation({
         paramId,
         uploadId,
+        userId
       });
       console.timeEnd("insert upload, param, recommendation");
       // console.log("The generated recommendation_id:", recommendationId);
