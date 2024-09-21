@@ -67,22 +67,7 @@ export type Database = {
           item_id?: string
           series_id?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "item_to_series_item_id_fkey"
-            columns: ["item_id"]
-            isOneToOne: false
-            referencedRelation: "item"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "item_to_series_series_id_fkey"
-            columns: ["series_id"]
-            isOneToOne: false
-            referencedRelation: "series"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       param: {
         Row: {
@@ -90,30 +75,42 @@ export type Database = {
           clothing_type: Database["public"]["Enums"]["clothing_type"] | null
           created_at: string
           gender: Database["public"]["Enums"]["gender"] | null
-          height: number | null
           id: number
-          style_preferences: string | null
-          weight: number | null
+          model: string | null
         }
         Insert: {
           body_type?: Database["public"]["Enums"]["body_type"] | null
           clothing_type?: Database["public"]["Enums"]["clothing_type"] | null
           created_at?: string
           gender?: Database["public"]["Enums"]["gender"] | null
-          height?: number | null
           id?: number
-          style_preferences?: string | null
-          weight?: number | null
+          model?: string | null
         }
         Update: {
           body_type?: Database["public"]["Enums"]["body_type"] | null
           clothing_type?: Database["public"]["Enums"]["clothing_type"] | null
           created_at?: string
           gender?: Database["public"]["Enums"]["gender"] | null
-          height?: number | null
           id?: number
-          style_preferences?: string | null
-          weight?: number | null
+          model?: string | null
+        }
+        Relationships: []
+      }
+      profile: {
+        Row: {
+          created_at: string
+          user_id: number
+          username: string | null
+        }
+        Insert: {
+          created_at?: string
+          user_id?: number
+          username?: string | null
+        }
+        Update: {
+          created_at?: string
+          user_id?: number
+          username?: string | null
         }
         Relationships: []
       }
@@ -123,20 +120,30 @@ export type Database = {
           id: number
           param_id: number | null
           upload_id: number | null
+          user_id: number | null
         }
         Insert: {
           created_at?: string
           id?: number
           param_id?: number | null
           upload_id?: number | null
+          user_id?: number | null
         }
         Update: {
           created_at?: string
           id?: number
           param_id?: number | null
           upload_id?: number | null
+          user_id?: number | null
         }
         Relationships: [
+          {
+            foreignKeyName: "recommendation_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profile"
+            referencedColumns: ["user_id"]
+          },
           {
             foreignKeyName: "recommendations_param_id_fkey"
             columns: ["param_id"]
@@ -180,7 +187,21 @@ export type Database = {
             foreignKeyName: "result_item_id_fkey"
             columns: ["item_id"]
             isOneToOne: false
+            referencedRelation: "female_item_matview"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "result_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
             referencedRelation: "item"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "result_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "male_item_matview"
             referencedColumns: ["id"]
           },
           {
@@ -196,7 +217,7 @@ export type Database = {
         Row: {
           clothing_type: string | null
           external_link: string | null
-          gender: string | null
+          gender: Database["public"]["Enums"]["gender"] | null
           id: string
           price: string | null
           provider: string | null
@@ -205,7 +226,7 @@ export type Database = {
         Insert: {
           clothing_type?: string | null
           external_link?: string | null
-          gender?: string | null
+          gender?: Database["public"]["Enums"]["gender"] | null
           id: string
           price?: string | null
           provider?: string | null
@@ -214,7 +235,7 @@ export type Database = {
         Update: {
           clothing_type?: string | null
           external_link?: string | null
-          gender?: string | null
+          gender?: Database["public"]["Enums"]["gender"] | null
           id?: string
           price?: string | null
           provider?: string | null
@@ -273,13 +294,77 @@ export type Database = {
           label_string?: string | null
           user_id?: number | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "upload_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profile"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      user_activity_log: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: number
+          user_id: number | null
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: number
+          user_id?: number | null
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: number
+          user_id?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_activity_log_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profile"
+            referencedColumns: ["user_id"]
+          },
+        ]
       }
     }
     Views: {
-      [_ in never]: never
+      female_item_matview: {
+        Row: {
+          color: string | null
+          embedding: string | null
+          id: string | null
+          image_url: string | null
+          label_string: string | null
+        }
+        Relationships: []
+      }
+      male_item_matview: {
+        Row: {
+          color: string | null
+          embedding: string | null
+          id: string | null
+          image_url: string | null
+          label_string: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
+      query_similar_female_items: {
+        Args: {
+          query_embedding: string
+          match_threshold: number
+          max_item_count: number
+        }
+        Returns: unknown[]
+      }
       query_similar_items:
         | {
             Args: Record<PropertyKey, never>
@@ -317,6 +402,14 @@ export type Database = {
               label_string: string | null
             }[]
           }
+      query_similar_male_items: {
+        Args: {
+          query_embedding: string
+          match_threshold: number
+          max_item_count: number
+        }
+        Returns: unknown[]
+      }
       test: {
         Args: Record<PropertyKey, never>
         Returns: {

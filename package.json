@@ -50,6 +50,7 @@
     "react-dom": "18.2.0",
     "react-hook-form": "^7.52.1",
     "react-resizable-panels": "^2.0.19",
+    "supabase": "1.192.5",
     "tailwind-merge": "^2.3.0",
     "tailwindcss": "3.4.1",
     "tailwindcss-animate": "^1.0.7",

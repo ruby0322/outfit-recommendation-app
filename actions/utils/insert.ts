@@ -87,14 +87,19 @@ const insertSuggestion = async ({
 const insertRecommendation = async ({
   paramId,
   uploadId,
+  // userId,
 }: {
   paramId: number;
   uploadId: number;
+  // userId: number;
 }): Promise<number> => {
   try {
     const { data, error } = await supabase
       .from("recommendation")
-      .insert([{ param_id: paramId, upload_id: uploadId }])
+      .insert([{ param_id: paramId, 
+        upload_id: uploadId, 
+        // userId: userId 
+      }])
       .select("id");
 
     if (error) {
@@ -110,24 +115,24 @@ const insertRecommendation = async ({
 };
 
 const insertParam = async (
-  height: number | null,
-  weight: number | null,
+  // height: number | null,
+  // weight: number | null,
   gender: Gender,
   bodyType: BodyType | null,
   clothinType: ClothingType,
-  stylePreferences: string | null,
+  // stylePreferences: string | null,
   model: string
 ): Promise<number> => {
   const { data, error } = await supabase
     .from("param")
     .insert([
       {
-        height,
-        weight,
+        // height,
+        // weight,
         gender,
         body_type: bodyType,
         clothing_type: clothinType,
-        style_preferences: stylePreferences,
+        // style_preferences: stylePreferences,
         model,
       },
     ])

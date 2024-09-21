@@ -1,4 +1,4 @@
-import { createProfile } from "@/actions/user";
+import { createProfile } from "@/actions/utils/user";
 import supabase from "@/lib/supabaseClient";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";

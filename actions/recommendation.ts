@@ -37,7 +37,7 @@ const getSeries = async (
     for (const seriesId of series_ids) {
       const thread = async (): Promise<void> => {
         try {
-          console.log(`Processing seriesId: ${seriesId}`);
+          // console.log(`Processing seriesId: ${seriesId}`);
           const seriesTable = await getSeriesById(seriesId);
           if (!seriesTable) {
             console.log(`No series found for ID: ${seriesId}`);
