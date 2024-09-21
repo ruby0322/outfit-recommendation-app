@@ -87,16 +87,19 @@ const insertSuggestion = async ({
 const insertRecommendation = async ({
   paramId,
   uploadId,
-  userId,
+  // userId,
 }: {
   paramId: number;
   uploadId: number;
-  userId: number;
+  // userId: number;
 }): Promise<number> => {
   try {
     const { data, error } = await supabase
       .from("recommendation")
-      .insert([{ param_id: paramId, upload_id: uploadId, userId: userId }])
+      .insert([{ param_id: paramId, 
+        upload_id: uploadId, 
+        // userId: userId 
+      }])
       .select("id");
 
     if (error) {

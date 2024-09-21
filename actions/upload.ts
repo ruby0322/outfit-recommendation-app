@@ -308,7 +308,7 @@ const handleSubmission = async ({
       const recommendationId: number = await insertRecommendation({
         paramId,
         uploadId,
-        userId
+        // userId
       });
       console.timeEnd("insert upload, param, recommendation");
       // console.log("The generated recommendation_id:", recommendationId);
