@@ -2,8 +2,7 @@
 import openai from "@/utils/openai";
 import { ImageURL } from "openai/resources/beta/threads/messages";
 
-// Function to handle chat completion with both text and image input
-const chatCompletionTextAndImage = async ({
+const sendImgURLAndPromptToGPT = async ({
   model,
   prompt,
   imageUrl,
@@ -12,66 +11,37 @@ const chatCompletionTextAndImage = async ({
   prompt: string;
   imageUrl: string;
 }): Promise<string | null> => {
-  console.time("chatCompletionTextAndImage");
-  // console.log("imageUrl in chatCompletionTextAndImage:", imageUrl);
   const NUM_MAX_RETRIES = 5;
   for (let numRetries = 0; numRetries < NUM_MAX_RETRIES; ++numRetries) {
-    try {
-      // Sending a request to the OpenAI API with both text and image inputs
-      const completion = await openai.chat.completions.create({
-        model: model,
-        messages: [
-          {
-            role: "user",
-            content: [
-              { type: "text", text: prompt },
-              {
-                type: "image_url",
-                image_url: { url: imageUrl } as ImageURL,
-              },
-            ],
-          },
-        ],
-      });
-      // Extracting and returning the response content
-      const response = completion.choices[0].message.content;
-      console.timeEnd("chatCompletionTextAndImage");
-      return response;
-    } catch (e) {
-      console.log("Failed to get response from GPT API.");
-      console.log(e);
-      if (numRetries < NUM_MAX_RETRIES) {
-        console.log("Retrying...");
+      try {
+          // Sending a request to the OpenAI API with both text and image inputs
+          const completion = await openai.chat.completions.create({
+              model: model,
+              messages: [
+                  {
+                      role: "user",
+                      content: [
+                          { type: "text", text: prompt },
+                          {
+                              type: "image_url",
+                              image_url: { url: imageUrl } as ImageURL,
+                          },
+                      ],
+                  },
+              ],
+          });
+          // Extracting and returning the response content
+          const response = completion.choices[0].message.content;
+          return response;
+      } catch (e) {
+          console.log("Failed to get response from GPT API.");
+          console.log(e);
+          if (numRetries < NUM_MAX_RETRIES) {
+              console.log("Retrying...");
+          }
       }
-    }
   }
   return null;
-};
-
-// Function to handle chat completion with text input only
-const chatCompletionTextOnly = async ({
-  model,
-  prompt,
-}: {
-  model: string;
-  prompt: string;
-}): Promise<string | null> => {
-  try {
-    console.time("chatCompletionTextOnly");
-    // Sending a request to the OpenAI API with only text input
-    const completion = await openai.chat.completions.create({
-      model,
-      messages: [{ role: "user", content: prompt }],
-    });
-    // Extracting and returning the response content
-    const response = completion.choices[0].message.content;
-    console.timeEnd("chatCompletionTextOnly");
-    return response;
-  } catch (e) {
-    console.log("Failed to get response from GPT API.");
-    console.log(e);
-    return null;
-  }
 };
 
 const isImageUrlValid = async (url: string): Promise<boolean> => {
@@ -88,4 +58,4 @@ const isImageUrlValid = async (url: string): Promise<boolean> => {
   }
 };
 
-export { chatCompletionTextAndImage, chatCompletionTextOnly, isImageUrlValid };
+export { sendImgURLAndPromptToGPT, isImageUrlValid };

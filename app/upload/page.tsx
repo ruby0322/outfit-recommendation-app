@@ -32,8 +32,8 @@ const schema = z.object({
   uploadedImage: (typeof window === "undefined"
     ? z.any()
     : z.instanceof(FileList, {
-        message: "請上傳圖片",
-      })
+      message: "請上傳圖片",
+    })
   ).refine((files) => files.length > 0, "請上傳圖片"),
 });
 
@@ -61,15 +61,10 @@ const UploadPage = () => {
           const style_preference = data.stylePreferences
             ? data.stylePreferences.join(", ")
             : null;
-          // console.log(style_preference);
           const recommendationId = await handleSubmission({
             clothingType: data.clothingType,
             imageUrl: imageUrl,
-            height: data.height,
-            weight: data.weight,
             gender: data.gender,
-            bodyType: data.bodyType,
-            stylePreferences: style_preference,
             model: data.model,
             userId: USER_ID,
             numMaxSuggestion: NUM_MAX_SUGGESTION,

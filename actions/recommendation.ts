@@ -52,7 +52,7 @@ const getSeries = async (
             console.log(`No items found for series ${seriesId}`);
             return;
           }
-          console.log(`Found ${itemIds.length} items for series ${seriesId}`);
+          // console.log(`Found ${itemIds.length} items for series ${seriesId}`);
           let items = await getItemsByIds(itemIds);
           if (!items || items.length === 0) {
             console.log(`Failed to fetch items for series ${seriesId}`);
