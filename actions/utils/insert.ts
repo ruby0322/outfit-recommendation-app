@@ -142,7 +142,7 @@ const insertParam = async (
 
 const insertUpload = async (
   imageUrl: string,
-  userId: number
+  userId: string
 ) => {
   const { data, error } = await supabase
     .from("upload")
