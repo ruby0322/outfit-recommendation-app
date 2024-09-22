@@ -157,7 +157,7 @@ const handleSubmission = async ({
     imageUrl: string;
     gender: Gender;
     model: string;
-    userId: number;
+    userId: string;
     numMaxSuggestion: number;
     numMaxItem: number;
 }): Promise<number> => {

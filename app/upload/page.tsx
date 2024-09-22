@@ -77,7 +77,7 @@ const UploadPage = () => {
       }
     };
     reader.readAsDataURL(data.uploadedImage[0]);
-    const USER_ID: number = 90;
+    const USER_ID: string = "8a6e0804-2bd0-4672-b79d-d97027f9071a";
     const NUM_MAX_SUGGESTION: number = 3;
     const NUM_MAX_ITEM: number = 10;
   };
