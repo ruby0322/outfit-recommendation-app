@@ -1,6 +1,7 @@
 "use server";
 import supabase from "@/lib/supabaseClient";
 import { ClothingType, Gender } from "@/type";
+import { revalidatePath } from "next/cache";
 import { v4 as uuidv4 } from "uuid";
 import { UnstoredResult } from "./matching";
 
@@ -148,6 +149,7 @@ const insertUpload = async (imageUrl: string, userId: string) => {
     .from("upload")
     .insert([{ image_url: imageUrl, user_id: userId }])
     .select("id");
+  revalidatePath("/upload");
   if (error) {
     console.log(error);
   }

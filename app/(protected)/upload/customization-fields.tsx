@@ -1,6 +1,5 @@
 "use client";
 
-import TagInput from "@/components/tag-input";
 import {
   Card,
   CardContent,
@@ -8,9 +7,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Controller, useFormContext } from "react-hook-form";
+import { useFormContext } from "react-hook-form";
 
 import {
   Select,
@@ -143,7 +141,7 @@ const CustomizationFields = () => {
             </span>
           )}
         </div>
-        <div className='grid gap-2'>
+        {/* <div className='grid gap-2'>
           <Label htmlFor='body-type'>身型</Label>
           <div className='flex flex-wrap gap-2'>
             <Label
@@ -212,39 +210,9 @@ const CustomizationFields = () => {
               {errors.bodyType.message?.toString()}
             </span>
           )}
-        </div>
+        </div> */}
 
-        <div className='grid grid-cols-2 gap-4'>
-          <div className='grid gap-2'>
-            <Label htmlFor='height'>身高</Label>
-            <Input
-              id='height'
-              type='number'
-              placeholder='身高（公分）'
-              {...register("height", { valueAsNumber: true })}
-            />
-            {errors.height && (
-              <span className='text-red-600'>
-                {errors.height.message?.toString()}
-              </span>
-            )}
-          </div>
-          <div className='grid gap-2'>
-            <Label htmlFor='weight'>體重</Label>
-            <Input
-              id='weight'
-              type='number'
-              placeholder='體重（公斤）'
-              {...register("weight", { valueAsNumber: true })}
-            />
-            {errors.weight && (
-              <span className='text-red-600'>
-                {errors.weight.message?.toString()}
-              </span>
-            )}
-          </div>
-        </div>
-        <div className='grid gap-2'>
+        {/* <div className='grid gap-2'>
           <Label htmlFor='style-preferences'>偏好風格</Label>
           <Controller
             name='stylePreferences'
@@ -263,7 +231,7 @@ const CustomizationFields = () => {
               {errors.stylePreferences.message?.toString()}
             </span>
           )}
-        </div>
+        </div> */}
       </CardContent>
     </Card>
   );

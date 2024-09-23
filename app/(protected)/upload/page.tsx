@@ -16,19 +16,19 @@ const schema = z.object({
   clothingType: z.enum(["top", "bottom"], {
     message: "請選擇服飾類型",
   }),
-  bodyType: z.enum(["slim", "average", "athletic", "curvy"], {
-    message: "請選擇身型",
-  }),
+  // bodyType: z.enum(["slim", "average", "athletic", "curvy"], {
+  //   message: "請選擇身型",
+  // }),
   gender: z.enum(["male", "female"], { message: "請選擇性別" }),
-  height: z
-    .number({ message: "身高必須是數字" })
-    .min(120, "至少 120 公分")
-    .max(250, "不可超過 250 公分"),
-  weight: z
-    .number({ message: "體重必須是數字" })
-    .min(30, "至少 30 公斤")
-    .max(200, "不可超過 200 公斤"),
-  stylePreferences: z.array(z.string()).optional(),
+  // height: z
+  //   .number({ message: "身高必須是數字" })
+  //   .min(120, "至少 120 公分")
+  //   .max(250, "不可超過 250 公分"),
+  // weight: z
+  //   .number({ message: "體重必須是數字" })
+  //   .min(30, "至少 30 公斤")
+  //   .max(200, "不可超過 200 公斤"),
+  // stylePreferences: z.array(z.string()).optional(),
   model: z.string().default("gpt-4o"),
   uploadedImage: (typeof window === "undefined"
     ? z.any()
@@ -96,7 +96,7 @@ const UploadPage = () => {
               </div>
               <CustomizationFields />
             </div>
-            <LoadingButton loading={loading} variant='outline' type='submit'>
+            <LoadingButton variant='outline' loading={loading} type='submit'>
               一鍵成為穿搭達人！
             </LoadingButton>
           </div>
