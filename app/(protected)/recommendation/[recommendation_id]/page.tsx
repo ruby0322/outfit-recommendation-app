@@ -19,7 +19,7 @@ const RecommendationPage = async ({
   // console.log(recommendation);
   return (
     <div className='w-full flex flex-col items-center justify-center'>
-      <div className='py-10 w-full flex flex-col items-center justify-center bg-muted'>
+      <div className='py-10 w-full flex flex-col items-center justify-center'>
         <h2 className='text-lg text-muted-foreground'>
           需求 #{params.recommendation_id}
         </h2>
@@ -47,7 +47,7 @@ const RecommendationPage = async ({
                 id={recommendedStyle}
                 index={index}
                 title={recommendedStyle}
-                series={recommendation.series[recommendedStyle].slice(0, 4)}
+                series={recommendation.series[recommendedStyle]}
               />
             );
           })

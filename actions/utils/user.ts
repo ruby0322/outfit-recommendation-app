@@ -1,5 +1,5 @@
 "use server";
-import { ProfileTable, UploadTable } from "@/type";
+import { ProfileTable, RecommendationPreview } from "@/type";
 import { createClient } from "@/utils/supabase/server";
 import { revalidatePath } from "next/cache";
 
@@ -104,13 +104,24 @@ const updateUserProfile = async (
   }
 };
 
-const getUploadByUserId = async (user_id: string): Promise<UploadTable[]> => {
+const getPreviewsByUserId = async (
+  user_id: string
+): Promise<RecommendationPreview[]> => {
   try {
     const supabase = createClient();
     const { data, error: getUploadError } = await supabase
-      .from("upload")
-      .select("*")
+      .from("recommendation")
+      .select(
+        `
+        *,
+        upload (
+          image_url
+        )
+      `
+      )
       .eq("user_id", user_id);
+
+    console.log(data);
 
     if (!data || data.length == 0) {
       return [];
@@ -134,8 +145,8 @@ const signOut = async () => {
 
 export {
   createProfile,
+  getPreviewsByUserId,
   getProfileByUserId,
-  getUploadByUserId,
   signOut,
   updateUserProfile,
 };
