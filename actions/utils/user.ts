@@ -4,8 +4,14 @@ import { createClient } from "@/utils/supabase/server";
 import { revalidatePath } from "next/cache";
 
 const createProfile = async (user_id: string): Promise<boolean> => {
+  const supabase = createClient();
+  const { data } = await supabase
+    .from("profile")
+    .select("*")
+    .eq("user_id", user_id)
+    .single();
+  if (data) return false;
   try {
-    const supabase = createClient();
     const {
       data: { user },
       error: authError,
@@ -18,7 +24,7 @@ const createProfile = async (user_id: string): Promise<boolean> => {
     const { error } = await supabase.from("profile").insert({
       user_id,
       username,
-      avatar_url: "",
+      avatar_url: user.user_metadata.avatar_url,
     });
 
     if (error) {

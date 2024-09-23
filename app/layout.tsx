@@ -37,7 +37,7 @@ export default async function RootLayout({
         )}
       >
         <Header />
-        <div className='flex-1 flex items-center overflow-y-scroll overflow-x-hidden pb-16'>
+        <div className='flex-1 flex justify-center min-h-[82vh] items-center overflow-y-scroll overflow-x-hidden pb-16'>
           {children}
         </div>
         <Footer />
