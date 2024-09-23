@@ -51,17 +51,23 @@ export default async function HomeLayout({
             <span className='sr-only'>Add Server</span>
           </div>
         </Link>
-        {previews.map((preview, index) => (
-          <Link key={index} href={`/recommendation/${preview.id}`}>
-            <Avatar className='border-0 cursor-pointer w-12 h-12 mb-4 flex items-center justify-center text-white font-bold bg-indigo-500 rounded-full hover:rounded-2xl hover:bg-indigo-600 hover:shadow-lg transition-all delay-0 duration-300 ease-out'>
-              <AvatarImage
-                src={preview.upload.image_url as string}
-                alt={`preview ${index}`}
-              />
-              <AvatarFallback>{index}</AvatarFallback>
-            </Avatar>
-          </Link>
-        ))}
+        {previews
+          .sort(
+            (a, b) =>
+              new Date(b.created_at).getTime() -
+              new Date(a.created_at).getTime()
+          )
+          .map((preview, index) => (
+            <Link key={index} href={`/recommendation/${preview.id}`}>
+              <Avatar className='border-0 cursor-pointer w-12 h-12 mb-4 flex items-center justify-center text-white font-bold bg-indigo-500 rounded-full hover:rounded-2xl hover:bg-indigo-600 hover:shadow-lg transition-all delay-0 duration-300 ease-out'>
+                <AvatarImage
+                  src={preview.upload.image_url as string}
+                  alt={`preview ${index}`}
+                />
+                <AvatarFallback>{index}</AvatarFallback>
+              </Avatar>
+            </Link>
+          ))}
       </div>
 
       {/* Main Content */}

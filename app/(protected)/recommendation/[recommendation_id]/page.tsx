@@ -32,26 +32,19 @@ const RecommendationPage = async ({
         <h2 className='text-muted-foreground'>推薦風格</h2>
       </div>
       <div className='flex flex-col gap-4 justify-center items-center md:max-w-[80vw]'>
-        {searchParams?.see_more ? (
-          <ItemList
-            id={searchParams?.see_more}
-            index={-1}
-            title={searchParams?.see_more}
-            series={recommendation.series[searchParams?.see_more]}
-          />
-        ) : (
-          Object.keys(recommendation.series).map((recommendedStyle, index) => {
-            return (
-              <ItemList
-                key={`recommended-style-${index}`}
-                id={recommendedStyle}
-                index={index}
-                title={recommendedStyle}
-                series={recommendation.series[recommendedStyle]}
-              />
-            );
-          })
-        )}
+        {Object.keys(recommendation.styles).map((recommendedStyle, index) => {
+          console.log(recommendation.styles[recommendedStyle]);
+          return (
+            <ItemList
+              key={`recommended-style-${index}`}
+              id={recommendedStyle}
+              index={index}
+              title={recommendedStyle}
+              description={recommendation.styles[recommendedStyle].description}
+              series={recommendation.styles[recommendedStyle].series}
+            />
+          );
+        })}
       </div>
       <br />
       <FeedbackCard />

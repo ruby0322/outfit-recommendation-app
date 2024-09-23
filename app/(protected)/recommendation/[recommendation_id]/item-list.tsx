@@ -17,11 +17,13 @@ const ItemList = ({
   id,
   series,
   index,
+  description,
 }: {
   title: string;
   id: string;
   series: Series[];
   index: number;
+  description: string;
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
 
@@ -39,7 +41,7 @@ const ItemList = ({
       )}
     >
       <div className='w-full flex justify-between items-center'>
-        <h3 className='text-xl font-semibold text-primary'>假標題</h3>
+        <h3 className='text-xl font-semibold text-primary'>{title}</h3>
         <Button
           variant='ghost'
           size='sm'
@@ -60,11 +62,12 @@ const ItemList = ({
           )}
         </Button>
       </div>
+      <p className='text-center italic text-gray-600 m-4'>「{description}」</p>
       {/* <div className='flex flex-wrap gap-2'>
         {parseTags(title).map((tag, index) => {
           return (
             <Badge
-              className='bg-white'
+            className='bg-white'
               variant='outline'
               key={`style-preference-badge-${index}`}
             >
