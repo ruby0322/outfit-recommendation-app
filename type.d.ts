@@ -19,7 +19,7 @@ export type Series = SeriesTable & { items: ItemTable[] };
 export interface Recommendation {
   param: ParamTable;
   upload: UploadTable;
-  series: {
-    [style: string]: Series[];
+  styles: {
+    [styleName: string]: { series: Series[], desrciption: string };
   };
 }
