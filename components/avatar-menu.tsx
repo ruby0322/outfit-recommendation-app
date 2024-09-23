@@ -55,7 +55,8 @@ export default function AvatarMenu() {
     const {
       data: { user },
     } = await supabase.auth.getUser();
-    await updateUserProfile(user?.id as string);
+    console.log(location.origin);
+    await updateUserProfile(location.origin, user?.id as string);
     // Implement profile picture change logic here
   };
 

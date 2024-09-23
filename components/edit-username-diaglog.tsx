@@ -12,7 +12,6 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { createClient } from "@/utils/supabase/client";
 import { useState } from "react";
 
 export default function EditUsernameDialog({
@@ -25,12 +24,8 @@ export default function EditUsernameDialog({
   const [username, setUsername] = useState("");
 
   const handleSubmit = async (event: React.FormEvent) => {
-    const supabase = createClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
     event.preventDefault();
-    await updateUserProfile(username);
+    await updateUserProfile(location.origin, username);
     setOpen(false);
   };
 

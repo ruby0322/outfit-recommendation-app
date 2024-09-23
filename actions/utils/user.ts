@@ -57,6 +57,7 @@ const getProfileByUserId = async (user_id: string): Promise<ProfileTable> => {
 };
 
 const updateUserProfile = async (
+  origin: string,
   username?: string,
   avatar_url?: string
 ): Promise<boolean> => {
@@ -96,7 +97,7 @@ const updateUserProfile = async (
       console.log("No valid fields to update");
     }
 
-    revalidatePath(`/`);
+    revalidatePath(origin);
     return true;
   } catch (error) {
     console.error(error);
