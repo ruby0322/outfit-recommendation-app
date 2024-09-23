@@ -1,5 +1,5 @@
 "use server";
-import { BodyType, ClothingType, Gender } from "@/type";
+import { ClothingType, Gender } from "@/type";
 import supabase from "@/lib/supabaseClient";
 import { v4 as uuidv4 } from "uuid";
 import { UnstoredResult } from "./matching";
@@ -58,9 +58,13 @@ const insertResults = async (
 const insertSuggestion = async ({
   recommendationId,
   labelString,
+  styleName,
+  description,
 }: {
   recommendationId: number;
   labelString: string;
+  styleName: string;
+  description: string;
 }): Promise<number> => {
   try {
     const { data, error } = await supabase
@@ -68,6 +72,8 @@ const insertSuggestion = async ({
       .insert({
         recommendation_id: recommendationId,
         label_string: labelString,
+        style_name: styleName,
+        description: description,
       })
       .select("id");
 
