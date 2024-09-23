@@ -20,6 +20,6 @@ export interface Recommendation {
   param: ParamTable;
   upload: UploadTable;
   styles: {
-    [styleName: string]: { series: Series[], desrciption: string };
+    [styleName: string]: { series: Series[], description: string };
   };
 }
