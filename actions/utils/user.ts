@@ -57,8 +57,8 @@ const getProfileByUserId = async (user_id: string): Promise<ProfileTable> => {
 };
 
 const updateUserProfile = async (
-  user_id: string,
-  username?: string
+  username?: string,
+  avatar_url?: string
 ): Promise<boolean> => {
   try {
     const supabase = createClient();
@@ -70,21 +70,33 @@ const updateUserProfile = async (
     if (authError || !user) {
       throw new Error("Failed to retrieve authenticated user");
     }
+    const updates: { username?: string; avatar_url?: string } = {};
 
-    const updateData: { username?: string } = {};
-
+    // Only add fields that are not null or undefined
     if (username) {
-      updateData.username = username || user.email?.split("@")[0];
+      updates.username = username;
     }
-    const { error } = await supabase
-      .from("profile")
-      .update(updateData)
-      .eq("user_id", user_id);
+    if (avatar_url) {
+      updates.avatar_url = avatar_url;
+    }
 
-    if (error) {
-      throw new Error(`Error updating profile data: ${error.message}`);
+    // Proceed with the update only if there are valid fields to update
+    if (Object.keys(updates).length > 0) {
+      const { error } = await supabase
+        .from("profile")
+        .update(updates)
+        .eq("user_id", user.id);
+
+      if (error) {
+        console.error("Error updating profile:", error);
+      } else {
+        console.log("Profile updated successfully");
+      }
+    } else {
+      console.log("No valid fields to update");
     }
-    revalidatePath(`/profile/${user_id}`);
+
+    revalidatePath(`/`);
     return true;
   } catch (error) {
     console.error(error);
