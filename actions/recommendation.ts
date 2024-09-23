@@ -104,7 +104,7 @@ const getRecommendationRecordById = async (
 
     recommendation_record.param = param;
     recommendation_record.upload = upload;
-    recommendation_record.series = {};
+    recommendation_record.styles = {};
 
     const suggestions = (await getSuggestion(
       recommendation_id
@@ -113,12 +113,15 @@ const getRecommendationRecordById = async (
 
     console.time("get results, series, items");
     for (const s of suggestions) {
+      const styleName = s.style_name as string;
+      const description = s.description as string;
+      console.log("styleName", styleName);
+      console.log("description", description);
       const label_string = s.label_string as string;
       const results = (await getResults(s.id)) as ResultTable[];
       if (!results) throw new Error("No results found");
 
       const item_ids = results.map((r) => r.item_id) as string[];
-      // console.log("item_ids: " + item_ids) 有東西
 
       const series_ids = (await getSeriesIdsByItemIds(item_ids)) as string[];
       if (!series_ids.length) throw new Error("No series IDs found");
@@ -127,11 +130,14 @@ const getRecommendationRecordById = async (
       const series = (await getSeries(series_ids, item_ids, gender)) as Series[];
       if (!series) throw new Error("No series found");
 
-      recommendation_record.series![label_string] = series;
+      recommendation_record.styles![styleName] = {
+        series,
+        description
+      };
     }
     console.timeEnd("get results, series, items");
     console.timeEnd("getRecommendationRecordById");
-    // console.log("recommendation record", recommendation_record)
+
     return recommendation_record as Recommendation;
   } catch (error) {
     console.error("Unexpected error in getRecommendationById:", error);
