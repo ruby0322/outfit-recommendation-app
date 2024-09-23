@@ -359,7 +359,7 @@ const CarouselPrevious = forwardRef<
       variant={variant}
       size={size}
       className={cn(
-        "absolute h-6 w-6 rounded-full z-10",
+        "bg-gray-100 absolute h-6 w-6 rounded-full z-10",
         orientation === "vertical"
           ? "-top-2 left-1/2 -translate-x-1/2 rotate-90"
           : "-left-2 top-1/2 -translate-y-1/2",
@@ -396,7 +396,7 @@ const CarouselNext = forwardRef<
       variant={variant}
       size={size}
       className={cn(
-        "absolute h-6 w-6 rounded-full z-10",
+        "bg-gray-100 absolute h-6 w-6 rounded-full z-10",
         orientation === "vertical"
           ? "-bottom-2 left-1/2 -translate-x-1/2 rotate-90"
           : "-right-2 top-1/2 -translate-y-1/2",

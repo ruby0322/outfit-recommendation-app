@@ -3,7 +3,6 @@ import "./globals.css";
 
 import { Inter as FontSans } from "next/font/google";
 
-import Footer from "@/components/footer";
 import Header from "@/components/header";
 import { cn } from "@/lib/utils";
 
@@ -37,10 +36,10 @@ export default async function RootLayout({
         )}
       >
         <Header />
-        <div className='flex-1 flex items-center overflow-y-scroll overflow-x-hidden pb-16'>
+        <div className='flex-1 flex justify-center min-h-[93vh] items-center overflow-y-scroll overflow-x-hiddena'>
           {children}
         </div>
-        <Footer />
+        {/* <Footer /> */}
         <Toaster />
       </body>
     </html>

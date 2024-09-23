@@ -15,7 +15,6 @@ export type Gender = Enums<"gender">;
 
 export type Series = SeriesTable & { items: ItemTable[] };
 
-
 export interface Recommendation {
   param: ParamTable;
   upload: UploadTable;
@@ -23,3 +22,7 @@ export interface Recommendation {
     [styleName: string]: { series: Series[], description: string };
   };
 }
+
+export type RecommendationPreview = RecommendationTable & {
+  upload: UploadTable;
+};

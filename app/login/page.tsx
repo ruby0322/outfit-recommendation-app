@@ -1,4 +1,5 @@
 import { createProfile } from "@/actions/utils/user";
+import GoogleLoginButton from "@/components/google-login-button";
 import supabase from "@/lib/supabaseClient";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
@@ -20,7 +21,7 @@ export default function Login({
     });
 
     if (error) {
-      return redirect("/login?message=Could not authenticate user");
+      return redirect("/login?message=無法登入");
     }
 
     return redirect("/manage");
@@ -43,7 +44,7 @@ export default function Login({
 
     if (error) {
       console.log(error.message);
-      return redirect("/login?message=Could not authenticate user");
+      return redirect("/login?message=無法登入");
     }
 
     await createProfile(data.user?.id as string);
@@ -52,8 +53,8 @@ export default function Login({
   };
 
   return (
-    <div className='flex-1 flex flex-col w-full px-8 sm:max-w-md justify-center gap-2 pt-8'>
-      <form className='animate-in flex-1 flex flex-col w-full justify-center gap-2 text-foreground'>
+    <div className='flex items-center flex-col w-full px-8 sm:max-w-md justify-center gap-2 pt-8'>
+      <form className='animate-in flex flex-col w-full justify-center gap-2 text-foreground'>
         <label className='text-md' htmlFor='email'>
           電子郵件
         </label>
@@ -73,6 +74,11 @@ export default function Login({
           placeholder='••••••••'
           required
         />
+        {searchParams?.message && (
+          <p className='mt-4 p-4 bg-foreground/10 text-foreground text-center'>
+            {searchParams.message}
+          </p>
+        )}
         <SubmitButton
           formAction={signIn}
           className='bg-green-700 rounded-md px-4 py-2 text-foreground mb-2'
@@ -87,12 +93,8 @@ export default function Login({
         >
           註冊
         </SubmitButton>
-        {searchParams?.message && (
-          <p className='mt-4 p-4 bg-foreground/10 text-foreground text-center'>
-            {searchParams.message}
-          </p>
-        )}
       </form>
+      <GoogleLoginButton />
     </div>
   );
 }

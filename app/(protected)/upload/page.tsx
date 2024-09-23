@@ -3,6 +3,7 @@
 import { handleSubmission } from "@/actions/upload";
 import { storeImageToStorage } from "@/actions/utils/insert";
 import { LoadingButton } from "@/components/ui/loading-button";
+import { createClient } from "@/utils/supabase/client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -32,14 +33,12 @@ const schema = z.object({
   uploadedImage: (typeof window === "undefined"
     ? z.any()
     : z.instanceof(FileList, {
-      message: "請上傳圖片",
-    })
+        message: "請上傳圖片",
+      })
   ).refine((files) => files.length > 0, "請上傳圖片"),
 });
 
 type FormData = z.infer<typeof schema>;
-
-const delay = (ms: number) => new Promise((res) => setTimeout(res, ms));
 
 const UploadPage = () => {
   const router = useRouter();
@@ -53,6 +52,7 @@ const UploadPage = () => {
     setLoading(true);
     const reader = new FileReader();
     reader.onloadend = async () => {
+      const supabase = createClient();
       if (typeof reader.result === "string") {
         const base64 = reader.result;
         try {
@@ -61,12 +61,15 @@ const UploadPage = () => {
           const style_preference = data.stylePreferences
             ? data.stylePreferences.join(", ")
             : null;
+          const {
+            data: { user },
+          } = await supabase.auth.getUser();
           const recommendationId = await handleSubmission({
             clothingType: data.clothingType,
             imageUrl: imageUrl,
             gender: data.gender,
             model: data.model,
-            userId: USER_ID,
+            userId: user?.id as string,
             numMaxSuggestion: NUM_MAX_SUGGESTION,
             numMaxItem: NUM_MAX_ITEM,
           });

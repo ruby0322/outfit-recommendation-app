@@ -19,7 +19,7 @@ const RecommendationPage = async ({
   // console.log(recommendation);
   return (
     <div className='w-full flex flex-col items-center justify-center'>
-      <div className='py-10 w-full flex flex-col items-center justify-center bg-muted'>
+      <div className='py-10 w-full flex flex-col items-center justify-center'>
         <h2 className='text-lg text-muted-foreground'>
           需求 #{params.recommendation_id}
         </h2>
@@ -37,21 +37,20 @@ const RecommendationPage = async ({
             id={searchParams?.see_more}
             index={-1}
             title={searchParams?.see_more}
-            series={recommendation.styles[searchParams.see_more as string]?.series}
-            description={recommendation.styles[searchParams.see_more as string]?.description}
+            series={recommendation.series[searchParams?.see_more]}
           />
-        ) :
-        (
-          Object.entries(recommendation.styles).map(([styleName, style], index) => (
-            <ItemList
-              key={`recommended-style-${index}`}
-              id={styleName}
-              index={index}
-              title={styleName}
-              series={style.series.slice(0, 4)}
-              description={style.description}
-            />
-          ))
+        ) : (
+          Object.keys(recommendation.series).map((recommendedStyle, index) => {
+            return (
+              <ItemList
+                key={`recommended-style-${index}`}
+                id={recommendedStyle}
+                index={index}
+                title={recommendedStyle}
+                series={recommendation.series[recommendedStyle]}
+              />
+            );
+          })
         )}
       </div>
       <br />

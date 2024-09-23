@@ -1,6 +1,6 @@
 "use server";
-import { ClothingType, Gender } from "@/type";
 import supabase from "@/lib/supabaseClient";
+import { ClothingType, Gender } from "@/type";
 import { v4 as uuidv4 } from "uuid";
 import { UnstoredResult } from "./matching";
 
@@ -93,19 +93,16 @@ const insertSuggestion = async ({
 const insertRecommendation = async ({
   paramId,
   uploadId,
-  // userId,
+  userId,
 }: {
   paramId: number;
   uploadId: number;
-  // userId: number;
+  userId: string;
 }): Promise<number> => {
   try {
     const { data, error } = await supabase
       .from("recommendation")
-      .insert([{ param_id: paramId, 
-        upload_id: uploadId, 
-        // userId: userId 
-      }])
+      .insert([{ param_id: paramId, upload_id: uploadId, user_id: userId }])
       .select("id");
 
     if (error) {
@@ -146,15 +143,10 @@ const insertParam = async (
   }
 };
 
-const insertUpload = async (
-  imageUrl: string,
-  userId: string
-) => {
+const insertUpload = async (imageUrl: string, userId: string) => {
   const { data, error } = await supabase
     .from("upload")
-    .insert([
-      { image_url: imageUrl, user_id: userId },
-    ])
+    .insert([{ image_url: imageUrl, user_id: userId }])
     .select("id");
   if (error) {
     console.log(error);
