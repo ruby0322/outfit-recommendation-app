@@ -14,11 +14,13 @@ const ItemList = ({
   title,
   id,
   series,
+  description,
   index,
 }: {
   title: string;
   id: string;
   series: Series[];
+  description: string;
   index: number;
 }) => {
   const router = useRouter();
