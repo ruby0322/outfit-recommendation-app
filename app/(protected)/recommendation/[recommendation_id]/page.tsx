@@ -1,9 +1,9 @@
 "use server";
 
 import { getRecommendationRecordById } from "@/actions/recommendation";
+import ItemList from "@/components/item-list";
 import { Recommendation } from "@/type";
 import FeedbackCard from "./feedback-card";
-import ItemList from "./item-list";
 import UserInfoCard from "./user-info-card";
 
 const RecommendationPage = async ({
