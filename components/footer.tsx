@@ -1,18 +1,23 @@
+"use client";
+
+import { Facebook, Instagram } from "lucide-react";
+import { usePathname } from "next/navigation";
 const Footer = () => {
-  /* TODO: Footer */
+  const pathname = usePathname();
+  if (pathname !== "/") return <></>;
   return (
-    <footer className='w-full border-t border-t-foreground/10 p-8 flex justify-center text-center text-xs'>
-      <p>
-        Powered by{" "}
-        <a
-          href='https://supabase.com/?utm_source=create-next-app&utm_medium=template&utm_term=nextjs'
-          target='_blank'
-          className='font-bold hover:underline'
-          rel='noreferrer'
-        >
-          RMMFJ
+    <footer className='flex flex-col w-full border-t border-t-foreground/10 p-8 flex justify-center text-center text-xs'>
+      <div className='flex justify-center space-x-4 mb-4'>
+        <a href='#' className='text-gray-600 hover:text-gray-400'>
+          <Instagram />
         </a>
-      </p>
+        <a href='#' className='text-gray-600 hover:text-gray-400'>
+          <Facebook />
+        </a>
+      </div>
+      <div className='text-sm text-gray-400'>
+        © 2024 Fashion Search. All rights reserved.
+      </div>
     </footer>
   );
 };
