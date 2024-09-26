@@ -33,7 +33,7 @@ const RecommendationPage = async ({
       </div>
       <div className='flex flex-col gap-4 justify-center items-center md:max-w-[80vw]'>
         {Object.keys(recommendation.styles).map((recommendedStyle, index) => {
-          console.log(recommendation.styles[recommendedStyle]);
+          // console.log(recommendation.styles[recommendedStyle]);
           return (
             <ItemList
               key={`recommended-style-${index}`}

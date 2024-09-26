@@ -8,14 +8,14 @@ import SearchEngine from "@/components/illustrations/search-engine";
 import WindowShopping from "@/components/illustrations/window-shopping";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { motion } from "framer-motion";
 import Image from "next/image";
 
 import { cn } from "@/lib/utils";
-import { ArrowBigRight, Search, Upload, WandSparkles } from "lucide-react";
+import { Upload, WandSparkles } from "lucide-react";
 import { useRouter } from "next/navigation";
 
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useRef, useState } from "react";
 import ResultWindow from "./result-window";
 
@@ -33,7 +33,7 @@ const HeroSection = () => {
           <motion.span
             initial={{ x: 200, opacity: 0, scale: 0 }}
             animate={{ x: 0, opacity: 1, scale: 1 }}
-            className='bg-gradient-to-r from-indigo-200 to-indigo-500 bg-clip-text text-transparent'
+            className='animate-[pulse_0.8s_ease-out_infinite] bg-gradient-to-r from-indigo-200 to-indigo-500 bg-clip-text text-transparent'
           >
             時尚風格
           </motion.span>
@@ -65,9 +65,9 @@ const HeroSection = () => {
 
 const OverviewSection = () => {
   return (
-    <section className='px-10 flex flex-col gap-12 items-center justify-content bg-indigo-400 py-16 bg-gray-50'>
+    <section className='px-10 flex flex-col gap-12 items-center justify-content bg-indigo-400 py-16'>
       <div className='text-center'>
-        <h2 className='text-3xl font-bold mb-12 text-white'>
+        <h2 className='animate-pulse text-3xl font-bold mb-12 text-white'>
           時尚。簡單。精準。
         </h2>
         <p className='italic text-white max-w-[30rem] '>
@@ -91,31 +91,50 @@ const images = [
 
 const RecommendationSection = () => {
   const [droppedImage, setDroppedImage] = useState<string | null>(null);
+  const [loaded, setLoaded] = useState<boolean>(false);
+  const handleImageDrop = (imgUrl: string) => {
+    setDroppedImage(imgUrl);
+    setTimeout(() => {
+      setLoaded(true);
+    }, 1200);
+  };
   return (
     <section className='px-10 py-16 bg-gray-50'>
-      <div className='flex flex-col md:items-start items-center gap-8 mx-auto px-4'>
-        <div className='text-start'>
+      <div className='w-full flex md:px-[5rem] md:flex-row flex-col md:items-start items-center justify-center gap-32 mx-auto px-4'>
+        <div className='text-start w-fit'>
           <h2 className='text-3xl font-bold mb-4'>穿搭建議</h2>
-          <p>上傳服飾照片，一鍵為您迅速搜尋全球適配時尚單品</p>
+          <span className='w-full text-gray-600'>
+            受夠買衣服一直問店員、跑試衣間了嗎？
+            <br />
+            沒關係，交給「穿搭推薦」來幫你搞定！
+            <br />
+            依場合需求，為你量身打造最讚穿搭。
+            <br />
+            無論是休閒、正式，還是潮流穿搭，
+            <br />
+            我們都能推薦最適合的風格與單品，
+            <br />
+            從此穿搭不再煩惱，每天都有新靈感！
+          </span>
         </div>
-        <div className='w-full flex flex-col md:flex-row gap-12 items-center justify-center'>
-          <DragAndDropImageUploaderMock
-            droppedImage={droppedImage}
-            setDroppedImage={setDroppedImage}
-          />
+        <div className='flex-1 flex flex-col md:flex-row gap-12 items-center justify-center'>
+          {!loaded && (
+            <DragAndDropImageUploaderMock
+              droppedImage={droppedImage}
+              handleImageDrop={handleImageDrop}
+            />
+          )}
 
-          {droppedImage && (
-            <>
-              <ArrowBigRight
-                className='text-gray-400 w-8 h-8 animate-pulse rotate-90 md:rotate-0'
-                fill='#9ca3af'
-              />
-              <ResultWindow
-                index={
-                  droppedImage ? (images.indexOf(droppedImage) as 0 | 1 | 2) : 0
-                }
-              />
-            </>
+          {loaded && (
+            <ResultWindow
+              close={() => {
+                setDroppedImage(null);
+                setLoaded(false);
+              }}
+              index={
+                droppedImage ? (images.indexOf(droppedImage) as 0 | 1 | 2) : 0
+              }
+            />
           )}
         </div>
       </div>
@@ -125,10 +144,10 @@ const RecommendationSection = () => {
 
 function DragAndDropImageUploaderMock({
   droppedImage,
-  setDroppedImage,
+  handleImageDrop,
 }: {
   droppedImage: string | null;
-  setDroppedImage: (x: string) => void;
+  handleImageDrop: (x: string) => void;
 }) {
   const draggedImageRef = useRef<string | null>(null);
   const constraintsRef = useRef(null);
@@ -157,7 +176,7 @@ function DragAndDropImageUploaderMock({
       ) {
         // The drag ended over the drop zone
         if (draggedImageRef.current) {
-          setDroppedImage(draggedImageRef.current);
+          handleImageDrop(draggedImageRef.current);
         }
       }
     }
@@ -168,7 +187,7 @@ function DragAndDropImageUploaderMock({
     event.preventDefault();
     const droppedImageSrc = event.dataTransfer.getData("text/plain");
     if (droppedImageSrc) {
-      setDroppedImage(droppedImageSrc);
+      handleImageDrop(droppedImageSrc);
     }
   };
 
@@ -195,7 +214,8 @@ function DragAndDropImageUploaderMock({
                 draggable='false'
                 className={cn(
                   "w-24 h-24 rounded-lg shadow-md",
-                  droppedImage === src && "hidden"
+                  droppedImage === src && "hidden",
+                  droppedImage && "opacity-50"
                 )}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
@@ -223,7 +243,7 @@ function DragAndDropImageUploaderMock({
               width='256'
               height='256'
               objectFit='cover'
-              className='w-full'
+              className='w-full animate-pulse'
             />
           </motion.div>
         ) : (
@@ -259,6 +279,104 @@ const FEATURES = [
   },
 ];
 
+const ImageSearchSection = () => {
+  return (
+    <section className='px-10 py-16 bg-gray-100 w-full'>
+      <div className='w-full flex md:px-[5rem] md:flex-row flex-col md:items-start items-center justify-center gap-32 mx-auto px-4'>
+        <div className='flex-1 flex flex-col md:flex-row gap-12 items-center justify-center'>
+          內容待生成
+        </div>
+        <div className='text-start'>
+          <h2 className='text-3xl font-bold mb-4'>以服搜服</h2>
+          <p className='w-full text-gray-600'>
+            你是否曾看過路人穿搭超讚，卻不好意思打聽品牌？
+            <br />
+            那一瞬間的遺憾，夢中單品就這樣擦肩而過。
+            <br />
+            別擔心，「以服搜服」正是為你而生！
+            <br />
+            只需一張照片，在全球知名品牌找到相似款式，讓你貨比三家！
+            <br />
+            從此，讓每一次心動的穿搭都不再是遙不可及的夢！
+          </p>
+        </div>
+      </div>
+    </section>
+  );
+};
+
+{
+  /* TODO: Produce content for testimonial */
+}
+
+const TESTIMONIALS = [
+  {
+    name: "Eva",
+    content: "終於可以輕鬆找到路人穿的衣服了！以服搜服真的太神了！",
+    avatarUrl: "",
+  },
+  {
+    name: "Kevin",
+    content: "我喜歡直接打出我想要的風格，不需要糾結用詞，系統懂我！",
+    avatarUrl: "",
+  },
+  {
+    name: "Lily",
+    content: "幫我找到很多獨特的品牌，每次穿出去都能引起話題！",
+    avatarUrl: "",
+  },
+  {
+    name: "Cindy",
+    content: "幫我找到很多獨特的品牌，每次穿出去都能引起話題！",
+    avatarUrl: "",
+  },
+  {
+    name: "Morris",
+    content: "幫我找到很多獨特的品牌，每次穿出去都能引起話題！",
+    avatarUrl: "",
+  },
+];
+
+const TestimonialSection = () => {
+  return (
+    <section className='py-20 w-full bg-gray-50'>
+      <div className='max-w-[85vw] container mx-auto px-4'>
+        <h2 className='text-3xl font-bold text-center mb-8'>用戶真心推薦</h2>
+        <p className='text-gray-600 text-center mb-12'>
+          我們的用戶都超愛這個簡單又精準的穿搭神器！
+          <br />
+          不管是以服搜服還是穿搭推薦，他們都發現了自己的時尚新可能。
+          <br />
+          聽聽他們怎麼說，感受他們的喜悅，說不定下一個穿搭達人就是你！
+        </p>
+        <div className='w-full flex flex-wrap gap-8 items-center justify-center'>
+          {TESTIMONIALS.map((testimonial, index) => (
+            <Card
+              key={index}
+              className='opacity-95 backdrop-blur-md bg-gray-50 w-[19rem] h-fit flex items-center gap-4 p-6 rounded-l-none rounded-r-sm border-0 border-l-4 border-solide border-indigo-400 shadow-none shadow-[0px_2px_3px_-1px_rgba(0,0,0,0.1),0px_1px_0px_0px_rgba(25,28,33,0.02),0px_0px_0px_1px_rgba(25,28,33,0.08)]'
+            >
+              <Avatar className='h-10 w-10'>
+                <AvatarImage
+                  src={
+                    (testimonial.avatarUrl as string) ||
+                    "https://eapzlwxcyrinipmcdoir.supabase.co/storage/v1/object/public/image/OIP.jpeg"
+                  }
+                  alt={`${testimonial.name}'s Avatar`}
+                />
+                <AvatarFallback>{testimonial.name}</AvatarFallback>
+              </Avatar>
+              <div className='text-sm'>
+                <h3 className='font-semibold'>{testimonial.name}</h3>
+                <p className='text-gray-600'>{testimonial.content}</p>
+              </div>
+            </Card>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+};
+
 export default function LandingPage() {
   return (
     <div className='min-h-screen w-full bg-gray-50 flex flex-col pt-4'>
@@ -270,81 +388,13 @@ export default function LandingPage() {
       {/* Recommendation Section */}
       <RecommendationSection />
 
-      {/* Features Section */}
-      {/* Text Search */}
-      <section className='w-full py-16 bg-gray-200/50'>
-        <div className='space-y-6'>
-          <Input
-            type='text'
-            placeholder='幫我找一件適合夏天的白色襯衫'
-            className='flex-grow'
-          />
-          <Button type='submit'>
-            <Search className='w-4 h-4 mr-2' /> 搜尋
-          </Button>
-          <div className='bg-white p-4 rounded-lg shadow-md'>
-            <p>搜尋結果將在這裡動態顯示</p>
-          </div>
-          <ul className='list-disc list-inside'>
-            <li>直接輸入你的需求，系統立刻理解並推薦最適合的商品</li>
-          </ul>
-        </div>
-      </section>
+      {/* Image Search Section */}
+      <ImageSearchSection />
 
-      {/* Image Search */}
-      <section className='py-16 bg-gray-50'>
-        <div className='container mx-auto px-4'>
-          <div className='space-y-6'>
-            <div className='bg-white p-4 rounded-lg shadow-md'>
-              <img
-                src={""}
-                alt='Uploaded'
-                className='w-full h-48 object-cover rounded'
-              />
-              <p className='mt-2'>搜尋結果將在這裡動態顯示</p>
-            </div>
-            <ul className='list-disc list-inside'>
-              <li>一鍵上傳照片，迅速搜尋全球類似款式</li>
-            </ul>
-          </div>
-        </div>
-      </section>
+      {/* Text Search */}
 
       {/* Testimonials Section */}
-      <section className='py-20 bg-gray-50'>
-        <div className='container mx-auto px-4'>
-          <h2 className='text-3xl font-bold text-center mb-12'>用戶真心推薦</h2>
-          <div className='grid md:grid-cols-3 gap-8'>
-            {[
-              {
-                name: "Eva",
-                content:
-                  '終於可以輕鬆找到路人穿的衣服了！"以服搜服"真的太神了！',
-              },
-              {
-                name: "Kevin",
-                content:
-                  "我喜歡直接打出我想要的風格，不需要糾結專有名詞，系統懂我！",
-              },
-              {
-                name: "Lily",
-                content: "幫我找到很多獨特的品牌，每次穿出去都能引起話題！",
-              },
-            ].map((testimonial, index) => (
-              <Card
-                key={index}
-                className='p-6 hover:shadow-lg transition-shadow duration-300'
-              >
-                <div className='flex items-center mb-4'>
-                  <div className='w-12 h-12 rounded-full bg-gray-200 mr-4'></div>
-                  <h3 className='font-semibold'>{testimonial.name}</h3>
-                </div>
-                <p className='text-gray-600'>{testimonial.content}</p>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
+      <TestimonialSection />
     </div>
   );
 }

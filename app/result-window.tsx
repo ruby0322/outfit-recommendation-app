@@ -4,7 +4,16 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import ResultWindowSkeleton from "./result-window-skeleton";
 
-const tabs = [
+{
+  /* TODO: Produce content for image search */
+}
+
+const IMAGE_SEARCH_TABS = [];
+
+{
+  /* TODO: Produce content for recommendation */
+}
+const RECOMMENDATION_TABS = [
   [
     {
       label: "⚽ 休閒運動風",
@@ -33,7 +42,13 @@ const tabs = [
   ],
 ];
 
-const ResultWindow = ({ index }: { index: 0 | 1 | 2 }) => {
+const ResultWindow = ({
+  index,
+  close,
+}: {
+  index: 0 | 1 | 2;
+  close: () => void;
+}) => {
   const [selectedTabIndex, setSelectedTabIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -66,12 +81,15 @@ const ResultWindow = ({ index }: { index: 0 | 1 | 2 }) => {
           className='w-[32rem] max-w-[85vw] fit rounded-md bg-white overflow-hidden shadow-[0_1px_1px_hsla(0,_0%,_0%,_0.075),_0_2px_2px_hsla(0,_0%,_0%,_0.075),_0_4px_4px_hsla(0,_0%,_0%,_0.075),_0_8px_8px_hsla(0,_0%,_0%,_0.075),_0_16px_16px_hsla(0,_0%,_0%,_0.075)] flex flex-col gap-4 p-4'
         >
           <div className='w-full flex gap-2'>
-            <div className='w-3 h-3 bg-red-400 rounded-full'></div>
+            <div
+              onClick={close}
+              className='cursor-pointer w-3 h-3 bg-red-400 rounded-full'
+            ></div>
             <div className='w-3 h-3 bg-yellow-400 rounded-full'></div>
             <div className='w-3 h-3 bg-green-400 rounded-full'></div>
           </div>
           <nav className='flex rounded-t-2 border-b border-b-[#eeeeee] overflow-hidden h-fit'>
-            {tabs[index].map((tab, idx) => (
+            {RECOMMENDATION_TABS[index].map((tab, idx) => (
               <Tab
                 key={`${index}-${tab.label}-${index * idx}`}
                 label={tab.label}
@@ -80,9 +98,11 @@ const ResultWindow = ({ index }: { index: 0 | 1 | 2 }) => {
               />
             ))}
           </nav>
-          <ImageCarousel imageUrls={tabs[index][selectedTabIndex].images} />
+          <ImageCarousel
+            imageUrls={RECOMMENDATION_TABS[index][selectedTabIndex].images}
+          />
           <p className='text-gray-600 text-center text-sm italic'>
-            {tabs[index][selectedTabIndex].description}
+            {RECOMMENDATION_TABS[index][selectedTabIndex].description}
           </p>
         </motion.div>
       )}
