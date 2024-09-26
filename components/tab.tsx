@@ -11,8 +11,8 @@ export const Tab = ({ label, onClick, isSelected }: Props) => {
     <div
       id={label}
       className={cn(
-        "rounded-t-2 p-4 bg-white cursor-pointer flex justify-between items-center",
-        isSelected && "bg-gray-100"
+        "text-gray-700 text-sm rounded-t-md px-4 py-1 bg-white hover:bg-gray-100 cursor-pointer flex justify-between items-center",
+        isSelected && "bg-gray-200/70 hover:bg-gray-200"
       )}
       onPointerDown={onClick}
     >

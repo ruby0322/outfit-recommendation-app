@@ -1,4 +1,5 @@
 "use client";
+
 import AnimatedTextCharacter from "@/components/animated-text-character";
 import FeatureCard from "@/components/feature-card";
 import AssetSelection from "@/components/illustrations/asset-selection";
@@ -8,15 +9,15 @@ import WindowShopping from "@/components/illustrations/window-shopping";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { AnimatePresence, motion } from "framer-motion";
+import { motion } from "framer-motion";
 import Image from "next/image";
 
 import { cn } from "@/lib/utils";
-import { Search, Upload, WandSparkles } from "lucide-react";
+import { ArrowBigRight, Search, Upload, WandSparkles } from "lucide-react";
 import { useRouter } from "next/navigation";
 
-import { Tab } from "@/components/tab";
 import { useRef, useState } from "react";
+import ResultWindow from "./result-window";
 
 const HeroSection = () => {
   const router = useRouter();
@@ -97,12 +98,25 @@ const RecommendationSection = () => {
           <h2 className='text-3xl font-bold mb-4'>穿搭建議</h2>
           <p>上傳服飾照片，一鍵為您迅速搜尋全球適配時尚單品</p>
         </div>
-        <div className='flex gap-8'>
+        <div className='w-full flex flex-col md:flex-row gap-12 items-center justify-center'>
           <DragAndDropImageUploaderMock
             droppedImage={droppedImage}
             setDroppedImage={setDroppedImage}
           />
-          {/* <ResultWindow index={0} /> */}
+
+          {droppedImage && (
+            <>
+              <ArrowBigRight
+                className='text-gray-400 w-8 h-8 animate-pulse rotate-90 md:rotate-0'
+                fill='#9ca3af'
+              />
+              <ResultWindow
+                index={
+                  droppedImage ? (images.indexOf(droppedImage) as 0 | 1 | 2) : 0
+                }
+              />
+            </>
+          )}
         </div>
       </div>
     </section>
@@ -224,96 +238,6 @@ function DragAndDropImageUploaderMock({
     </div>
   );
 }
-
-const tabs = [
-  [
-    { label: "休閒運動風", images: [] },
-    { label: "休閒街頭風", images: [] },
-    { label: "簡約商務風", images: [] },
-  ],
-  [
-    { label: "休閒運動風", images: [] },
-    { label: "休閒運動風", images: [] },
-    { label: "休閒運動風", images: [] },
-  ],
-  [
-    { label: "休閒運動風", images: [] },
-    { label: "休閒運動風", images: [] },
-    { label: "休閒運動風", images: [] },
-  ],
-];
-
-const ResultWindow = ({ index }: { index: 0 | 1 | 2 }) => {
-  const [selectedTab, setSelectedTab] = useState(tabs[index][0].label);
-  return (
-    <div className='w-fit h-fit rounded-md bg-white overflow-hidden shadow-[0_1px_1px_hsla(0,_0%,_0%,_0.075),_0_2px_2px_hsla(0,_0%,_0%,_0.075),_0_4px_4px_hsla(0,_0%,_0%,_0.075),_0_8px_8px_hsla(0,_0%,_0%,_0.075),_0_16px_16px_hsla(0,_0%,_0%,_0.075)] flex flex-col'>
-      <nav className='flex p-2 rounded-t-2 border-b border-b-[#eeeeee] h-[44px] max-w-[480px] overflow-hidden'>
-        {tabs[index].map((tab) => (
-          <Tab
-            key={tab.label}
-            label={tab.label}
-            isSelected={selectedTab === tab.label}
-            onClick={() => setSelectedTab(tab.label)}
-          />
-        ))}
-      </nav>
-      <main>{selectedTab}</main>
-    </div>
-  );
-};
-
-const FakeImageUploader = ({
-  isVisible,
-  setIsVisible,
-}: {
-  isVisible: boolean;
-  setIsVisible: (x: boolean) => void;
-}) => {
-  return (
-    <motion.div className='cursor-pointer' onTap={() => setIsVisible(true)}>
-      <AnimatePresence>
-        <label
-          htmlFor='dropzone-file'
-          className={cn(
-            "flex flex-col items-center justify-center w-64 h-64 rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 overflow-hidden",
-            // isVisible
-            // ? "border-4 border-indigo-400 border-solid"
-            "border-2 border-gray-300 border-dashed"
-          )}
-        >
-          {isVisible && (
-            <motion.div
-              className='w-full h-full flex items-center justify-content'
-              style={{
-                borderRadius: 15,
-                backgroundColor: "#fff",
-              }}
-              initial={{ opacity: 0, scale: 0 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0 }}
-            >
-              <Image
-                src='https://eapzlwxcyrinipmcdoir.supabase.co/storage/v1/object/public/image/image-750cc231-23d4-436a-a085-7286e0fdeed3?t=2024-09-25T17%3A20%3A26.729Z'
-                width='256'
-                height='256'
-                objectFit='cover'
-                alt='Uploaded image'
-              />
-            </motion.div>
-          )}
-          {!isVisible && (
-            <div className='animate-pulse flex flex-col items-center justify-center pt-5 pb-6'>
-              <Upload className='w-10 h-10 mb-3 text-gray-400' />
-              <p className='mb-2 text-sm text-gray-500'>
-                <span className='font-semibold'>點擊上傳</span> 或拖放圖片
-              </p>
-            </div>
-          )}
-        </label>
-      </AnimatePresence>
-    </motion.div>
-  );
-};
 
 const FEATURES = [
   {
