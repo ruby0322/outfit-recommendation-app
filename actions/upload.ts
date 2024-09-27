@@ -10,7 +10,8 @@ import {
 } from "./utils/insert";
 import { UnstoredResult, semanticSearch } from "./utils/matching";
 
-const constructPrompt = ({
+//prompt for recommendation
+const constructPromptForRecommendation = ({
   clothingType,
   gender,
   numMaxSuggestion,
@@ -55,9 +56,53 @@ const constructPrompt = ({
   return prompt;
 };
 
+//以圖搜圖
+const constructPromptForImage = ({
+  clothingType,
+  gender,
+}: {
+  clothingType: ClothingType;
+  gender: Gender;
+}): string => {
+  const prompt: string = `
+    請擔任我的造型師，仔細觀察這張圖片中的${
+      clothingType === "top" ? "上衣" : "下身類衣物"
+    }，
+    並根據以下提供的額外資訊：
+    {
+      性別: ${gender === "male" ? "男性" : "女性"},
+    }
+    請詳細描述圖中的${clothingType === "top" ? "上衣" : "下身類衣物"}，
+    並且提供詳盡的描述。
+    請使用下方 JSON 格式回覆，回答無需包含其他資訊：
+    [
+      {
+        "styleName": "[衣物風格]",
+        "description": "[衣物描述]",
+        "item": {
+          "顏色": "[顏色]", 
+          "服裝類型": "[類型]", 
+          "剪裁版型": "[描述]", 
+          "設計特點": "[描述]", 
+          "材質": "[材質]", 
+          "細節": "[描述]",
+          ${
+            clothingType === "top"
+              ? '"褲管": "[描述]", "裙擺": "[描述]"'
+              : '"領子": "[描述]", "袖子": "[描述]"'
+          }
+        }
+      }
+    ]
+  `;
+  return prompt;
+};
+
+
 const validateAndCleanRecommendations = (
   recommendations: string,
-  clothingType: ClothingType
+  clothingType: ClothingType,
+  isSimilar: boolean,
 ): { styleName: string; description: string; labelString: string }[] => {
   try {
     const cleanedString = recommendations
@@ -70,12 +115,12 @@ const validateAndCleanRecommendations = (
 
     return recommendationsArray
       .filter((recommendation) =>
-        validateRecommendationFormat(recommendation.item, clothingType)
+        validateRecommendationFormat(recommendation.item, clothingType, isSimilar)
       )
       .map((recommendation) => ({
         styleName: recommendation.styleName,
         description: recommendation.description,
-        labelString: formatRecommendation(recommendation.item, clothingType),
+        labelString: formatRecommendation(recommendation.item, clothingType, isSimilar),
       }));
   } catch (error) {
     console.error("Error in validateAndCleanRecommendations", error);
@@ -85,7 +130,8 @@ const validateAndCleanRecommendations = (
 
 const validateRecommendationFormat = (
   recommendation: any,
-  clothingType: ClothingType
+  clothingType: ClothingType,
+  isSimilar: boolean
 ): boolean => {
   const requiredKeys = [
     "顏色",
@@ -95,8 +141,13 @@ const validateRecommendationFormat = (
     "材質",
     "細節",
   ];
-  const specificKeys =
-    clothingType === "top" ? ["褲管", "裙擺"] : ["領子", "袖子"];
+  let specificKeys: string[] = [];
+
+  if (isSimilar) {
+    specificKeys = clothingType === "top" ? ["領子", "袖子"] : ["褲管", "裙擺"];
+  } else {
+    specificKeys = clothingType === "top" ? ["褲管", "裙擺"] : ["領子", "袖子"];
+  }
 
   const hasRequiredKeys = requiredKeys.every((key) => key in recommendation);
   const hasSpecificKeys = specificKeys.every((key) => key in recommendation);
@@ -106,18 +157,24 @@ const validateRecommendationFormat = (
 
 const formatRecommendation = (
   recommendation: any,
-  clothingType: ClothingType
+  clothingType: ClothingType,
+  isSimilar: boolean
 ): string => {
   return `顏色: ${recommendation.顏色}, 服裝類型: ${
     recommendation.服裝類型
   }, 剪裁版型: ${recommendation.剪裁版型}, 設計特點: ${
     recommendation.設計特點
   }, 材質: ${recommendation.材質}, 細節: ${recommendation.細節}, ${
-    clothingType === "top"
+    isSimilar
+      ? clothingType === "top"
+        ? `領子: ${recommendation.領子}, 袖子: ${recommendation.袖子}`
+        : `褲管: ${recommendation.褲管}, 裙擺: ${recommendation.裙擺}`
+      : clothingType === "top"
       ? `褲管: ${recommendation.褲管}, 裙擺: ${recommendation.裙擺}`
       : `領子: ${recommendation.領子}, 袖子: ${recommendation.袖子}`
   }`;
 };
+
 
 const insertParameters = async (
   gender: Gender,
@@ -194,6 +251,7 @@ const handleSubmission = async ({
   userId,
   numMaxSuggestion,
   numMaxItem,
+  recommendationType //多傳一個參數 'recommendation', 'image', 'text'
 }: {
   clothingType: ClothingType;
   imageUrl: string;
@@ -202,14 +260,31 @@ const handleSubmission = async ({
   userId: string;
   numMaxSuggestion: number;
   numMaxItem: number;
+  recommendationType: string;
 }): Promise<number> => {
   try {
-    // 結合 parameters 做出 prompt
-    const prompt: string = constructPrompt({
-      clothingType,
-      gender,
-      numMaxSuggestion,
-    });
+    let prompt: string = "";
+    let isSimilar = false;
+    if(recommendationType === 'recommendation'){
+      //推薦穿搭
+      prompt = constructPromptForRecommendation({
+        clothingType,
+        gender,
+        numMaxSuggestion,
+      });
+    }
+    else if(recommendationType === 'image'){
+      //圖片搜尋
+      prompt = constructPromptForImage({
+        clothingType,
+        gender,
+      });
+      isSimilar = true;
+    }
+    else{
+      //文字搜尋
+      //TODO
+    }
 
     // 將做好的 prompt 結合 imgurl 送給 GPT
     const recommendations: string | null = await sendImgURLAndPromptToGPT({
@@ -222,7 +297,8 @@ const handleSubmission = async ({
     if (recommendations) {
       const cleanedRecommendations = validateAndCleanRecommendations(
         recommendations,
-        clothingType
+        clothingType,
+        isSimilar //if recommendation than false, else true
       );
 
       // 把 upload 存到 supabase

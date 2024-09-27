@@ -10,25 +10,26 @@ import {
   UploadTable,
 } from "@/type";
 import {
-  getItemsByIds,
-  getItemsIDBySeriesId,
+  getItemsByIds,//
+  getItemsIDBySeriesId,//
   getParamById,
   getRecommendationById,
   getResults,
-  getSeriesById,
+  getSeriesById,//
   getSeriesIdsByItemIds,
   getSuggestion,
   getUploadById,
 } from "./utils/fetch";
+import supabase from "@/lib/supabaseClient";
 
 // util function for getRecommendationRecordById()
-const getSeries = async (
+const getSeriesOld = async (
   series_ids: string[],
   originalItemIds: string[],
   gender: string
 ): Promise<Series[] | null> => {
   try {
-    console.time("getSeries");
+    // console.time("getSeries");
     // console.log(`Starting getSeries with ${series_ids.length} series IDs, gender: ${gender}`);
     const seriesArray: Series[] = [];
     const threads: Promise<void>[] = [];
@@ -43,10 +44,10 @@ const getSeries = async (
             console.log(`No series found for ID: ${seriesId}`);
             return;
           }
-          if (seriesTable.gender !== dbGender) {
-            console.log(`Series ${seriesId} gender mismatch: ${seriesTable.gender} !== ${dbGender}`);
-            return;
-          }
+          // if (seriesTable.gender !== dbGender) {
+          //   console.log(`Series ${seriesId} gender mismatch: ${seriesTable.gender} !== ${dbGender}`);
+          //   return;
+          // }
           const itemIds = await getItemsIDBySeriesId(seriesId);
           if (!itemIds || itemIds.length === 0) {
             console.log(`No items found for series ${seriesId}`);
@@ -85,6 +86,63 @@ const getSeries = async (
   }
 };
 
+const getSeries = async (
+  series_ids: string[],
+  originalItemIds: string[],
+  gender: string
+): Promise<Series[] | null> => {
+  try {
+    console.time("getSeries");
+    console.log(`Starting getSeries with ${series_ids.length} series IDs, gender: ${gender}`);
+    const seriesArray: Series[] = [];
+    const dbGender = gender === "man" ? "male" : "female";
+
+    for (const seriesId of series_ids) {
+      const { data, error } = await supabase
+        .from("item")
+        .select("*")
+        .eq("series_id", seriesId);
+
+      if (error) {
+        console.error("Error fetching items:", error);
+        return null;
+      }
+
+      // check gender matching
+      const validItems = (data as ItemTable[]).filter((item) => {
+        if (item.gender !== dbGender) {
+          console.error(
+            `Gender mismatch for item ${item.id} in series ${seriesId}: ${item.gender} !== ${dbGender}`
+          );
+          return false;
+        }
+        return true;
+      });
+
+      if (validItems.length === 0) {
+        console.log(`No valid items for series ${seriesId} due to gender mismatch.`);
+        continue;
+      }
+
+      const sortedItems = validItems.sort(
+        (a, b) => originalItemIds.indexOf(a.id) - originalItemIds.indexOf(b.id)
+      );
+
+      // 構建 series 並 push 進 array
+      const series: Series = {
+        items: sortedItems,
+      };
+      seriesArray.push(series);
+    }
+    console.timeEnd("getSeries");
+    return seriesArray.length > 0 ? seriesArray : null;
+  } catch (error) {
+    console.error("Unexpected error in getSeries:", error);
+    return null;
+  }
+};
+
+
 // Fetches a recommendation by its ID
 const getRecommendationRecordById = async (
   recommendation_id: number
@@ -117,7 +175,7 @@ const getRecommendationRecordById = async (
       const description = s.description as string;
       console.log("styleName", styleName);
       console.log("description", description);
-      const label_string = s.label_string as string;
+      // const label_string = s.label_string as string;
       const results = (await getResults(s.id)) as ResultTable[];
       if (!results) throw new Error("No results found");
 

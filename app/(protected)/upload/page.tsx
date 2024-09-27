@@ -60,6 +60,7 @@ const UploadPage = () => {
             userId: user?.id as string,
             numMaxSuggestion: NUM_MAX_SUGGESTION,
             numMaxItem: NUM_MAX_ITEM,
+            recommendationType: 'recommendation',
           });
           router.push(`/recommendation/${recommendationId}`);
         } catch (error) {
