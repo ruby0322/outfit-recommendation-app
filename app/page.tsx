@@ -65,7 +65,10 @@ const HeroSection = () => {
 
 const OverviewSection = () => {
   return (
-    <section className='px-10 flex flex-col gap-12 items-center justify-content bg-indigo-400 py-16'>
+    <section
+      id='overview'
+      className='px-10 flex flex-col gap-12 items-center justify-content bg-indigo-400 py-16'
+    >
       <div className='text-center'>
         <h2 className='animate-pulse text-3xl font-bold mb-12 text-white'>
           時尚。簡單。精準。
@@ -99,7 +102,7 @@ const RecommendationSection = () => {
     }, 1200);
   };
   return (
-    <section className='px-10 py-16 bg-gray-50'>
+    <section id='recommendation-feature' className='px-10 py-16 bg-gray-50'>
       <div className='w-full flex md:px-[5rem] md:flex-row flex-col md:items-start items-center justify-center gap-32 mx-auto px-4'>
         <div className='text-start w-fit'>
           <h2 className='text-3xl font-bold mb-4'>穿搭建議</h2>
@@ -281,7 +284,10 @@ const FEATURES = [
 
 const ImageSearchSection = () => {
   return (
-    <section className='px-10 py-16 bg-gray-100 w-full'>
+    <section
+      id='image-search-feature'
+      className='px-10 py-16 bg-gray-100 w-full'
+    >
       <div className='w-full flex md:px-[5rem] md:flex-row flex-col md:items-start items-center justify-center gap-32 mx-auto px-4'>
         <div className='flex-1 flex flex-col md:flex-row gap-12 items-center justify-center'>
           內容待生成
@@ -299,6 +305,32 @@ const ImageSearchSection = () => {
             <br />
             從此，讓每一次心動的穿搭都不再是遙不可及的夢！
           </p>
+        </div>
+      </div>
+    </section>
+  );
+};
+
+const TextSearchSection = () => {
+  return (
+    <section id='text-search-feature' className='px-10 py-16 bg-gray-50 w-full'>
+      <div className='w-full flex md:px-[5rem] md:flex-row flex-col md:items-start items-center justify-center gap-32 mx-auto px-4'>
+        <div className='text-start'>
+          <h2 className='text-3xl font-bold mb-4'>白話搜尋</h2>
+          <p className='w-full text-gray-600'>
+            你是否曾想找心中完美的服飾，找遍各服飾店卻以失敗告終？
+            <br />
+            那種苦尋無果的挫折感，想必你一定懂。
+            <br />
+            有了「白話搜尋」，這些困擾再也不是問題！
+            <br />
+            只要輸入一句白話的描述，不需要琢磨用詞，
+            <br />
+            我們都能找到最符合的商品，讓找衣服變得輕鬆又高效！
+          </p>
+        </div>
+        <div className='flex-1 flex flex-col md:flex-row gap-12 items-center justify-center'>
+          內容待生成
         </div>
       </div>
     </section>
@@ -339,7 +371,7 @@ const TESTIMONIALS = [
 
 const TestimonialSection = () => {
   return (
-    <section className='py-20 w-full bg-gray-50'>
+    <section id='testimonial' className='py-20 w-full bg-gray-100'>
       <div className='max-w-[85vw] container mx-auto px-4'>
         <h2 className='text-3xl font-bold text-center mb-8'>用戶真心推薦</h2>
         <p className='text-gray-600 text-center mb-12'>
@@ -379,7 +411,7 @@ const TestimonialSection = () => {
 
 export default function LandingPage() {
   return (
-    <div className='min-h-screen w-full bg-gray-50 flex flex-col pt-4'>
+    <div className='min-h-screen w-full bg-gray-50 flex flex-col pt-8'>
       {/* Hero Section */}
       <HeroSection />
       {/* Overview Section */}
@@ -392,6 +424,7 @@ export default function LandingPage() {
       <ImageSearchSection />
 
       {/* Text Search */}
+      <TextSearchSection />
 
       {/* Testimonials Section */}
       <TestimonialSection />

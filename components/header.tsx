@@ -1,9 +1,12 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 import { createClient } from "@/utils/supabase/client";
 import { User } from "@supabase/supabase-js";
-import { WandSparkles } from "lucide-react";
+import { motion } from "framer-motion";
+import { Menu, WandSparkles } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -12,38 +15,54 @@ import AvatarMenu from "./avatar-menu";
 const LandingPageHeader = () => {
   const [isVisible, setIsVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
+  const [isMobile, setIsMobile] = useState(false);
+
   useEffect(() => {
     const controlNavbar = () => {
       if (typeof window !== "undefined") {
         if (window.scrollY > lastScrollY) {
-          // if scroll down hide the navbar
           setIsVisible(false);
         } else {
-          // if scroll up show the navbar
           setIsVisible(true);
         }
-
-        // remember current page location to use in the next move
         setLastScrollY(window.scrollY);
       }
     };
 
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
     if (typeof window !== "undefined") {
       window.addEventListener("scroll", controlNavbar);
+      window.addEventListener("resize", handleResize);
+      handleResize();
 
-      // cleanup function
       return () => {
         window.removeEventListener("scroll", controlNavbar);
+        window.removeEventListener("resize", handleResize);
       };
     }
   }, [lastScrollY]);
+
+  const menuItems = [
+    { href: "#overview", label: "價值" },
+    { href: "#recommendation-feature", label: "穿搭推薦" },
+    { href: "#image-search-feature", label: "以服搜服" },
+    { href: "#text-search-feature", label: "白話搜尋" },
+    { href: "#testimonial", label: "用戶回饋" },
+  ];
+
   return (
-    <header>
-      <div
+    <header className='z-50'>
+      <motion.div
         className={cn(
-          "fixed w-full top-0 left-0 font-semibold bg-gray-100 bg-opacity-50 flex p-4 py-2 gap-4 h-[7vh] items-center justify-between  transition-transform duration-1000",
+          "z-50 fixed w-full top-0 left-0 font-semibold bg-gray-100 bg-opacity-50 flex p-4 py-2 gap-4 h-[7vh] items-center justify-between",
           isVisible ? "translate-y-0" : "-translate-y-full"
         )}
+        initial={false}
+        animate={{ y: isVisible ? 0 : "-100%" }}
+        transition={{ duration: 0.3 }}
       >
         <div className='flex gap-4'>
           <Link href='/'>
@@ -53,7 +72,37 @@ const LandingPageHeader = () => {
             會不會<span className='text-indigo-400'>穿搭</span>啊
           </p>
         </div>
-      </div>
+        {isMobile ? (
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button variant='ghost' size='icon'>
+                <Menu className='h-6 w-6' />
+              </Button>
+            </SheetTrigger>
+            <SheetContent>
+              <nav className='flex flex-col gap-4 mt-8'>
+                {menuItems.map((item) => (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className='text-lg font-medium cursor-pointer'
+                  >
+                    {item.label}
+                  </Link>
+                ))}
+              </nav>
+            </SheetContent>
+          </Sheet>
+        ) : (
+          <div className='flex gap-4 font-light'>
+            {menuItems.map((item) => (
+              <Link key={item.href} href={item.href}>
+                {item.label}
+              </Link>
+            ))}
+          </div>
+        )}
+      </motion.div>
     </header>
   );
 };
@@ -84,6 +133,7 @@ const Header = () => {
             會不會<span className='text-indigo-400'>穿搭</span>啊
           </p>
         </div>
+
         {user && <AvatarMenu />}
       </div>
     </header>
