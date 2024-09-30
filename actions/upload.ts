@@ -9,6 +9,7 @@ import {
   insertUpload,
 } from "./utils/insert";
 import { UnstoredResult, semanticSearch } from "./utils/matching";
+import { param } from "cypress/types/jquery";
 
 //prompt for recommendation
 const constructPromptForRecommendation = ({
@@ -73,7 +74,7 @@ const constructPromptForImage = ({
       性別: ${gender === "male" ? "男性" : "女性"},
     }
     請詳細描述圖中的${clothingType === "top" ? "上衣" : "下身類衣物"}，
-    並且提供詳盡的描述。
+    並且提供一組詳盡的描述。
     請使用下方 JSON 格式回覆，回答無需包含其他資訊：
     [
       {
@@ -85,11 +86,11 @@ const constructPromptForImage = ({
           "剪裁版型": "[描述]", 
           "設計特點": "[描述]", 
           "材質": "[材質]", 
-          "細節": "[描述]",
+          "細節": "[描述]", 
           ${
             clothingType === "top"
-              ? '"褲管": "[描述]", "裙擺": "[描述]"'
-              : '"領子": "[描述]", "袖子": "[描述]"'
+              ? '"領子": "[描述]", "袖子": "[描述]"'
+              : '"褲管": "[描述]", "裙擺": "[描述]"'
           }
         }
       }
@@ -112,7 +113,6 @@ const validateAndCleanRecommendations = (
     if (!Array.isArray(recommendationsArray)) {
       throw new Error("Invalid recommendation format: " + cleanedString);
     }
-
     return recommendationsArray
       .filter((recommendation) =>
         validateRecommendationFormat(recommendation.item, clothingType, isSimilar)
@@ -219,6 +219,7 @@ const handleSuggestionMatching = async ({
   gender: Gender;
 }): Promise<void> => {
   try {
+    console.log("got recommendations: ", recommendations);
     for (const rec of recommendations) {
       // Store suggestions and get suggestion IDs
       const suggestionId: number = await insertSuggestion({
@@ -227,6 +228,7 @@ const handleSuggestionMatching = async ({
         styleName: rec.styleName,
         description: rec.description,
       });
+      console.log("insert suggestion: ", suggestionId);
 
       // Get suggestion results (ResultTable[]) and store them to get result IDs
       const results: UnstoredResult[] = (await semanticSearch({
@@ -235,6 +237,7 @@ const handleSuggestionMatching = async ({
         numMaxItem,
         gender,
       })) as UnstoredResult[];
+      // console.log("semantic search results = ", results);
 
       await insertResults(results);
     }
@@ -265,6 +268,7 @@ const handleSubmission = async ({
   try {
     let prompt: string = "";
     let isSimilar = false;
+    console.log("upload type: ", recommendationType);
     if(recommendationType === 'recommendation'){
       //推薦穿搭
       prompt = constructPromptForRecommendation({
@@ -284,6 +288,7 @@ const handleSubmission = async ({
     else{
       //文字搜尋
       //TODO
+      isSimilar = true;
     }
 
     // 將做好的 prompt 結合 imgurl 送給 GPT
@@ -292,17 +297,19 @@ const handleSubmission = async ({
       prompt,
       imageUrl,
     });
+    console.log("GPT recommendation: ", recommendations);
 
     // 得到 GPT 的推薦
     if (recommendations) {
       const cleanedRecommendations = validateAndCleanRecommendations(
         recommendations,
         clothingType,
-        isSimilar //if recommendation than false, else true
+        isSimilar
       );
 
       // 把 upload 存到 supabase
       const uploadId: number = await insertUpload(imageUrl, userId);
+      console.log("uploadId: ", uploadId);
 
       // 把 parameters 存到 supabase
       const paramId: number = await insertParameters(
@@ -310,6 +317,7 @@ const handleSubmission = async ({
         clothingType,
         model
       );
+      console.log("paramId: ", paramId);
 
       // 把 recommendations 存到 supabase
       const recommendationId: number = await insertRecommendation({
@@ -317,6 +325,7 @@ const handleSubmission = async ({
         uploadId,
         userId,
       });
+      console.log("recommendationId: ", recommendationId);
 
       // matching
       await handleSuggestionMatching({

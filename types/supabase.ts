@@ -15,6 +15,72 @@ export type Database = {
           color: string | null
           embedding: string | null
           external_link: string | null
+          gender: string | null
+          id: string
+          image_url: string | null
+          label_string: string | null
+          price: number | null
+          provider: string | null
+          series_id: string
+          title: string
+        }
+        Insert: {
+          clothing_type?: string | null
+          color?: string | null
+          embedding?: string | null
+          external_link?: string | null
+          gender?: string | null
+          id?: string
+          image_url?: string | null
+          label_string?: string | null
+          price?: number | null
+          provider?: string | null
+          series_id?: string
+          title: string
+        }
+        Update: {
+          clothing_type?: string | null
+          color?: string | null
+          embedding?: string | null
+          external_link?: string | null
+          gender?: string | null
+          id?: string
+          image_url?: string | null
+          label_string?: string | null
+          price?: number | null
+          provider?: string | null
+          series_id?: string
+          title?: string
+        }
+        Relationships: []
+      }
+      item_old: {
+        Row: {
+          embedding: string | null
+          id: number
+          image_url: string | null
+          label_string: string | null
+        }
+        Insert: {
+          embedding?: string | null
+          id?: number
+          image_url?: string | null
+          label_string?: string | null
+        }
+        Update: {
+          embedding?: string | null
+          id?: number
+          image_url?: string | null
+          label_string?: string | null
+        }
+        Relationships: []
+      }
+      item_old2: {
+        Row: {
+          clothing_type: string | null
+          color: string | null
+          embedding: string | null
+          external_link: string | null
           gender: Database["public"]["Enums"]["gender"] | null
           id: string
           image_url: string
@@ -51,27 +117,6 @@ export type Database = {
           provider?: string | null
           series_id?: string | null
           title?: string | null
-        }
-        Relationships: []
-      }
-      item_old: {
-        Row: {
-          embedding: string | null
-          id: number
-          image_url: string | null
-          label_string: string | null
-        }
-        Insert: {
-          embedding?: string | null
-          id?: number
-          image_url?: string | null
-          label_string?: string | null
-        }
-        Update: {
-          embedding?: string | null
-          id?: number
-          image_url?: string | null
-          label_string?: string | null
         }
         Relationships: []
       }
@@ -193,7 +238,21 @@ export type Database = {
             foreignKeyName: "result_item_id_fkey"
             columns: ["item_id"]
             isOneToOne: false
-            referencedRelation: "item"
+            referencedRelation: "female_item_matview"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "result_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "item_old2"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "result_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "male_item_matview"
             referencedColumns: ["id"]
           },
           {
@@ -330,7 +389,28 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      female_item_matview: {
+        Row: {
+          color: string | null
+          embedding: string | null
+          id: string | null
+          image_url: string | null
+          label_string: string | null
+          series_id: string | null
+        }
+        Relationships: []
+      }
+      male_item_matview: {
+        Row: {
+          color: string | null
+          embedding: string | null
+          id: string | null
+          image_url: string | null
+          label_string: string | null
+          series_id: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       query_similar_items:

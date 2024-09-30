@@ -24,6 +24,7 @@ const getResults = async (
       console.error("Error fetching results:", error);
       return null;
     }
+    // console.log("get results =", data);
 
     return data as ResultTable[];
   } catch (error) {
@@ -159,13 +160,14 @@ const getSeriesIDByItemId = async (itemId: string): Promise<string | null> => {
     const { data, error } = await supabase
       .from("item")
       .select("series_id")
-      .eq("item_id", itemId)
+      .eq("id", itemId)
       .single();
 
     if (error) {
       console.error("Error fetching series ID:", error);
       return null;
     }
+    // console.log("getSeries_id = ", data.series_id);
 
     return data.series_id as string;
   } catch (error) {

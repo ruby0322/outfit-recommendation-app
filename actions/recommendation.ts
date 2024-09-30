@@ -10,81 +10,15 @@ import {
   UploadTable,
 } from "@/type";
 import {
-  getItemsByIds,//
-  getItemsIDBySeriesId,//
   getParamById,
   getRecommendationById,
   getResults,
-  getSeriesById,//
   getSeriesIdsByItemIds,
   getSuggestion,
   getUploadById,
 } from "./utils/fetch";
 import supabase from "@/lib/supabaseClient";
-
-// util function for getRecommendationRecordById()
-const getSeriesOld = async (
-  series_ids: string[],
-  originalItemIds: string[],
-  gender: string
-): Promise<Series[] | null> => {
-  try {
-    // console.time("getSeries");
-    // console.log(`Starting getSeries with ${series_ids.length} series IDs, gender: ${gender}`);
-    const seriesArray: Series[] = [];
-    const threads: Promise<void>[] = [];
-    const dbGender = gender === "man" ? "male" : "female";
-
-    for (const seriesId of series_ids) {
-      const thread = async (): Promise<void> => {
-        try {
-          // console.log(`Processing seriesId: ${seriesId}`);
-          const seriesTable = await getSeriesById(seriesId);
-          if (!seriesTable) {
-            console.log(`No series found for ID: ${seriesId}`);
-            return;
-          }
-          // if (seriesTable.gender !== dbGender) {
-          //   console.log(`Series ${seriesId} gender mismatch: ${seriesTable.gender} !== ${dbGender}`);
-          //   return;
-          // }
-          const itemIds = await getItemsIDBySeriesId(seriesId);
-          if (!itemIds || itemIds.length === 0) {
-            console.log(`No items found for series ${seriesId}`);
-            return;
-          }
-          // console.log(`Found ${itemIds.length} items for series ${seriesId}`);
-          let items = await getItemsByIds(itemIds);
-          if (!items || items.length === 0) {
-            console.log(`Failed to fetch items for series ${seriesId}`);
-            return;
-          }
-          items = items.sort((a, b) => 
-            originalItemIds.indexOf(a.id) - originalItemIds.indexOf(b.id)
-          );
-
-          const series: Series = {
-            ...seriesTable,
-            items: items as ItemTable[],
-          };
-
-          seriesArray.push(series);
-          // console.log(`Successfully added series ${seriesId} with ${items.length} items`);
-        } catch (error) {
-          console.error(`Error processing series ${seriesId}:`, error);
-        }
-      };
-      threads.push(thread());
-    }
-    await Promise.all(threads);
-    // console.log(`Finished processing. Found ${seriesArray.length} matching series.`);
-    console.timeEnd("getSeries");
-    return seriesArray.length > 0 ? seriesArray : null;
-  } catch (error) {
-    console.error("Unexpected error in getSeries:", error);
-    return null;
-  }
-};
+import { rest } from "cypress/types/lodash";
 
 const getSeries = async (
   series_ids: string[],
@@ -128,13 +62,13 @@ const getSeries = async (
         (a, b) => originalItemIds.indexOf(a.id) - originalItemIds.indexOf(b.id)
       );
 
-      // 構建 series 並 push 進 array
       const series: Series = {
         items: sortedItems,
       };
       seriesArray.push(series);
     }
     console.timeEnd("getSeries");
+    console.log("finish getSeries");
     return seriesArray.length > 0 ? seriesArray : null;
   } catch (error) {
     console.error("Unexpected error in getSeries:", error);
@@ -148,8 +82,8 @@ const getRecommendationRecordById = async (
   recommendation_id: number
 ): Promise<Recommendation | null> => {
   try {
-    console.time("getRecommendationRecordById");
-    console.time("get param, upload, suggestion");
+    // console.time("getRecommendationRecordById");
+    // console.time("get param, upload, suggestion");
     const recommendation = (await getRecommendationById(
       recommendation_id
     )) as RecommendationTable;
@@ -167,15 +101,16 @@ const getRecommendationRecordById = async (
     const suggestions = (await getSuggestion(
       recommendation_id
     )) as SuggestionTable[];
-    console.timeEnd("get param, upload, suggestion");
+    console.log("suggestion: ", suggestions);
+    // console.timeEnd("get param, upload, suggestion");
 
-    console.time("get results, series, items");
+    // console.time("get results, series, items");
     for (const s of suggestions) {
       const styleName = s.style_name as string;
       const description = s.description as string;
       console.log("styleName", styleName);
       console.log("description", description);
-      // const label_string = s.label_string as string;
+      const label_string = s.label_string as string;
       const results = (await getResults(s.id)) as ResultTable[];
       if (!results) throw new Error("No results found");
 
@@ -193,8 +128,8 @@ const getRecommendationRecordById = async (
         description
       };
     }
-    console.timeEnd("get results, series, items");
-    console.timeEnd("getRecommendationRecordById");
+    // console.timeEnd("get results, series, items");
+    // console.timeEnd("getRecommendationRecordById");
 
     return recommendation_record as Recommendation;
   } catch (error) {
