@@ -1,15 +1,15 @@
 "use server";
 import supabase from "@/lib/supabaseClient";
 import { ClothingType, Gender } from "@/type";
-import { sendImgURLAndPromptToGPT } from "./utils/chat";
+import { sendImgURLAndPromptToGPT, sendPromptToGPT } from "./utils/chat";
 import {
   insertRecommendation,
   insertResults,
   insertSuggestion,
   insertUpload,
+  insertParam
 } from "./utils/insert";
 import { UnstoredResult, semanticSearch } from "./utils/matching";
-import { param } from "cypress/types/jquery";
 
 //prompt for recommendation
 const constructPromptForRecommendation = ({
@@ -57,7 +57,7 @@ const constructPromptForRecommendation = ({
   return prompt;
 };
 
-//以圖搜圖
+//prompt for image
 const constructPromptForImage = ({
   clothingType,
   gender,
@@ -99,150 +99,38 @@ const constructPromptForImage = ({
   return prompt;
 };
 
-
 const validateAndCleanRecommendations = (
   recommendations: string,
   clothingType: ClothingType,
-  isSimilar: boolean,
-): { styleName: string; description: string; labelString: string }[] => {
+  isSimilar: boolean
+) => {
   try {
-    const cleanedString = recommendations
-      .replace(/```json\n?|\n?```/g, "")
-      .trim();
-    const recommendationsArray: any[] = JSON.parse(cleanedString);
-    if (!Array.isArray(recommendationsArray)) {
-      throw new Error("Invalid recommendation format: " + cleanedString);
-    }
+    const recommendationsArray = JSON.parse(recommendations.replace(/```json\n?|\n?```/g, "").trim());
+    if (!Array.isArray(recommendationsArray)) throw new Error("Invalid recommendation format");
+
     return recommendationsArray
-      .filter((recommendation) =>
-        validateRecommendationFormat(recommendation.item, clothingType, isSimilar)
-      )
-      .map((recommendation) => ({
-        styleName: recommendation.styleName,
-        description: recommendation.description,
-        labelString: formatRecommendation(recommendation.item, clothingType, isSimilar),
-      }));
+      .filter((rec) => {
+        const requiredKeys = ["顏色", "服裝類型", "剪裁版型", "設計特點", "材質", "細節"];
+        const specificKeys = isSimilar
+          ? clothingType === "top" ? ["領子", "袖子"] : ["褲管", "裙擺"]
+          : clothingType === "top" ? ["褲管", "裙擺"] : ["領子", "袖子"];
+
+        return [...requiredKeys, ...specificKeys].every((key) => key in rec.item);
+      })
+      .map((rec) => {
+        const specificInfo = isSimilar
+          ? clothingType === "top" ? `領子: ${rec.item.領子}, 袖子: ${rec.item.袖子}` : `褲管: ${rec.item.褲管}, 裙擺: ${rec.item.裙擺}`
+          : clothingType === "top" ? `褲管: ${rec.item.褲管}, 裙擺: ${rec.item.裙擺}` : `領子: ${rec.item.領子}, 袖子: ${rec.item.袖子}`;
+
+        return {
+          styleName: rec.styleName,
+          description: rec.description,
+          labelString: `顏色: ${rec.item.顏色}, 服裝類型: ${rec.item.服裝類型}, 剪裁版型: ${rec.item.剪裁版型}, 設計特點: ${rec.item.設計特點}, 材質: ${rec.item.材質}, 細節: ${rec.item.細節}, ${specificInfo}`,
+        };
+      });
   } catch (error) {
     console.error("Error in validateAndCleanRecommendations", error);
     return [];
-  }
-};
-
-const validateRecommendationFormat = (
-  recommendation: any,
-  clothingType: ClothingType,
-  isSimilar: boolean
-): boolean => {
-  const requiredKeys = [
-    "顏色",
-    "服裝類型",
-    "剪裁版型",
-    "設計特點",
-    "材質",
-    "細節",
-  ];
-  let specificKeys: string[] = [];
-
-  if (isSimilar) {
-    specificKeys = clothingType === "top" ? ["領子", "袖子"] : ["褲管", "裙擺"];
-  } else {
-    specificKeys = clothingType === "top" ? ["褲管", "裙擺"] : ["領子", "袖子"];
-  }
-
-  const hasRequiredKeys = requiredKeys.every((key) => key in recommendation);
-  const hasSpecificKeys = specificKeys.every((key) => key in recommendation);
-
-  return hasRequiredKeys && hasSpecificKeys;
-};
-
-const formatRecommendation = (
-  recommendation: any,
-  clothingType: ClothingType,
-  isSimilar: boolean
-): string => {
-  return `顏色: ${recommendation.顏色}, 服裝類型: ${
-    recommendation.服裝類型
-  }, 剪裁版型: ${recommendation.剪裁版型}, 設計特點: ${
-    recommendation.設計特點
-  }, 材質: ${recommendation.材質}, 細節: ${recommendation.細節}, ${
-    isSimilar
-      ? clothingType === "top"
-        ? `領子: ${recommendation.領子}, 袖子: ${recommendation.袖子}`
-        : `褲管: ${recommendation.褲管}, 裙擺: ${recommendation.裙擺}`
-      : clothingType === "top"
-      ? `褲管: ${recommendation.褲管}, 裙擺: ${recommendation.裙擺}`
-      : `領子: ${recommendation.領子}, 袖子: ${recommendation.袖子}`
-  }`;
-};
-
-
-const insertParameters = async (
-  gender: Gender,
-  clothingType: ClothingType,
-  model: string
-): Promise<number> => {
-  const { data, error } = await supabase
-    .from("param")
-    .insert([
-      {
-        gender,
-        clothing_type: clothingType,
-        model,
-      },
-    ])
-    .select("id");
-  if (error) {
-    console.log(error);
-  }
-  if (data && data.length > 0) {
-    const paramId = data[0].id;
-    return paramId as number;
-  } else {
-    return -1;
-  }
-};
-
-// Handles matching suggestions with results and storing them
-const handleSuggestionMatching = async ({
-  recommendations,
-  numMaxItem,
-  recommendationId,
-  gender,
-}: {
-  recommendations: {
-    styleName: string;
-    description: string;
-    labelString: string;
-  }[];
-  numMaxItem: number;
-  recommendationId: number;
-  gender: Gender;
-}): Promise<void> => {
-  try {
-    console.log("got recommendations: ", recommendations);
-    for (const rec of recommendations) {
-      // Store suggestions and get suggestion IDs
-      const suggestionId: number = await insertSuggestion({
-        recommendationId,
-        labelString: rec.labelString,
-        styleName: rec.styleName,
-        description: rec.description,
-      });
-      console.log("insert suggestion: ", suggestionId);
-
-      // Get suggestion results (ResultTable[]) and store them to get result IDs
-      const results: UnstoredResult[] = (await semanticSearch({
-        suggestionId: suggestionId,
-        suggestedLabelString: rec.labelString,
-        numMaxItem,
-        gender,
-      })) as UnstoredResult[];
-      // console.log("semantic search results = ", results);
-
-      await insertResults(results);
-    }
-  } catch (error) {
-    console.error("Error in handleSuggestionMatching:", error);
   }
 };
 
@@ -254,7 +142,7 @@ const handleSubmission = async ({
   userId,
   numMaxSuggestion,
   numMaxItem,
-  recommendationType //多傳一個參數 'recommendation', 'image', 'text'
+  recommendationType, // 'recommendation', 'image'
 }: {
   clothingType: ClothingType;
   imageUrl: string;
@@ -268,38 +156,27 @@ const handleSubmission = async ({
   try {
     let prompt: string = "";
     let isSimilar = false;
-    console.log("upload type: ", recommendationType);
-    if(recommendationType === 'recommendation'){
-      //推薦穿搭
+
+    if (recommendationType === 'recommendation') {
       prompt = constructPromptForRecommendation({
         clothingType,
         gender,
         numMaxSuggestion,
       });
-    }
-    else if(recommendationType === 'image'){
-      //圖片搜尋
+    } else if (recommendationType === 'image') {
       prompt = constructPromptForImage({
         clothingType,
         gender,
       });
       isSimilar = true;
     }
-    else{
-      //文字搜尋
-      //TODO
-      isSimilar = true;
-    }
 
-    // 將做好的 prompt 結合 imgurl 送給 GPT
     const recommendations: string | null = await sendImgURLAndPromptToGPT({
       model,
       prompt,
       imageUrl,
     });
-    console.log("GPT recommendation: ", recommendations);
 
-    // 得到 GPT 的推薦
     if (recommendations) {
       const cleanedRecommendations = validateAndCleanRecommendations(
         recommendations,
@@ -307,33 +184,31 @@ const handleSubmission = async ({
         isSimilar
       );
 
-      // 把 upload 存到 supabase
       const uploadId: number = await insertUpload(imageUrl, userId);
-      console.log("uploadId: ", uploadId);
-
-      // 把 parameters 存到 supabase
-      const paramId: number = await insertParameters(
-        gender,
-        clothingType,
-        model
-      );
-      console.log("paramId: ", paramId);
-
-      // 把 recommendations 存到 supabase
+      const paramId: number = await insertParam(gender, clothingType, model);
       const recommendationId: number = await insertRecommendation({
         paramId,
         uploadId,
         userId,
       });
-      console.log("recommendationId: ", recommendationId);
 
-      // matching
-      await handleSuggestionMatching({
-        recommendations: cleanedRecommendations,
-        numMaxItem,
-        recommendationId,
-        gender,
-      });
+      for (const rec of cleanedRecommendations) {
+        const suggestionId: number = await insertSuggestion({
+          recommendationId,
+          labelString: rec.labelString,
+          styleName: rec.styleName,
+          description: rec.description,
+        });
+
+        const results: UnstoredResult[] = (await semanticSearch({
+          suggestionId,
+          suggestedLabelString: rec.labelString,
+          numMaxItem,
+          gender,
+        })) as UnstoredResult[];
+
+        await insertResults(results);
+      }
 
       return recommendationId;
     } else {
@@ -344,5 +219,6 @@ const handleSubmission = async ({
     return -1;
   }
 };
+
 
 export { handleSubmission };

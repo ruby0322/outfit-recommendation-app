@@ -18,7 +18,6 @@ import {
   getUploadById,
 } from "./utils/fetch";
 import supabase from "@/lib/supabaseClient";
-import { rest } from "cypress/types/lodash";
 
 const getSeries = async (
   series_ids: string[],
@@ -42,7 +41,6 @@ const getSeries = async (
         return null;
       }
 
-      // check gender matching
       const validItems = (data as ItemTable[]).filter((item) => {
         if (item.gender !== dbGender) {
           console.error(
@@ -76,8 +74,6 @@ const getSeries = async (
   }
 };
 
-
-// Fetches a recommendation by its ID
 const getRecommendationRecordById = async (
   recommendation_id: number
 ): Promise<Recommendation | null> => {
@@ -101,16 +97,13 @@ const getRecommendationRecordById = async (
     const suggestions = (await getSuggestion(
       recommendation_id
     )) as SuggestionTable[];
-    console.log("suggestion: ", suggestions);
     // console.timeEnd("get param, upload, suggestion");
-
     // console.time("get results, series, items");
     for (const s of suggestions) {
       const styleName = s.style_name as string;
       const description = s.description as string;
       console.log("styleName", styleName);
       console.log("description", description);
-      const label_string = s.label_string as string;
       const results = (await getResults(s.id)) as ResultTable[];
       if (!results) throw new Error("No results found");
 

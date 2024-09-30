@@ -1,6 +1,5 @@
 "use server";
 import {
-  Gender,
   ItemTable,
   ParamTable,
   RecommendationTable,
@@ -24,7 +23,6 @@ const getResults = async (
       console.error("Error fetching results:", error);
       return null;
     }
-    // console.log("get results =", data);
 
     return data as ResultTable[];
   } catch (error) {
@@ -167,7 +165,6 @@ const getSeriesIDByItemId = async (itemId: string): Promise<string | null> => {
       console.error("Error fetching series ID:", error);
       return null;
     }
-    // console.log("getSeries_id = ", data.series_id);
 
     return data.series_id as string;
   } catch (error) {

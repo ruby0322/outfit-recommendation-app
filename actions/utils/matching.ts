@@ -9,11 +9,6 @@ export interface UnstoredResult {
   suggestion_id: number;
 }
 
-interface SimilarItem {
-  id: string;
-  embedding: number[];
-}
-
 // Function to perform semantic search using Supabase API
 const semanticSearch = async ({
   suggestionId,
