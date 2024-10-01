@@ -4,7 +4,13 @@ import Image from "next/image";
 import { useRef, useState } from "react";
 import { useFormContext } from "react-hook-form";
 
-const ImageUploader = () => {
+const ImageUploader = ({
+  onImageUpload,
+  className,
+}: {
+  onImageUpload: () => void;
+  className?: string;
+}) => {
   const {
     register,
     setValue,
@@ -22,6 +28,7 @@ const ImageUploader = () => {
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    onImageUpload();
     const files = e.target.files;
     if (files && files[0]) {
       setValue("uploadedImage", files);

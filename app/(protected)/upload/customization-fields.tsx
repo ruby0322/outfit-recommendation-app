@@ -31,7 +31,6 @@ const CustomizationFields = () => {
 
   const clothingType = watch("clothingType");
   const gender = watch("gender");
-  const bodyType = watch("bodyType");
 
   return (
     <Card className='w-128 max-w-[92vw] bg-white'>
