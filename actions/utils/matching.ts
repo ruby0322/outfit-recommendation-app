@@ -34,7 +34,7 @@ const semanticSearch = async ({
         max_item_count: numMaxItem,
       }
     );
-    
+    // 切分線
     if (err) {
       console.error("Error fetching results from Supabase:", err);
       return null;

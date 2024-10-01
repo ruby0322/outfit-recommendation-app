@@ -142,7 +142,7 @@ const handleSubmission = async ({
   userId,
   numMaxSuggestion,
   numMaxItem,
-  recommendationType, // 'recommendation', 'image'
+  recommendationType, // 'recommendation', 'image', 'text'
 }: {
   clothingType: ClothingType;
   imageUrl: string;

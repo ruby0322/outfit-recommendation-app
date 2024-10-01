@@ -12,7 +12,7 @@ export type ClothingType = Enums<"clothing_type">;
 export type BodyType = Enums<"body_type">;
 export type Gender = Enums<"gender">;
 
-export type Series = { items: ItemTable[]};
+export type Series = { items: ItemTable[] };
 
 export interface Recommendation {
   param: ParamTable;
@@ -20,6 +20,11 @@ export interface Recommendation {
   styles: {
     [styleName: string]: { series: Series[], description: string };
   };
+}
+
+// 搜尋結果 (還沒拆成圖片和文字)
+export interface SearchResult {
+  series: Series[];
 }
 
 export type RecommendationPreview = RecommendationTable & {
