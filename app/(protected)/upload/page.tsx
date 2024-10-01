@@ -104,7 +104,7 @@ const Overview = ({
         <Image
           src={URL.createObjectURL(formData.uploadedImage[0])}
           alt='Uploaded'
-          className='w-64 h-64 object-cover rounded-lg mb-4'
+          className='w-80 h-80 object-cover rounded-lg mb-4'
           width={128}
           height={128}
         />
