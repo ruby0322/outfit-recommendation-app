@@ -8,7 +8,7 @@ import { Progress } from "@/components/ui/progress";
 import { createClient } from "@/utils/supabase/client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AnimatePresence, motion } from "framer-motion";
-import { CheckCircle } from "lucide-react";
+import { CheckCircle, ChevronLeft } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useCallback, useState } from "react";
@@ -256,9 +256,17 @@ export default function UploadPage() {
 
   return (
     <div className='relative w-full h-screen flex flex-col items-center justify-center'>
-      <div className='w-full flex-1 h-auto flex items-center justify-center'>
+      <div className='w-full flex-1 h-auto flex flex-col items-center justify-center'>
         <FormProvider {...methods}>
           <form onSubmit={methods.handleSubmit(onSubmit)}>
+            {currentStep > 1 && (
+              <div
+                onClick={prevStep}
+                className='text-sm font-bold mb-2 flex items-center text-gray-600 cursor-pointer'
+              >
+                <ChevronLeft className='w-4 h-4' /> 上一步
+              </div>
+            )}
             {currentStep === 1 && (
               <ImageUpload onImageUpload={handleImageUpload} />
             )}
