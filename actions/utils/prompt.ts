@@ -1,7 +1,6 @@
 "use server";
 import { ClothingType, Gender } from "@/type";
 
-//prompt for recommendation
 const constructPromptForRecommendation = ({
   clothingType,
   gender,
@@ -44,7 +43,6 @@ const constructPromptForRecommendation = ({
   return prompt;
 };
 
-//prompt for image
 const constructPromptForImageSearch = ({
   clothingType,
   gender,
@@ -60,8 +58,6 @@ const constructPromptForImageSearch = ({
     請使用下方 JSON 格式回覆，回答無需包含其他資訊：
     [
       {
-        "styleName": "[衣物風格]",
-        "description": "[衣物描述]",
         "item": {
           "顏色": "[顏色]", 
           "服裝類型": "[類型]", 
@@ -90,14 +86,11 @@ const constructPromptForTextSearch = ({
   userRequest: string;
   gender: Gender;
 }): string => {
-  const prompt: string = `
-    請將使用者的需求，盡可能的改寫成固定格式，讓我們能在資料庫中找到類似的衣物
-    使用者的需求為：${userRequest}。
+  return `
+    請將這位${gender === "male" ? "男性" : "女性"}使用者的需求：${userRequest}，改寫成固定格式
     請使用下方 JSON 格式回覆，回答無需包含其他資訊：
     [
       {
-        "styleName": "[衣物風格]",
-        "description": "[衣物描述]",
         "item": {
           "顏色": "[顏色]", 
           "服裝類型": "[類型]", 
@@ -114,7 +107,6 @@ const constructPromptForTextSearch = ({
       }
     ]
   `;
-  return prompt;
 };
 
 export { constructPromptForRecommendation, constructPromptForImageSearch, constructPromptForTextSearch }

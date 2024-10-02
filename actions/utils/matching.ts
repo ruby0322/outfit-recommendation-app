@@ -68,19 +68,17 @@ const semanticSearchForRecommendation = async ({
   }
 };
 
-const semanticSearchForImageAndTextSearch = async ({
+const semanticSearchForSearching = async ({
   suggestedLabelString,
-  numMaxItem,
   gender = "male",
 } : {
   suggestedLabelString: string;
-  numMaxItem: number;
   gender: Gender;  
 }) : Promise<SearchResult | null> => {
   try {
     const similarItems = await vectorSearch(
       suggestedLabelString,
-      numMaxItem,
+      1,
       gender
     );
 
@@ -94,10 +92,10 @@ const semanticSearchForImageAndTextSearch = async ({
     
     return result;
   } catch (error) {
-    console.error("Error in semanticSearchForImageSearch:", error);
+    console.error("Error in semanticSearchForSearching:", error);
     return null;
   }
 };
 
 
-export { semanticSearchForImageAndTextSearch, semanticSearchForRecommendation };
+export { semanticSearchForSearching, semanticSearchForRecommendation };

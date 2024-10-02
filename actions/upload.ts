@@ -10,7 +10,7 @@ import {
 } from "./utils/insert";
 import { 
   UnstoredResult, 
-  semanticSearchForImageAndTextSearch, 
+  semanticSearchForSearching, 
   semanticSearchForRecommendation 
 } from "./utils/matching";
 import { 
@@ -19,7 +19,7 @@ import {
   constructPromptForTextSearch 
 } from "./utils/prompt";
 
-const validateAndCleanRecommendations = (
+const validateAndCleanLabelString = (
   recommendations: string,
   clothingType: ClothingType,
   isSimilar: boolean
@@ -85,7 +85,7 @@ const handleRecommendation = async ({
     });
 
     if (recommendations) {
-      const cleanedRecommendations = validateAndCleanRecommendations(
+      const cleanedRecommendations = validateAndCleanLabelString(
         recommendations,
         clothingType,
         false
@@ -130,13 +130,11 @@ const handleImageSearch = async ({
   clothingType,
   gender,
   model,
-  numMaxItem,
   imageUrl,
 }: {
   clothingType: ClothingType;
   gender: Gender;
   model: string;
-  numMaxItem: number;
   imageUrl: string;
 }): Promise<SearchResult | null> => {
   try {
@@ -152,19 +150,18 @@ const handleImageSearch = async ({
     });
 
     if (rawLabelString) {
-      const cleanedLabels = validateAndCleanRecommendations(
+      const cleanedLabels = validateAndCleanLabelString(
         rawLabelString,
         clothingType,
         true
       );
 
-      console.log("cleaned labels: ", cleanedLabels);
+      console.log("Cleaned labels in image search: ", cleanedLabels);
 
       if(cleanedLabels.length > 0) {
         const labelString = cleanedLabels[0].labelString;
-        const searchResult: SearchResult | null = await semanticSearchForImageAndTextSearch({
+        const searchResult: SearchResult | null = await semanticSearchForSearching({
           suggestedLabelString: labelString,
-          numMaxItem,
           gender,
         })
         return searchResult;
@@ -182,4 +179,58 @@ const handleImageSearch = async ({
   }
 };
 
-export { handleRecommendation, handleImageSearch };
+const handleTextSearch = async ({
+  clothingType,
+  userRequest,
+  model,
+  gender
+} : {
+  clothingType: ClothingType;
+  userRequest: string;
+  model: string;
+  gender: Gender;
+}) : Promise<SearchResult | null> => {
+  try {
+    const prompt: string = constructPromptForTextSearch({
+      clothingType,
+      userRequest,
+      gender
+    });
+
+    const rawLabelString: string | null = await sendPromptToGPT({
+      model,
+      prompt,
+    });
+
+    if(rawLabelString) {
+      const cleanedLabels = validateAndCleanLabelString(
+        rawLabelString,
+        clothingType,
+        true
+      );
+
+      console.log("Cleaned labels in text search: ", cleanedLabels);
+
+      if(cleanedLabels.length > 0) {
+        const labelString = cleanedLabels[0].labelString;
+
+        const searchResult: SearchResult | null = await semanticSearchForSearching({
+          suggestedLabelString: labelString,
+          gender
+        });
+        return searchResult;
+      } else {
+        console.error("No valid labels found after cleaning");
+        return null;
+      }
+    } else {
+      console.error("No label string returned from GPT");
+      return null;
+    }
+  } catch (error) {
+    console.error("Error in handleTextSearch:", error);
+    return null;
+  }
+}
+
+export {handleImageSearch, handleTextSearch, handleRecommendation}
