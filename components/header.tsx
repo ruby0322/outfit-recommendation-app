@@ -79,7 +79,7 @@ const LandingPageHeader = () => {
                 <Menu className='h-6 w-6' />
               </Button>
             </SheetTrigger>
-            <SheetContent>
+            <SheetContent className='w-[40vw] bg-gray-100/80'>
               <nav className='flex flex-col gap-4 mt-8'>
                 {menuItems.map((item) => (
                   <Link

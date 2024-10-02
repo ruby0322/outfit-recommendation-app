@@ -22,7 +22,7 @@ const ImageCarousel = ({ imageUrls }: { imageUrls: string[] }) => {
       <CarouselMainContainer className='h-full'>
         {imageUrls.map((imageUrl, index) => (
           <SliderMainItem key={index} className='max-w-48 bg-transparent'>
-            <div className='w-48 h-48 outline outline-1 outline-border flex items-center justify-center rounded-xl bg-background'>
+            <div className='w-48 h-48 flex items-center justify-center bg-background'>
               <Image
                 src={imageUrl}
                 width={1024}

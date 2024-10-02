@@ -51,6 +51,7 @@
     "react-dom": "18.2.0",
     "react-hook-form": "^7.52.1",
     "react-resizable-panels": "^2.0.19",
+    "react-tsparticles": "^2.12.2",
     "redis": "^4.7.0",
     "tailwind-merge": "^2.3.0",
     "tailwindcss": "3.4.1",
