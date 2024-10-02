@@ -9,7 +9,7 @@ import {
   insertUpload,
   insertParam
 } from "./utils/insert";
-import { UnstoredResult, semanticSearch } from "./utils/matching";
+import { UnstoredResult, semanticSearchForImageSearch, semanticSearchForRecommendation } from "./utils/matching";
 
 //prompt for recommendation
 const constructPromptForRecommendation = ({
@@ -22,16 +22,13 @@ const constructPromptForRecommendation = ({
   numMaxSuggestion: number;
 }): string => {
   const prompt: string = `
-    請擔任我的造型師，仔細觀察這張圖片中的${
-      clothingType === "top" ? "上衣" : "下身類衣物"
-    }，
-    並根據以下提供的額外資訊：
-    {
-      性別: ${gender === "male" ? "男性" : "女性"},
-    }
-    請推薦${numMaxSuggestion}種與之搭配的${
-    clothingType === "top" ? "下身類衣物" : "上衣"
-  }。
+    請擔任我的造型師，仔細觀察這張圖片中的
+    ${gender === "male" ? "男性" : "女性"}
+    ${clothingType === "top" ? "上衣" : "下身類衣物"}
+    ，請推薦${numMaxSuggestion}種與之搭配的
+    ${
+      clothingType === "top" ? "下身類衣物" : "上衣"
+    }。
     對於每一種搭配，請提供一個風格名稱和推薦的原因。
     請使用下方 JSON 格式回覆，回答無需包含其他資訊：
     [
@@ -58,7 +55,7 @@ const constructPromptForRecommendation = ({
 };
 
 //prompt for image
-const constructPromptForImage = ({
+const constructPromptForImageSearch = ({
   clothingType,
   gender,
 }: {
@@ -66,15 +63,10 @@ const constructPromptForImage = ({
   gender: Gender;
 }): string => {
   const prompt: string = `
-    請擔任我的造型師，仔細觀察這張圖片中的${
-      clothingType === "top" ? "上衣" : "下身類衣物"
-    }，
-    並根據以下提供的額外資訊：
-    {
-      性別: ${gender === "male" ? "男性" : "女性"},
-    }
-    請詳細描述圖中的${clothingType === "top" ? "上衣" : "下身類衣物"}，
-    並且提供一組詳盡的描述。
+    請擔任我的造型師，仔細觀察這張圖片中的
+    ${gender === "male" ? "男性" : "女性"}
+    ${clothingType === "top" ? "上衣" : "下身類衣物"}
+    ，並且提供一組詳盡的描述。
     請使用下方 JSON 格式回覆，回答無需包含其他資訊：
     [
       {
@@ -164,7 +156,7 @@ const handleSubmission = async ({
         numMaxSuggestion,
       });
     } else if (recommendationType === 'image') {
-      prompt = constructPromptForImage({
+      prompt = constructPromptForImageSearch({
         clothingType,
         gender,
       });
@@ -200,7 +192,7 @@ const handleSubmission = async ({
           description: rec.description,
         });
 
-        const results: UnstoredResult[] = (await semanticSearch({
+        const results: UnstoredResult[] = (await semanticSearchForRecommendation({
           suggestionId,
           suggestedLabelString: rec.labelString,
           numMaxItem,
