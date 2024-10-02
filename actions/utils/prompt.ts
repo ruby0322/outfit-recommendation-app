@@ -58,8 +58,6 @@ const constructPromptForImageSearch = ({
     請使用下方 JSON 格式回覆，回答無需包含其他資訊：
     [
       {
-        "styleName": "[衣物風格]",
-        "description": "[衣物描述]",
         "item": {
           "顏色": "[顏色]", 
           "服裝類型": "[類型]", 
@@ -93,8 +91,6 @@ const constructPromptForTextSearch = ({
     請使用下方 JSON 格式回覆，回答無需包含其他資訊：
     [
       {
-        "styleName": "[衣物風格]",
-        "description": "[衣物描述]",
         "item": {
           "顏色": "[顏色]", 
           "服裝類型": "[類型]", 

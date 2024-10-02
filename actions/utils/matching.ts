@@ -70,17 +70,15 @@ const semanticSearchForRecommendation = async ({
 
 const semanticSearchForSearching = async ({
   suggestedLabelString,
-  numMaxItem,
   gender = "male",
 } : {
   suggestedLabelString: string;
-  numMaxItem: number;
   gender: Gender;  
 }) : Promise<SearchResult | null> => {
   try {
     const similarItems = await vectorSearch(
       suggestedLabelString,
-      numMaxItem,
+      1,
       gender
     );
 

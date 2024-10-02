@@ -18,21 +18,19 @@ export default async function Playground(){
     numMaxItem: 10,
   });
 
-  const imgSearchResult = await handleImageSearch ({
-    clothingType: 'bottom',
-    gender: 'female',
-    model: 'gpt-4o-mini',
-    numMaxItem: 3,
-    imageUrl: 'https://eapzlwxcyrinipmcdoir.supabase.co/storage/v1/object/public/image/image-018f80af-65bb-48fd-ba2f-43051785c660',
-  })
+  // const imgSearchResult = await handleImageSearch ({
+  //   clothingType: 'bottom',
+  //   gender: 'female',
+  //   model: 'gpt-4o-mini',
+  //   imageUrl: 'https://eapzlwxcyrinipmcdoir.supabase.co/storage/v1/object/public/image/image-018f80af-65bb-48fd-ba2f-43051785c660',
+  // })
 
-  const textSearchResult = await handleTextSearch ({
-    clothingType: 'bottom',
-    userRequest: '我想要黑色牛仔長褲，穿去參加校園party',
-    model: 'gpt-4o-mini',
-    numMaxItem: 3,
-    gender: 'female',
-  })
+  // const textSearchResult = await handleTextSearch ({
+  //   clothingType: 'bottom',
+  //   userRequest: '我想要找一件黑色牛仔長褲，可以用來搭配我的白色 T-shirt',
+  //   model: 'gpt-4o-mini',
+  //   gender: 'female',
+  // })
 
   // router.push(`/recommendation/${recommendationId}`);
   // console.log("recommendation_id = ", recommendationId);

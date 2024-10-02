@@ -19,7 +19,7 @@ import {
   constructPromptForTextSearch 
 } from "./utils/prompt";
 
-const validateAndCleanRecommendations = (
+const validateAndCleanLabelString = (
   recommendations: string,
   clothingType: ClothingType,
   isSimilar: boolean
@@ -85,7 +85,7 @@ const handleRecommendation = async ({
     });
 
     if (recommendations) {
-      const cleanedRecommendations = validateAndCleanRecommendations(
+      const cleanedRecommendations = validateAndCleanLabelString(
         recommendations,
         clothingType,
         false
@@ -130,13 +130,11 @@ const handleImageSearch = async ({
   clothingType,
   gender,
   model,
-  numMaxItem,
   imageUrl,
 }: {
   clothingType: ClothingType;
   gender: Gender;
   model: string;
-  numMaxItem: number;
   imageUrl: string;
 }): Promise<SearchResult | null> => {
   try {
@@ -152,19 +150,18 @@ const handleImageSearch = async ({
     });
 
     if (rawLabelString) {
-      const cleanedLabels = validateAndCleanRecommendations(
+      const cleanedLabels = validateAndCleanLabelString(
         rawLabelString,
         clothingType,
         true
       );
 
-      console.log("cleaned labels: ", cleanedLabels);
+      console.log("Cleaned labels in image search: ", cleanedLabels);
 
       if(cleanedLabels.length > 0) {
         const labelString = cleanedLabels[0].labelString;
         const searchResult: SearchResult | null = await semanticSearchForSearching({
           suggestedLabelString: labelString,
-          numMaxItem,
           gender,
         })
         return searchResult;
@@ -186,13 +183,11 @@ const handleTextSearch = async ({
   clothingType,
   userRequest,
   model,
-  numMaxItem,
   gender
 } : {
   clothingType: ClothingType;
   userRequest: string;
   model: string;
-  numMaxItem: number;
   gender: Gender;
 }) : Promise<SearchResult | null> => {
   try {
@@ -208,18 +203,19 @@ const handleTextSearch = async ({
     });
 
     if(rawLabelString) {
-      const cleanedLabels = validateAndCleanRecommendations(
+      const cleanedLabels = validateAndCleanLabelString(
         rawLabelString,
         clothingType,
         true
       );
+
+      console.log("Cleaned labels in text search: ", cleanedLabels);
 
       if(cleanedLabels.length > 0) {
         const labelString = cleanedLabels[0].labelString;
 
         const searchResult: SearchResult | null = await semanticSearchForSearching({
           suggestedLabelString: labelString,
-          numMaxItem,
           gender
         });
         return searchResult;
