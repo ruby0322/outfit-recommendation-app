@@ -1,5 +1,5 @@
 "use server";
-import { Gender } from "@/type";
+import { Gender, SearchResult } from "@/type";
 import supabase from "@/lib/supabaseClient";
 import { calculateDistance, generateEmbedding } from "./embedding";
 
@@ -9,53 +9,95 @@ export interface UnstoredResult {
   suggestion_id: number;
 }
 
-interface SimilarItem {
-  id: string;
-  embedding: number[];
+const vectorSearch = async (
+  suggestedLabelString: string,
+  numMaxItem: number,
+  gender: Gender
+) => {
+  const suggestedEmbedding = await generateEmbedding(suggestedLabelString);
+  const rpcFunctionName = `query_similar_${gender}_items`;
+  const { data: similarItems, error: err } = await supabase.rpc(
+    rpcFunctionName,
+    {
+      query_embedding: suggestedEmbedding,
+      match_threshold: 0.2,
+      max_item_count: numMaxItem,
+    }
+  );
+
+  if(err) {
+    console.error("Error fetching results from Supabase:", err);
+    return null;
+  }
+
+  return similarItems;
 }
 
-// Function to perform semantic search using Supabase API
-const semanticSearch = async ({
+const semanticSearchForRecommendation = async ({
   suggestionId,
   suggestedLabelString,
   numMaxItem,
   gender = "male",
-}: {
+} : {
   suggestionId: number;
   suggestedLabelString: string;
   numMaxItem: number;
   gender: Gender;
-}): Promise<UnstoredResult[] | null> => {
+}) : Promise<UnstoredResult[] | null> => {
   try {
-    const suggestedEmbedding = await generateEmbedding(suggestedLabelString);
-
-    const rpcFunctionName = `query_similar_${gender}_items`;
-
-    const { data: similarItems, error: err } = await supabase.rpc(
-      rpcFunctionName,
-      {
-        query_embedding: suggestedEmbedding,
-        match_threshold: 0.2,
-        max_item_count: numMaxItem,
-      }
+    const similarItems = await vectorSearch(
+      suggestedLabelString,
+      numMaxItem,
+      gender
     );
-    
-    if (err) {
-      console.error("Error fetching results from Supabase:", err);
+
+    if (!similarItems) {
       return null;
     }
 
     const results: UnstoredResult[] = similarItems.map((item: { id: any; }, index: any) => ({
-      distance: index, // SQL Editor Sort 完直接用 (?)
+      distance: index,
       item_id: item.id,
       suggestion_id: suggestionId,
     }));
 
     return results;
   } catch (error) {
-    console.error("Error in semanticSearch:", error);
+    console.error("Error in semanticSearchForRecommendation:", error);
     return null;
   }
 };
 
-export { semanticSearch };
+const semanticSearchForImageAndTextSearch = async ({
+  suggestedLabelString,
+  numMaxItem,
+  gender = "male",
+} : {
+  suggestedLabelString: string;
+  numMaxItem: number;
+  gender: Gender;  
+}) : Promise<SearchResult | null> => {
+  try {
+    const similarItems = await vectorSearch(
+      suggestedLabelString,
+      numMaxItem,
+      gender
+    );
+
+    if (!similarItems) {
+      return null;
+    }
+
+    const result: SearchResult = {
+      series: similarItems
+    };
+    
+    return result;
+  } catch (error) {
+    console.error("Error in semanticSearchForImageSearch:", error);
+    return null;
+  }
+};
+
+
+export { semanticSearchForImageAndTextSearch, semanticSearchForRecommendation };

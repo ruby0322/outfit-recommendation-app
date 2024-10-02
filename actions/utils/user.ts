@@ -72,8 +72,6 @@ const updateUserProfile = async (
       throw new Error("Failed to retrieve authenticated user");
     }
     const updates: { username?: string; avatar_url?: string } = {};
-
-    // Only add fields that are not null or undefined
     if (username) {
       updates.username = username;
     }
@@ -81,7 +79,6 @@ const updateUserProfile = async (
       updates.avatar_url = avatar_url;
     }
 
-    // Proceed with the update only if there are valid fields to update
     if (Object.keys(updates).length > 0) {
       const { error } = await supabase
         .from("profile")

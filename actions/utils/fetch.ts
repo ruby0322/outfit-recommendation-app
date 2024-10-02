@@ -1,11 +1,9 @@
 "use server";
 import {
-  Gender,
   ItemTable,
   ParamTable,
   RecommendationTable,
   ResultTable,
-  SeriesTable,
   SuggestionTable,
   UploadTable,
 } from "@/type";
@@ -158,9 +156,9 @@ const getItemsByIds = async (
 const getSeriesIDByItemId = async (itemId: string): Promise<string | null> => {
   try {
     const { data, error } = await supabase
-      .from("item_to_series")
+      .from("item")
       .select("series_id")
-      .eq("item_id", itemId)
+      .eq("id", itemId)
       .single();
 
     if (error) {
@@ -189,20 +187,19 @@ const getSeriesIdsByItemIds = async (item_ids: string[]): Promise<string[]> => {
 };
 
 // Fetch the series by series ID
-const getSeriesById = async (seriesId: string): Promise<SeriesTable | null> => {
+const getSeriesById = async (seriesId: string): Promise<ItemTable[] | null> => {
   try {
     const { data, error } = await supabase
-      .from("series")
+      .from("item")
       .select("*")
-      .eq("id", seriesId)
-      .single();
+      .eq("series_id", seriesId);
 
     if (error) {
       console.error("Error fetching series ID:", error);
       return null;
     }
 
-    return data as SeriesTable;
+    return data;
   } catch (error) {
     console.error("Unexpected error:", error);
     return null;
@@ -215,7 +212,7 @@ const getItemsIDBySeriesId = async (
 ): Promise<string[] | null> => {
   try {
     const { data, error } = await supabase
-      .from("item_to_series")
+      .from("item")
       .select("item_id")
       .eq("series_id", seriesId);
 

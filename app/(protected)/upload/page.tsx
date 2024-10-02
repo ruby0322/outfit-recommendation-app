@@ -1,6 +1,6 @@
 "use client";
 
-import { handleSubmission } from "@/actions/upload";
+import { handleRecommendation, handleImageSearch } from "@/actions/upload";
 import { storeImageToStorage } from "@/actions/utils/insert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -226,7 +226,7 @@ export default function UploadPage() {
           const {
             data: { user },
           } = await supabase.auth.getUser();
-          const recommendationId = await handleSubmission({
+          const recommendationId = await handleRecommendation({
             clothingType: data.clothingType,
             imageUrl: imageUrl,
             gender: data.gender,
@@ -234,6 +234,7 @@ export default function UploadPage() {
             userId: user?.id as string,
             numMaxSuggestion: NUM_MAX_SUGGESTION,
             numMaxItem: NUM_MAX_ITEM,
+            // recommendationType: 'recommendation',
           });
           router.push(`/recommendation/${recommendationId}`);
         } catch (error) {

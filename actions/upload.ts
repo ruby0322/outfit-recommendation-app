@@ -1,263 +1,185 @@
 "use server";
-import supabase from "@/lib/supabaseClient";
-import { ClothingType, Gender } from "@/type";
-import { sendImgURLAndPromptToGPT } from "./utils/chat";
+import { ClothingType, Gender, SearchResult, Recommendation } from "@/type";
+import { sendImgURLAndPromptToGPT, sendPromptToGPT } from "./utils/chat";
 import {
   insertRecommendation,
   insertResults,
   insertSuggestion,
   insertUpload,
+  insertParam
 } from "./utils/insert";
-import { UnstoredResult, semanticSearch } from "./utils/matching";
-
-const constructPrompt = ({
-  clothingType,
-  gender,
-  numMaxSuggestion,
-}: {
-  clothingType: ClothingType;
-  gender: Gender;
-  numMaxSuggestion: number;
-}): string => {
-  const prompt: string = `
-    請擔任我的造型師，仔細觀察這張圖片中的${
-      clothingType === "top" ? "上衣" : "下身類衣物"
-    }，
-    並根據以下提供的額外資訊：
-    {
-      性別: ${gender === "male" ? "男性" : "女性"},
-    }
-    請推薦${numMaxSuggestion}種與之搭配的${
-    clothingType === "top" ? "下身類衣物" : "上衣"
-  }。
-    對於每一種搭配，請提供一個風格名稱和推薦的原因。
-    請使用下方 JSON 格式回覆，回答無需包含其他資訊：
-    [
-      {
-        "styleName": "[風格名稱]",
-        "description": "[推薦原因]",
-        "item": {
-          "顏色": "[顏色]", 
-          "服裝類型": "[類型]", 
-          "剪裁版型": "[描述]", 
-          "設計特點": "[描述]", 
-          "材質": "[材質]", 
-          "細節": "[描述]", 
-          ${
-            clothingType === "top"
-              ? '"褲管": "[描述]", "裙擺": "[描述]"'
-              : '"領子": "[描述]", "袖子": "[描述]"'
-          }
-        }
-      }
-    ]
-  `;
-  return prompt;
-};
+import { 
+  UnstoredResult, 
+  semanticSearchForImageAndTextSearch, 
+  semanticSearchForRecommendation 
+} from "./utils/matching";
+import { 
+  constructPromptForRecommendation, 
+  constructPromptForImageSearch, 
+  constructPromptForTextSearch 
+} from "./utils/prompt";
 
 const validateAndCleanRecommendations = (
   recommendations: string,
-  clothingType: ClothingType
-): { styleName: string; description: string; labelString: string }[] => {
+  clothingType: ClothingType,
+  isSimilar: boolean
+) => {
   try {
-    const cleanedString = recommendations
-      .replace(/```json\n?|\n?```/g, "")
-      .trim();
-    const recommendationsArray: any[] = JSON.parse(cleanedString);
-    if (!Array.isArray(recommendationsArray)) {
-      throw new Error("Invalid recommendation format: " + cleanedString);
-    }
+    const recommendationsArray = JSON.parse(recommendations.replace(/```json\n?|\n?```/g, "").trim());
+    if (!Array.isArray(recommendationsArray)) throw new Error("Invalid recommendation format");
 
     return recommendationsArray
-      .filter((recommendation) =>
-        validateRecommendationFormat(recommendation.item, clothingType)
-      )
-      .map((recommendation) => ({
-        styleName: recommendation.styleName,
-        description: recommendation.description,
-        labelString: formatRecommendation(recommendation.item, clothingType),
-      }));
+      .filter((rec) => {
+        const requiredKeys = ["顏色", "服裝類型", "剪裁版型", "設計特點", "材質", "細節"];
+        const specificKeys = isSimilar
+          ? clothingType === "top" ? ["領子", "袖子"] : ["褲管", "裙擺"]
+          : clothingType === "top" ? ["褲管", "裙擺"] : ["領子", "袖子"];
+
+        return [...requiredKeys, ...specificKeys].every((key) => key in rec.item);
+      })
+      .map((rec) => {
+        const specificInfo = isSimilar
+          ? clothingType === "top" ? `領子: ${rec.item.領子}, 袖子: ${rec.item.袖子}` : `褲管: ${rec.item.褲管}, 裙擺: ${rec.item.裙擺}`
+          : clothingType === "top" ? `褲管: ${rec.item.褲管}, 裙擺: ${rec.item.裙擺}` : `領子: ${rec.item.領子}, 袖子: ${rec.item.袖子}`;
+
+        return {
+          styleName: rec.styleName,
+          description: rec.description,
+          labelString: `顏色: ${rec.item.顏色}, 服裝類型: ${rec.item.服裝類型}, 剪裁版型: ${rec.item.剪裁版型}, 設計特點: ${rec.item.設計特點}, 材質: ${rec.item.材質}, 細節: ${rec.item.細節}, ${specificInfo}`,
+        };
+      });
   } catch (error) {
     console.error("Error in validateAndCleanRecommendations", error);
     return [];
   }
 };
 
-const validateRecommendationFormat = (
-  recommendation: any,
-  clothingType: ClothingType
-): boolean => {
-  const requiredKeys = [
-    "顏色",
-    "服裝類型",
-    "剪裁版型",
-    "設計特點",
-    "材質",
-    "細節",
-  ];
-  const specificKeys =
-    clothingType === "top" ? ["褲管", "裙擺"] : ["領子", "袖子"];
-
-  const hasRequiredKeys = requiredKeys.every((key) => key in recommendation);
-  const hasSpecificKeys = specificKeys.every((key) => key in recommendation);
-
-  return hasRequiredKeys && hasSpecificKeys;
-};
-
-const formatRecommendation = (
-  recommendation: any,
-  clothingType: ClothingType
-): string => {
-  return `顏色: ${recommendation.顏色}, 服裝類型: ${
-    recommendation.服裝類型
-  }, 剪裁版型: ${recommendation.剪裁版型}, 設計特點: ${
-    recommendation.設計特點
-  }, 材質: ${recommendation.材質}, 細節: ${recommendation.細節}, ${
-    clothingType === "top"
-      ? `褲管: ${recommendation.褲管}, 裙擺: ${recommendation.裙擺}`
-      : `領子: ${recommendation.領子}, 袖子: ${recommendation.袖子}`
-  }`;
-};
-
-const insertParameters = async (
-  gender: Gender,
-  clothingType: ClothingType,
-  model: string
-): Promise<number> => {
-  const { data, error } = await supabase
-    .from("param")
-    .insert([
-      {
-        gender,
-        clothing_type: clothingType,
-        model,
-      },
-    ])
-    .select("id");
-  if (error) {
-    console.log(error);
-  }
-  if (data && data.length > 0) {
-    const paramId = data[0].id;
-    return paramId as number;
-  } else {
-    return -1;
-  }
-};
-
-// Handles matching suggestions with results and storing them
-const handleSuggestionMatching = async ({
-  recommendations,
-  numMaxItem,
-  recommendationId,
-  gender,
-}: {
-  recommendations: {
-    styleName: string;
-    description: string;
-    labelString: string;
-  }[];
-  numMaxItem: number;
-  recommendationId: number;
-  gender: Gender;
-}): Promise<void> => {
-  try {
-    for (const rec of recommendations) {
-      // Store suggestions and get suggestion IDs
-      const suggestionId: number = await insertSuggestion({
-        recommendationId,
-        labelString: rec.labelString,
-        styleName: rec.styleName,
-        description: rec.description,
-      });
-
-      // Get suggestion results (ResultTable[]) and store them to get result IDs
-      const results: UnstoredResult[] = (await semanticSearch({
-        suggestionId: suggestionId,
-        suggestedLabelString: rec.labelString,
-        numMaxItem,
-        gender,
-      })) as UnstoredResult[];
-
-      await insertResults(results);
-    }
-  } catch (error) {
-    console.error("Error in handleSuggestionMatching:", error);
-  }
-};
-
-const handleSubmission = async ({
+const handleRecommendation = async ({
   clothingType,
-  imageUrl,
   gender,
   model,
   userId,
   numMaxSuggestion,
   numMaxItem,
+  imageUrl,
 }: {
   clothingType: ClothingType;
-  imageUrl: string;
   gender: Gender;
   model: string;
   userId: string;
   numMaxSuggestion: number;
   numMaxItem: number;
+  imageUrl: string;
 }): Promise<number> => {
   try {
-    // 結合 parameters 做出 prompt
-    const prompt: string = constructPrompt({
+    const prompt: string = constructPromptForRecommendation({
       clothingType,
       gender,
       numMaxSuggestion,
     });
 
-    // 將做好的 prompt 結合 imgurl 送給 GPT
     const recommendations: string | null = await sendImgURLAndPromptToGPT({
       model,
       prompt,
       imageUrl,
     });
 
-    // 得到 GPT 的推薦
     if (recommendations) {
       const cleanedRecommendations = validateAndCleanRecommendations(
         recommendations,
-        clothingType
-      );
-
-      // 把 upload 存到 supabase
-      const uploadId: number = await insertUpload(imageUrl, userId);
-
-      // 把 parameters 存到 supabase
-      const paramId: number = await insertParameters(
-        gender,
         clothingType,
-        model
+        false
       );
 
-      // 把 recommendations 存到 supabase
+      const uploadId: number = await insertUpload(imageUrl, userId);
+      const paramId: number = await insertParam(gender, clothingType, model);
       const recommendationId: number = await insertRecommendation({
         paramId,
         uploadId,
         userId,
       });
 
-      // matching
-      await handleSuggestionMatching({
-        recommendations: cleanedRecommendations,
-        numMaxItem,
-        recommendationId,
-        gender,
-      });
+      for (const rec of cleanedRecommendations) {
+        const suggestionId: number = await insertSuggestion({
+          recommendationId,
+          labelString: rec.labelString,
+          styleName: rec.styleName,
+          description: rec.description,
+        });
 
+        const results: UnstoredResult[] = (await semanticSearchForRecommendation({
+          suggestionId,
+          suggestedLabelString: rec.labelString,
+          numMaxItem,
+          gender,
+        })) as UnstoredResult[];
+
+        await insertResults(results);
+      }
       return recommendationId;
     } else {
       return -1;
     }
   } catch (error) {
-    console.error("Error in handleSubmission:", error);
+    console.error("Error in handleRecommendation:", error);
     return -1;
   }
 };
 
-export { handleSubmission };
+const handleImageSearch = async ({
+  clothingType,
+  gender,
+  model,
+  numMaxItem,
+  imageUrl,
+}: {
+  clothingType: ClothingType;
+  gender: Gender;
+  model: string;
+  numMaxItem: number;
+  imageUrl: string;
+}): Promise<SearchResult | null> => {
+  try {
+    const prompt: string = constructPromptForImageSearch({
+      clothingType,
+      gender,
+    });
+
+    const rawLabelString: string | null = await sendImgURLAndPromptToGPT({
+      model,
+      prompt,
+      imageUrl,
+    });
+
+    if (rawLabelString) {
+      const cleanedLabels = validateAndCleanRecommendations(
+        rawLabelString,
+        clothingType,
+        true
+      );
+
+      console.log("cleaned labels: ", cleanedLabels);
+
+      if(cleanedLabels.length > 0) {
+        const labelString = cleanedLabels[0].labelString;
+        const searchResult: SearchResult | null = await semanticSearchForImageAndTextSearch({
+          suggestedLabelString: labelString,
+          numMaxItem,
+          gender,
+        })
+        return searchResult;
+      } else {
+        console.error("No valid labels found after cleaning");
+        return null;
+      }
+    } else {
+      console.error("No label string returned from GPT");
+      return null;
+    }
+  } catch (error) {
+    console.error("Error in handleSearch:", error);
+    return null;
+  }
+};
+
+export { handleRecommendation, handleImageSearch };
