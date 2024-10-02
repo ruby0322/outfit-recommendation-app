@@ -1,6 +1,5 @@
 "use server";
-import supabase from "@/lib/supabaseClient";
-import { ClothingType, Gender } from "@/type";
+import { ClothingType, Gender, SearchResult } from "@/type";
 import { sendImgURLAndPromptToGPT, sendPromptToGPT } from "./utils/chat";
 import {
   insertRecommendation,
@@ -10,94 +9,7 @@ import {
   insertParam
 } from "./utils/insert";
 import { UnstoredResult, semanticSearch } from "./utils/matching";
-
-//prompt for recommendation
-const constructPromptForRecommendation = ({
-  clothingType,
-  gender,
-  numMaxSuggestion,
-}: {
-  clothingType: ClothingType;
-  gender: Gender;
-  numMaxSuggestion: number;
-}): string => {
-  const prompt: string = `
-    請擔任我的造型師，仔細觀察這張圖片中的${
-      clothingType === "top" ? "上衣" : "下身類衣物"
-    }，
-    並根據以下提供的額外資訊：
-    {
-      性別: ${gender === "male" ? "男性" : "女性"},
-    }
-    請推薦${numMaxSuggestion}種與之搭配的${
-    clothingType === "top" ? "下身類衣物" : "上衣"
-  }。
-    對於每一種搭配，請提供一個風格名稱和推薦的原因。
-    請使用下方 JSON 格式回覆，回答無需包含其他資訊：
-    [
-      {
-        "styleName": "[風格名稱]",
-        "description": "[推薦原因]",
-        "item": {
-          "顏色": "[顏色]", 
-          "服裝類型": "[類型]", 
-          "剪裁版型": "[描述]", 
-          "設計特點": "[描述]", 
-          "材質": "[材質]", 
-          "細節": "[描述]", 
-          ${
-            clothingType === "top"
-              ? '"褲管": "[描述]", "裙擺": "[描述]"'
-              : '"領子": "[描述]", "袖子": "[描述]"'
-          }
-        }
-      }
-    ]
-  `;
-  return prompt;
-};
-
-//prompt for image
-const constructPromptForImage = ({
-  clothingType,
-  gender,
-}: {
-  clothingType: ClothingType;
-  gender: Gender;
-}): string => {
-  const prompt: string = `
-    請擔任我的造型師，仔細觀察這張圖片中的${
-      clothingType === "top" ? "上衣" : "下身類衣物"
-    }，
-    並根據以下提供的額外資訊：
-    {
-      性別: ${gender === "male" ? "男性" : "女性"},
-    }
-    請詳細描述圖中的${clothingType === "top" ? "上衣" : "下身類衣物"}，
-    並且提供一組詳盡的描述。
-    請使用下方 JSON 格式回覆，回答無需包含其他資訊：
-    [
-      {
-        "styleName": "[衣物風格]",
-        "description": "[衣物描述]",
-        "item": {
-          "顏色": "[顏色]", 
-          "服裝類型": "[類型]", 
-          "剪裁版型": "[描述]", 
-          "設計特點": "[描述]", 
-          "材質": "[材質]", 
-          "細節": "[描述]", 
-          ${
-            clothingType === "top"
-              ? '"領子": "[描述]", "袖子": "[描述]"'
-              : '"褲管": "[描述]", "裙擺": "[描述]"'
-          }
-        }
-      }
-    ]
-  `;
-  return prompt;
-};
+import { constructPromptForRecommendation, constructPromptForImage } from "./utils/prompt";
 
 const validateAndCleanRecommendations = (
   recommendations: string,
@@ -134,42 +46,29 @@ const validateAndCleanRecommendations = (
   }
 };
 
-const handleSubmission = async ({
+const handleRecommendation = async ({
   clothingType,
-  imageUrl,
   gender,
   model,
   userId,
   numMaxSuggestion,
   numMaxItem,
-  recommendationType, // 'recommendation', 'image', 'text'
+  imageUrl,
 }: {
   clothingType: ClothingType;
-  imageUrl: string;
   gender: Gender;
   model: string;
   userId: string;
   numMaxSuggestion: number;
   numMaxItem: number;
-  recommendationType: string;
+  imageUrl: string;
 }): Promise<number> => {
   try {
-    let prompt: string = "";
-    let isSimilar = false;
-
-    if (recommendationType === 'recommendation') {
-      prompt = constructPromptForRecommendation({
-        clothingType,
-        gender,
-        numMaxSuggestion,
-      });
-    } else if (recommendationType === 'image') {
-      prompt = constructPromptForImage({
-        clothingType,
-        gender,
-      });
-      isSimilar = true;
-    }
+    const prompt: string = constructPromptForRecommendation({
+      clothingType,
+      gender,
+      numMaxSuggestion,
+    });
 
     const recommendations: string | null = await sendImgURLAndPromptToGPT({
       model,
@@ -181,7 +80,7 @@ const handleSubmission = async ({
       const cleanedRecommendations = validateAndCleanRecommendations(
         recommendations,
         clothingType,
-        isSimilar
+        false
       );
 
       const uploadId: number = await insertUpload(imageUrl, userId);
@@ -200,14 +99,18 @@ const handleSubmission = async ({
           description: rec.description,
         });
 
-        const results: UnstoredResult[] = (await semanticSearch({
-          suggestionId,
+        const similarItems = await semanticSearch({
           suggestedLabelString: rec.labelString,
           numMaxItem,
           gender,
-        })) as UnstoredResult[];
+        });
+        console.log("similarItem = ", similarItems);
 
-        await insertResults(results);
+        if (similarItems) {
+          // how to map similarItems to results
+          // const results = ...
+          // await insertResults(results);
+        }
       }
 
       return recommendationId;
@@ -215,10 +118,64 @@ const handleSubmission = async ({
       return -1;
     }
   } catch (error) {
-    console.error("Error in handleSubmission:", error);
+    console.error("Error in handleRecommendation:", error);
     return -1;
   }
 };
 
+const handleImageSearch = async ({
+  clothingType,
+  gender,
+  model,
+  numMaxItem,
+  imageUrl,
+}: {
+  clothingType: ClothingType;
+  gender: Gender;
+  model: string;
+  numMaxItem: number;
+  imageUrl: string;
+}): Promise<SearchResult[] | number> => {
+  try {
+    const prompt: string = constructPromptForImage({
+      clothingType,
+      gender,
+    });
 
-export { handleSubmission };
+    const recommendations: string | null = await sendImgURLAndPromptToGPT({
+      model,
+      prompt,
+      imageUrl,
+    });
+
+    if (recommendations) {
+      const cleanedRecommendations = validateAndCleanRecommendations(
+        recommendations,
+        clothingType,
+        false
+      );
+      let similarItems: SearchResult[] = []; // Initialize as an empty array
+
+      for (const rec of cleanedRecommendations) {
+        const results = await semanticSearch({
+          suggestedLabelString: rec.labelString,
+          numMaxItem,
+          gender,
+        });
+
+        if (results) {
+          similarItems = similarItems.concat(results);
+        }
+      }
+
+      return similarItems.length > 0 ? similarItems : -1;
+    } else {
+      return -1;
+    }
+  } catch (error) {
+    console.error("Error in handleRecommendation:", error);
+    return -1;
+  }
+};
+
+export { handleRecommendation, handleImageSearch };
