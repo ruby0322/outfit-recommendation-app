@@ -6,6 +6,7 @@ import { Inter as FontSans } from "next/font/google";
 import Header from "@/components/header";
 import { cn } from "@/lib/utils";
 
+import Footer from "@/components/footer";
 import { Toaster } from "@/components/ui/toaster";
 const fontSans = FontSans({
   subsets: ["latin"],
@@ -39,7 +40,7 @@ export default async function RootLayout({
         <div className='flex-1 flex justify-center min-h-[93vh] items-center overflow-y-scroll overflow-x-hiddena'>
           {children}
         </div>
-        {/* <Footer /> */}
+        <Footer />
         <Toaster />
       </body>
     </html>

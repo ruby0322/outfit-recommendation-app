@@ -4,7 +4,13 @@ import Image from "next/image";
 import { useRef, useState } from "react";
 import { useFormContext } from "react-hook-form";
 
-const ImageUploader = () => {
+const ImageUploader = ({
+  onImageUpload,
+  className,
+}: {
+  onImageUpload: () => void;
+  className?: string;
+}) => {
   const {
     register,
     setValue,
@@ -22,6 +28,7 @@ const ImageUploader = () => {
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    onImageUpload();
     const files = e.target.files;
     if (files && files[0]) {
       setValue("uploadedImage", files);
@@ -30,10 +37,10 @@ const ImageUploader = () => {
   };
 
   return (
-    <div className='flex flex-col items-center justify-center gap-2'>
+    <div className='flex flex-col items-center justify-center gap-2 '>
       <div
         onClick={handleFileClick}
-        className='cursor-pointer w-80 h-80 border-2 flex items-center justify-center relative'
+        className='cursor-pointer rounded-sm w-80 h-80 border-2 border-dashed border-gray-400/80 flex-col flex gap-4 items-center justify-center relative'
       >
         {preview ? (
           <Image
@@ -43,8 +50,12 @@ const ImageUploader = () => {
             className='object-cover'
           />
         ) : (
-          <Upload className='w-12 h-12 text-gray-300' />
+          <Upload className='w-10 h-10 text-gray-400' />
         )}
+        <div className='mb-2 text-sm text-gray-500'>
+          <span className='font-semibold text-indigo-400'>點擊上傳</span>{" "}
+          或拖放圖片
+        </div>
         <input
           {...register("uploadedImage")}
           ref={fileInputRef}

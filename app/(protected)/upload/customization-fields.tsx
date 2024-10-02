@@ -31,7 +31,6 @@ const CustomizationFields = () => {
 
   const clothingType = watch("clothingType");
   const gender = watch("gender");
-  const bodyType = watch("bodyType");
 
   return (
     <Card className='w-128 max-w-[92vw] bg-white'>
@@ -141,97 +140,6 @@ const CustomizationFields = () => {
             </span>
           )}
         </div>
-        {/* <div className='grid gap-2'>
-          <Label htmlFor='body-type'>身型</Label>
-          <div className='flex flex-wrap gap-2'>
-            <Label
-              htmlFor='body-type-slim'
-              className={`flex items-center gap-2 rounded-md border px-3 py-2 cursor-pointer ${
-                bodyType === "slim" ? "bg-muted" : ""
-              }`}
-            >
-              <input
-                id='body-type-slim'
-                type='radio'
-                value='slim'
-                {...register("bodyType")}
-                onChange={() => setValue("bodyType", "slim")}
-              />
-              纖瘦
-            </Label>
-            <Label
-              htmlFor='body-type-average'
-              className={`flex items-center gap-2 rounded-md border px-3 py-2 cursor-pointer ${
-                bodyType === "average" ? "bg-muted" : ""
-              }`}
-            >
-              <input
-                id='body-type-average'
-                type='radio'
-                value='average'
-                {...register("bodyType")}
-                onChange={() => setValue("bodyType", "average")}
-              />
-              適中
-            </Label>
-            <Label
-              htmlFor='body-type-athletic'
-              className={`flex items-center gap-2 rounded-md border px-3 py-2 cursor-pointer ${
-                bodyType === "athletic" ? "bg-muted" : ""
-              }`}
-            >
-              <input
-                id='body-type-athletic'
-                type='radio'
-                value='athletic'
-                {...register("bodyType")}
-                onChange={() => setValue("bodyType", "athletic")}
-              />
-              精壯
-            </Label>
-            <Label
-              htmlFor='body-type-curvy'
-              className={`flex items-center gap-2 rounded-md border px-3 py-2 cursor-pointer ${
-                bodyType === "curvy" ? "bg-muted" : ""
-              }`}
-            >
-              <input
-                id='body-type-curvy'
-                type='radio'
-                value='curvy'
-                {...register("bodyType")}
-                onChange={() => setValue("bodyType", "curvy")}
-              />
-              肥胖
-            </Label>
-          </div>
-          {errors.bodyType && (
-            <span className='text-red-600'>
-              {errors.bodyType.message?.toString()}
-            </span>
-          )}
-        </div> */}
-
-        {/* <div className='grid gap-2'>
-          <Label htmlFor='style-preferences'>偏好風格</Label>
-          <Controller
-            name='stylePreferences'
-            control={control}
-            defaultValue={[]}
-            render={({ field }) => (
-              <TagInput
-                tags={field.value}
-                setTags={(newTags) => setValue("stylePreferences", newTags)}
-                id='style-preferences'
-              />
-            )}
-          />
-          {errors.stylePreferences && (
-            <span className='text-red-600'>
-              {errors.stylePreferences.message?.toString()}
-            </span>
-          )}
-        </div> */}
       </CardContent>
     </Card>
   );

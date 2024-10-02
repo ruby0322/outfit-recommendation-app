@@ -2,15 +2,21 @@
 
 import { handleSubmission } from "@/actions/upload";
 import { storeImageToStorage } from "@/actions/utils/insert";
-import { LoadingButton } from "@/components/ui/loading-button";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
 import { createClient } from "@/utils/supabase/client";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { AnimatePresence, motion } from "framer-motion";
+import { CheckCircle, ChevronLeft } from "lucide-react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
-import { FormProvider, useForm } from "react-hook-form";
+import { useCallback, useState } from "react";
+import { FormProvider, useForm, useFormContext } from "react-hook-form";
 import { z } from "zod";
 import CustomizationFields from "./customization-fields";
 import ImageUploader from "./image-uploader";
+import Skeleton from "./skeleton";
 
 const schema = z.object({
   clothingType: z.enum(["top", "bottom"], {
@@ -26,18 +32,190 @@ const schema = z.object({
   ).refine((files) => files.length > 0, "請上傳圖片"),
 });
 
-type FormData = z.infer<typeof schema>;
+// ProgressBar Component
+const ProgressBar = ({
+  currentStep,
+  totalSteps,
+}: {
+  currentStep: number;
+  totalSteps: number;
+}) => {
+  const progress = (currentStep / totalSteps) * 100;
 
-const UploadPage = () => {
+  return <Progress value={progress} className='w-full rounded-none h-4' />;
+};
+
+// ImageUpload Component
+const ImageUpload = ({ onImageUpload }: { onImageUpload: () => void }) => {
+  return (
+    <div className='w-full flex-1 flex flex-col gap-4 items-center justify-center h-auto'>
+      <h1 className='w-full text-start text-2xl text-gray-600'>➊ 照片上傳</h1>
+      <ImageUploader onImageUpload={onImageUpload} />
+    </div>
+  );
+};
+
+// FormFields Component
+const FormFields = ({ nextStep }: { nextStep: () => void }) => {
+  const [errorMessage, setErrorMessage] = useState<string>("");
+  const { getValues } = useFormContext();
+
+  const onClick = (e: React.FormEvent) => {
+    e.preventDefault();
+    const values = getValues();
+    if (Object.keys(values).every((key) => values[key])) {
+      nextStep();
+    } else {
+      setErrorMessage("請輸入必要欄位");
+    }
+  };
+
+  return (
+    <div className='flex-1 flex gap-4 flex-col items-center justify-center h-auto'>
+      <h1 className='w-full text-start text-2xl text-gray-600'>➋ 基本資訊</h1>
+      <CustomizationFields />
+      <motion.button
+        className='bg-indigo-400 hover:bg-indigo-300 font-bold w-full text-white py-2 rounded-md'
+        whileTap={{ scale: 0.95 }}
+        onClick={onClick}
+      >
+        下一步
+      </motion.button>
+      <p className='text-red-400 text-sm'>{errorMessage}</p>
+    </div>
+  );
+};
+
+// Overview Component
+const Overview = ({
+  onConfirm,
+  loading,
+}: {
+  onConfirm: () => void;
+  loading: boolean;
+}) => {
+  const { getValues } = useFormContext();
+  const formData = getValues();
+  console.log(formData.uploadedImage[0]);
+  return (
+    <div className='flex-1 flex flex-col items-center justify-center h-auto gap-4'>
+      <h1 className='w-full text-start text-2xl text-gray-600'>➌ 確認上傳</h1>
+      <div>
+        <Image
+          src={URL.createObjectURL(formData.uploadedImage[0])}
+          alt='Uploaded'
+          className='w-80 h-80 object-cover rounded-lg mb-4'
+          width={128}
+          height={128}
+        />
+        <div className='flex'>
+          <div className='flex flex-row w-full items-center gap-4'>
+            <Badge className='bg-indigo-300 hover:bg-indigo-300'>性別</Badge>
+            <p>{formData.gender === "male" ? "男性 🙋‍♂️" : "女性 🙋‍♀️"}</p>
+          </div>
+          <div className='flex flex-row w-full items-center gap-4'>
+            <Badge className='bg-indigo-300 hover:bg-indigo-300'>類別</Badge>
+            <p>{formData.clothingType === "top" ? "上衣 👕" : "下身 👖"}</p>
+          </div>
+        </div>
+      </div>
+      <ConfirmButton />
+    </div>
+  );
+};
+
+function ConfirmButton() {
+  const [showCheck, setShowCheck] = useState(false);
+
+  const handleClick = () => {
+    setShowCheck(true);
+    setTimeout(() => {
+      setShowCheck(false);
+    }, 1000); // The check icon will disappear after 1 second
+  };
+
+  return (
+    <motion.button
+      whileTap={{ scale: 0.95 }}
+      type='submit'
+      className='w-full text-white font-bold rounded-lg bg-indigo-400'
+    >
+      <Button
+        className={`transition-opacity duration-300 bg-indigo-400 hover:bg-indigo-300 w-full px-8 py-2 rounded-md`}
+        onClick={handleClick}
+      >
+        一鍵成為穿搭達人！
+      </Button>
+      <AnimatePresence>
+        {showCheck && (
+          <motion.div
+            className='absolute inset-0 flex items-center justify-center'
+            initial={{ scale: 0, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0, opacity: 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            <CheckCircle className='text-green-500 w-6 h-6' />
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.button>
+  );
+}
+// ConfirmationAnimation Component
+const ConfirmationAnimation = () => {
+  return (
+    <div className='fixed top-0 left-0 h-screen w-screen flex items-center justify-center'>
+      <CheckCircle size={64} className='text-green-500 animate-bounce' />
+    </div>
+  );
+};
+
+// Main Component
+export default function UploadPage() {
   const router = useRouter();
   const methods = useForm({
     resolver: zodResolver(schema),
   });
   const [loading, setLoading] = useState<boolean>(false);
 
+  const [currentStep, setCurrentStep] = useState<number>(1);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isConfirmed, setIsConfirmed] = useState<boolean>(false);
+
+  const nextStep = () => {
+    setCurrentStep(currentStep + 1);
+  };
+  const prevStep = () => {
+    setCurrentStep(currentStep - 1);
+  };
+
+  const handleImageUpload = useCallback(() => {
+    setIsLoading(true);
+    setTimeout(() => {
+      setCurrentStep(2);
+      setIsLoading(false);
+    }, 1000);
+  }, []);
+
+  const handleFormSubmission = async () => {
+    setTimeout(() => {
+      setCurrentStep(3);
+      setIsLoading(false);
+    }, 1000);
+  };
+
+  const handleConfirm = useCallback(() => {
+    setIsLoading(true);
+    setTimeout(() => {
+      setIsConfirmed(true);
+      setIsLoading(false);
+    }, 1000);
+  }, []);
+
   const onSubmit = async (data: any) => {
-    // console.log("data:", data);
     setLoading(true);
+    console.log(">> submit");
     const reader = new FileReader();
     reader.onloadend = async () => {
       const supabase = createClient();
@@ -45,10 +223,6 @@ const UploadPage = () => {
         const base64 = reader.result;
         try {
           const imageUrl = await storeImageToStorage(base64);
-          // console.log("public image url:", imageUrl);
-          const style_preference = data.stylePreferences
-            ? data.stylePreferences.join(", ")
-            : null;
           const {
             data: { user },
           } = await supabase.auth.getUser();
@@ -68,30 +242,42 @@ const UploadPage = () => {
       }
     };
     reader.readAsDataURL(data.uploadedImage[0]);
-    const USER_ID: string = "8a6e0804-2bd0-4672-b79d-d97027f9071a";
     const NUM_MAX_SUGGESTION: number = 3;
     const NUM_MAX_ITEM: number = 10;
   };
 
+  if (isConfirmed) {
+    return <ConfirmationAnimation />;
+  }
+
+  if (isLoading) {
+    return <Skeleton />;
+  }
+
   return (
-    <div className='w-full mt-16'>
-      <FormProvider {...methods}>
-        <form onSubmit={methods.handleSubmit(onSubmit)}>
-          <div className='w-full flex flex-col gap-8 items-center justify-center'>
-            <div className='w-full flex flex-col md:flex-row gap-8 justify-center items-center'>
-              <div className='flex flex-col items-center gap-4'>
-                <ImageUploader />
+    <div className='relative w-full h-screen flex flex-col items-center justify-center'>
+      <div className='w-full flex-1 h-auto flex flex-col items-center justify-center'>
+        <FormProvider {...methods}>
+          <form onSubmit={methods.handleSubmit(onSubmit)}>
+            {currentStep > 1 && (
+              <div
+                onClick={prevStep}
+                className='text-sm font-bold mb-2 flex items-center text-gray-600 cursor-pointer'
+              >
+                <ChevronLeft className='w-4 h-4' /> 上一步
               </div>
-              <CustomizationFields />
-            </div>
-            <LoadingButton variant='outline' loading={loading} type='submit'>
-              一鍵成為穿搭達人！
-            </LoadingButton>
-          </div>
-        </form>
-      </FormProvider>
+            )}
+            {currentStep === 1 && (
+              <ImageUpload onImageUpload={handleImageUpload} />
+            )}
+            {currentStep === 2 && <FormFields nextStep={nextStep} />}
+            {currentStep === 3 && (
+              <Overview loading={loading} onConfirm={handleConfirm} />
+            )}
+          </form>
+        </FormProvider>
+      </div>
+      <ProgressBar currentStep={currentStep} totalSteps={3} />
     </div>
   );
-};
-
-export default UploadPage;
+}
