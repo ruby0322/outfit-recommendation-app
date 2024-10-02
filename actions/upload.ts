@@ -1,6 +1,5 @@
 "use server";
-import supabase from "@/lib/supabaseClient";
-import { ClothingType, Gender } from "@/type";
+import { ClothingType, Gender, SearchResult, Recommendation } from "@/type";
 import { sendImgURLAndPromptToGPT, sendPromptToGPT } from "./utils/chat";
 import {
   insertRecommendation,
@@ -9,87 +8,16 @@ import {
   insertUpload,
   insertParam
 } from "./utils/insert";
-import { UnstoredResult, semanticSearchForImageSearch, semanticSearchForRecommendation } from "./utils/matching";
-
-//prompt for recommendation
-const constructPromptForRecommendation = ({
-  clothingType,
-  gender,
-  numMaxSuggestion,
-}: {
-  clothingType: ClothingType;
-  gender: Gender;
-  numMaxSuggestion: number;
-}): string => {
-  const prompt: string = `
-    請擔任我的造型師，仔細觀察這張圖片中的
-    ${gender === "male" ? "男性" : "女性"}
-    ${clothingType === "top" ? "上衣" : "下身類衣物"}
-    ，請推薦${numMaxSuggestion}種與之搭配的
-    ${
-      clothingType === "top" ? "下身類衣物" : "上衣"
-    }。
-    對於每一種搭配，請提供一個風格名稱和推薦的原因。
-    請使用下方 JSON 格式回覆，回答無需包含其他資訊：
-    [
-      {
-        "styleName": "[風格名稱]",
-        "description": "[推薦原因]",
-        "item": {
-          "顏色": "[顏色]", 
-          "服裝類型": "[類型]", 
-          "剪裁版型": "[描述]", 
-          "設計特點": "[描述]", 
-          "材質": "[材質]", 
-          "細節": "[描述]", 
-          ${
-            clothingType === "top"
-              ? '"褲管": "[描述]", "裙擺": "[描述]"'
-              : '"領子": "[描述]", "袖子": "[描述]"'
-          }
-        }
-      }
-    ]
-  `;
-  return prompt;
-};
-
-//prompt for image
-const constructPromptForImageSearch = ({
-  clothingType,
-  gender,
-}: {
-  clothingType: ClothingType;
-  gender: Gender;
-}): string => {
-  const prompt: string = `
-    請擔任我的造型師，仔細觀察這張圖片中的
-    ${gender === "male" ? "男性" : "女性"}
-    ${clothingType === "top" ? "上衣" : "下身類衣物"}
-    ，並且提供一組詳盡的描述。
-    請使用下方 JSON 格式回覆，回答無需包含其他資訊：
-    [
-      {
-        "styleName": "[衣物風格]",
-        "description": "[衣物描述]",
-        "item": {
-          "顏色": "[顏色]", 
-          "服裝類型": "[類型]", 
-          "剪裁版型": "[描述]", 
-          "設計特點": "[描述]", 
-          "材質": "[材質]", 
-          "細節": "[描述]", 
-          ${
-            clothingType === "top"
-              ? '"領子": "[描述]", "袖子": "[描述]"'
-              : '"褲管": "[描述]", "裙擺": "[描述]"'
-          }
-        }
-      }
-    ]
-  `;
-  return prompt;
-};
+import { 
+  UnstoredResult, 
+  semanticSearchForImageAndTextSearch, 
+  semanticSearchForRecommendation 
+} from "./utils/matching";
+import { 
+  constructPromptForRecommendation, 
+  constructPromptForImageSearch, 
+  constructPromptForTextSearch 
+} from "./utils/prompt";
 
 const validateAndCleanRecommendations = (
   recommendations: string,
@@ -126,42 +54,29 @@ const validateAndCleanRecommendations = (
   }
 };
 
-const handleSubmission = async ({
+const handleRecommendation = async ({
   clothingType,
-  imageUrl,
   gender,
   model,
   userId,
   numMaxSuggestion,
   numMaxItem,
-  recommendationType, // 'recommendation', 'image', 'text'
+  imageUrl,
 }: {
   clothingType: ClothingType;
-  imageUrl: string;
   gender: Gender;
   model: string;
   userId: string;
   numMaxSuggestion: number;
   numMaxItem: number;
-  recommendationType: string;
+  imageUrl: string;
 }): Promise<number> => {
   try {
-    let prompt: string = "";
-    let isSimilar = false;
-
-    if (recommendationType === 'recommendation') {
-      prompt = constructPromptForRecommendation({
-        clothingType,
-        gender,
-        numMaxSuggestion,
-      });
-    } else if (recommendationType === 'image') {
-      prompt = constructPromptForImageSearch({
-        clothingType,
-        gender,
-      });
-      isSimilar = true;
-    }
+    const prompt: string = constructPromptForRecommendation({
+      clothingType,
+      gender,
+      numMaxSuggestion,
+    });
 
     const recommendations: string | null = await sendImgURLAndPromptToGPT({
       model,
@@ -173,7 +88,7 @@ const handleSubmission = async ({
       const cleanedRecommendations = validateAndCleanRecommendations(
         recommendations,
         clothingType,
-        isSimilar
+        false
       );
 
       const uploadId: number = await insertUpload(imageUrl, userId);
@@ -201,16 +116,70 @@ const handleSubmission = async ({
 
         await insertResults(results);
       }
-
       return recommendationId;
     } else {
       return -1;
     }
   } catch (error) {
-    console.error("Error in handleSubmission:", error);
+    console.error("Error in handleRecommendation:", error);
     return -1;
   }
 };
 
+const handleImageSearch = async ({
+  clothingType,
+  gender,
+  model,
+  numMaxItem,
+  imageUrl,
+}: {
+  clothingType: ClothingType;
+  gender: Gender;
+  model: string;
+  numMaxItem: number;
+  imageUrl: string;
+}): Promise<SearchResult | null> => {
+  try {
+    const prompt: string = constructPromptForImageSearch({
+      clothingType,
+      gender,
+    });
 
-export { handleSubmission };
+    const rawLabelString: string | null = await sendImgURLAndPromptToGPT({
+      model,
+      prompt,
+      imageUrl,
+    });
+
+    if (rawLabelString) {
+      const cleanedLabels = validateAndCleanRecommendations(
+        rawLabelString,
+        clothingType,
+        true
+      );
+
+      console.log("cleaned labels: ", cleanedLabels);
+
+      if(cleanedLabels.length > 0) {
+        const labelString = cleanedLabels[0].labelString;
+        const searchResult: SearchResult | null = await semanticSearchForImageAndTextSearch({
+          suggestedLabelString: labelString,
+          numMaxItem,
+          gender,
+        })
+        return searchResult;
+      } else {
+        console.error("No valid labels found after cleaning");
+        return null;
+      }
+    } else {
+      console.error("No label string returned from GPT");
+      return null;
+    }
+  } catch (error) {
+    console.error("Error in handleSearch:", error);
+    return null;
+  }
+};
+
+export { handleRecommendation, handleImageSearch };

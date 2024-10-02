@@ -26,7 +26,7 @@ const getSeries = async (
 ): Promise<Series[] | null> => {
   try {
     console.time("getSeries");
-    console.log(`Starting getSeries with ${series_ids.length} series IDs, gender: ${gender}`);
+    // console.log(`Starting getSeries with ${series_ids.length} series IDs, gender: ${gender}`);
     const seriesArray: Series[] = [];
     const dbGender = gender === "man" ? "male" : "female";
 
@@ -66,7 +66,7 @@ const getSeries = async (
       seriesArray.push(series);
     }
     console.timeEnd("getSeries");
-    console.log("finish getSeries");
+    // console.log("finish getSeries");
     return seriesArray.length > 0 ? seriesArray : null;
   } catch (error) {
     console.error("Unexpected error in getSeries:", error);
@@ -102,8 +102,8 @@ const getRecommendationRecordById = async (
     for (const s of suggestions) {
       const styleName = s.style_name as string;
       const description = s.description as string;
-      console.log("styleName", styleName);
-      console.log("description", description);
+      // console.log("styleName", styleName);
+      // console.log("description", description);
       const results = (await getResults(s.id)) as ResultTable[];
       if (!results) throw new Error("No results found");
 

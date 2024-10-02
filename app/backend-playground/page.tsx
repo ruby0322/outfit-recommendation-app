@@ -1,6 +1,6 @@
 "use server";
 
-import { handleSubmission } from "@/actions/upload";
+import { handleRecommendation, handleImageSearch } from "@/actions/upload";
 import supabase from "@/lib/supabaseClient";
 import { createClient } from "@/utils/supabase/client";
 import { storeImageToStorage } from "@/actions/utils/insert";
@@ -8,7 +8,7 @@ import { cookies } from "next/headers";
 import { getRecommendationRecordById } from "@/actions/recommendation";
 
 export default async function Playground(){
-  const recommendationId = await handleSubmission({
+  const recommendationId = await handleRecommendation({
     clothingType: 'bottom',
     imageUrl: 'https://eapzlwxcyrinipmcdoir.supabase.co/storage/v1/object/public/image/image-018f80af-65bb-48fd-ba2f-43051785c660',
     gender: 'female',
@@ -16,12 +16,21 @@ export default async function Playground(){
     userId: '64d2474a-2ac8-4775-ab5e-2c8a31bb037c',
     numMaxSuggestion: 3,
     numMaxItem: 10,
-    recommendationType: 'image',
   });
+
+  const imgSearchResult = await handleImageSearch ({
+    clothingType: 'bottom',
+    gender: 'female',
+    model: 'gpt-4o-mini',
+    numMaxItem: 3,
+    imageUrl: 'https://eapzlwxcyrinipmcdoir.supabase.co/storage/v1/object/public/image/image-018f80af-65bb-48fd-ba2f-43051785c660',
+  })
+
   // router.push(`/recommendation/${recommendationId}`);
-  console.log("recommendation_id = ", recommendationId);
-  const Recommendation = await getRecommendationRecordById(recommendationId);
-  console.log("recommendation for image = ", Recommendation);
+  // console.log("recommendation_id = ", recommendationId);
+  // const Recommendation = await getRecommendationRecordById(recommendationId);
+  // console.log("recommendation for image = ", Recommendation);
+  console.log("image search result = ", imgSearchResult?.series);
 
   return (
     <div>

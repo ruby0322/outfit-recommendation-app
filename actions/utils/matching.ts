@@ -1,5 +1,5 @@
 "use server";
-import { Gender, Series } from "@/type";
+import { Gender, SearchResult } from "@/type";
 import supabase from "@/lib/supabaseClient";
 import { calculateDistance, generateEmbedding } from "./embedding";
 
@@ -7,10 +7,6 @@ export interface UnstoredResult {
   distance: number;
   item_id: number;
   suggestion_id: number;
-}
-
-export interface SearchResult {
-  series: Series[];
 }
 
 const vectorSearch = async (
@@ -72,7 +68,7 @@ const semanticSearchForRecommendation = async ({
   }
 };
 
-const semanticSearchForImageSearch = async ({
+const semanticSearchForImageAndTextSearch = async ({
   suggestedLabelString,
   numMaxItem,
   gender = "male",
@@ -104,4 +100,4 @@ const semanticSearchForImageSearch = async ({
 };
 
 
-export { semanticSearchForImageSearch, semanticSearchForRecommendation };
+export { semanticSearchForImageAndTextSearch, semanticSearchForRecommendation };

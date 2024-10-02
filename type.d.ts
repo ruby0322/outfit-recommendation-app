@@ -22,7 +22,6 @@ export interface Recommendation {
   };
 }
 
-// 搜尋結果 (還沒拆成圖片和文字)
 export interface SearchResult {
   series: Series[];
 }
