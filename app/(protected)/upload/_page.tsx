@@ -1,6 +1,6 @@
 "use client";
 
-import { handleSubmission } from "@/actions/upload";
+import { handleImageSearch, handleRecommendation } from "@/actions/upload";
 import { storeImageToStorage } from "@/actions/utils/insert";
 import { LoadingButton } from "@/components/ui/loading-button";
 import { createClient } from "@/utils/supabase/client";
@@ -52,7 +52,7 @@ const UploadPage = () => {
           const {
             data: { user },
           } = await supabase.auth.getUser();
-          const recommendationId = await handleSubmission({
+          const recommendationId = await handleRecommendation({
             clothingType: data.clothingType,
             imageUrl: imageUrl,
             gender: data.gender,

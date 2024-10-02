@@ -1,6 +1,6 @@
 "use server";
 
-import { handleRecommendation, handleImageSearch } from "@/actions/upload";
+import { handleRecommendation, handleImageSearch, handleTextSearch } from "@/actions/upload";
 import supabase from "@/lib/supabaseClient";
 import { createClient } from "@/utils/supabase/client";
 import { storeImageToStorage } from "@/actions/utils/insert";
@@ -26,11 +26,20 @@ export default async function Playground(){
     imageUrl: 'https://eapzlwxcyrinipmcdoir.supabase.co/storage/v1/object/public/image/image-018f80af-65bb-48fd-ba2f-43051785c660',
   })
 
+  const textSearchResult = await handleTextSearch ({
+    clothingType: 'bottom',
+    userRequest: '我想要黑色牛仔長褲，穿去參加校園party',
+    model: 'gpt-4o-mini',
+    numMaxItem: 3,
+    gender: 'female',
+  })
+
   // router.push(`/recommendation/${recommendationId}`);
   // console.log("recommendation_id = ", recommendationId);
   // const Recommendation = await getRecommendationRecordById(recommendationId);
   // console.log("recommendation for image = ", Recommendation);
-  console.log("image search result = ", imgSearchResult?.series);
+  // console.log("image search result = ", imgSearchResult);
+  // console.log("text search result = ", textSearchResult);
 
   return (
     <div>

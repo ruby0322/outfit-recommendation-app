@@ -10,7 +10,7 @@ import {
 } from "./utils/insert";
 import { 
   UnstoredResult, 
-  semanticSearchForImageAndTextSearch, 
+  semanticSearchForSearching, 
   semanticSearchForRecommendation 
 } from "./utils/matching";
 import { 
@@ -162,7 +162,7 @@ const handleImageSearch = async ({
 
       if(cleanedLabels.length > 0) {
         const labelString = cleanedLabels[0].labelString;
-        const searchResult: SearchResult | null = await semanticSearchForImageAndTextSearch({
+        const searchResult: SearchResult | null = await semanticSearchForSearching({
           suggestedLabelString: labelString,
           numMaxItem,
           gender,
@@ -183,7 +183,58 @@ const handleImageSearch = async ({
 };
 
 const handleTextSearch = async ({
-  
-})
+  clothingType,
+  userRequest,
+  model,
+  numMaxItem,
+  gender
+} : {
+  clothingType: ClothingType;
+  userRequest: string;
+  model: string;
+  numMaxItem: number;
+  gender: Gender;
+}) : Promise<SearchResult | null> => {
+  try {
+    const prompt: string = constructPromptForTextSearch({
+      clothingType,
+      userRequest,
+      gender
+    });
 
-export { handleRecommendation, handleImageSearch };
+    const rawLabelString: string | null = await sendPromptToGPT({
+      model,
+      prompt,
+    });
+
+    if(rawLabelString) {
+      const cleanedLabels = validateAndCleanRecommendations(
+        rawLabelString,
+        clothingType,
+        true
+      );
+
+      if(cleanedLabels.length > 0) {
+        const labelString = cleanedLabels[0].labelString;
+
+        const searchResult: SearchResult | null = await semanticSearchForSearching({
+          suggestedLabelString: labelString,
+          numMaxItem,
+          gender
+        });
+        return searchResult;
+      } else {
+        console.error("No valid labels found after cleaning");
+        return null;
+      }
+    } else {
+      console.error("No label string returned from GPT");
+      return null;
+    }
+  } catch (error) {
+    console.error("Error in handleTextSearch:", error);
+    return null;
+  }
+}
+
+export {handleImageSearch, handleTextSearch, handleRecommendation}
