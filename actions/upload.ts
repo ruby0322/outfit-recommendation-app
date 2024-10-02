@@ -182,4 +182,8 @@ const handleImageSearch = async ({
   }
 };
 
+const handleTextSearch = async ({
+  
+})
+
 export { handleRecommendation, handleImageSearch };
