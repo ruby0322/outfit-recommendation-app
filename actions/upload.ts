@@ -74,23 +74,15 @@ const validateAndCleanLabelString = (
   }
 };
 
-const handleRecommendation = async ({
-  clothingType,
-  gender,
-  model,
-  userId,
-  numMaxSuggestion,
-  numMaxItem,
-  imageUrl,
-}: {
-  clothingType: ClothingType;
-  gender: Gender;
-  model: string;
-  userId: string;
-  numMaxSuggestion: number;
-  numMaxItem: number;
-  imageUrl: string;
-}): Promise<number> => {
+const handleRecommendation = async (
+  clothingType: ClothingType,
+  gender: Gender,
+  model: string,
+  userId: string,
+  numMaxSuggestion: number,
+  numMaxItem: number,
+  imageUrl: string
+): Promise<number> => {
   try {
     const prompt: string = constructPromptForRecommendation({
       clothingType,
@@ -147,17 +139,12 @@ const handleRecommendation = async ({
   }
 };
 
-const handleImageSearch = async ({
-  clothingType,
-  gender,
-  model,
-  imageUrl,
-}: {
-  clothingType: ClothingType;
-  gender: Gender;
-  model: string;
-  imageUrl: string;
-}): Promise<SearchResult | null> => {
+const handleImageSearch = async (
+  clothingType: ClothingType,
+  gender: Gender,
+  model: string,
+  imageUrl: string
+): Promise<SearchResult | null> => {
   try {
     const prompt: string = constructPromptForImageSearch({
       clothingType,
@@ -201,17 +188,12 @@ const handleImageSearch = async ({
   }
 };
 
-const handleTextSearch = async ({
-  clothingType,
-  query,
-  model,
-  gender,
-}: {
-  clothingType: ClothingType;
-  query: string;
-  model: string;
-  gender: Gender;
-}): Promise<SearchResult | null> => {
+const handleTextSearch = async (
+  clothingType: ClothingType,
+  query: string,
+  model: string,
+  gender: Gender
+): Promise<SearchResult | null> => {
   try {
     console.log("user query", query);
     const prompt: string = constructPromptForTextSearch({
