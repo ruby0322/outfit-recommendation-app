@@ -2,6 +2,7 @@
 
 import { handleTextSearch } from "@/actions/upload";
 import ItemList from "@/components/item-list";
+import ItemListSkeleton from "@/components/item-list-skeleton";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -13,6 +14,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { LoadingButton } from "@/components/ui/loading-button";
 import { Series } from "@/type";
 import { SearchIcon, UploadIcon } from "lucide-react";
 import { useState } from "react";
@@ -28,6 +30,8 @@ const schema = z.object({
 });
 
 export default function SearchPage() {
+  const [query, setQuery] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [searchInput, setSearchInput] = useState("");
   const [results, setResults] = useState<Series[]>([]);
@@ -49,14 +53,14 @@ export default function SearchPage() {
   };
 
   const onSubmit = async () => {
-    const res = await handleTextSearch({
-      clothingType: "top",
-      query: searchInput,
-      model: "gpt-4o-mini",
-      gender: "male",
-    });
-    setResults(res?.series as Series[]);
+    if (!searchInput) return;
+    setLoading(true);
+    const res = await handleTextSearch(searchInput, "gpt-4o-mini", "male");
+    setResults([...(res?.series as Series[])] as Series[]);
+    setQuery(searchInput);
+    setSearchInput("");
     console.log(res?.series);
+    setLoading(false);
   };
 
   return (
@@ -66,7 +70,7 @@ export default function SearchPage() {
           <div className='relative mb-8 w-full'>
             <Input
               type='search'
-              placeholder='Search images...'
+              placeholder='你今天想找什麼樣的服飾呢？'
               className='w-full pl-10 pr-12'
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
@@ -105,12 +109,13 @@ export default function SearchPage() {
               </DialogContent>
             </Dialog>
           </div>
-          <Button
+          <LoadingButton
             className='bg-indigo-400 hover:bg-indigo-300'
             onClick={onSubmit}
+            loading={loading}
           >
-            <SearchIcon />
-          </Button>
+            {!loading && <SearchIcon />}
+          </LoadingButton>
         </div>
 
         <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4'>
@@ -127,15 +132,17 @@ export default function SearchPage() {
           ))}
         </div>
       </div>
-      {
+      {loading ? (
+        <ItemListSkeleton index={0} />
+      ) : (
         <ItemList
-          title='搜尋到類似的商品'
-          description={""}
+          title=''
+          description={query}
           series={results}
           id={""}
           index={0}
         />
-      }
+      )}
     </div>
   );
 }

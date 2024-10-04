@@ -76,11 +76,9 @@ const constructPromptForImageSearch = ({
 };
 
 const constructPromptForTextSearch = ({
-  clothingType,
   query,
   gender,
 }: {
-  clothingType: ClothingType;
   query: string;
   gender: Gender;
 }): string => {
@@ -96,11 +94,10 @@ const constructPromptForTextSearch = ({
           "設計特點": "[描述]", 
           "材質": "[材質]", 
           "細節": "[描述]", 
-          ${
-            clothingType === "top"
-              ? '"領子": "[描述]", "袖子": "[描述]"'
-              : '"褲管": "[描述]", "裙擺": "[描述]"'
-          }
+          "領子": "[描述]", 
+          "袖子": "[描述]",
+          "褲管": "[描述]", 
+          "裙擺": "[描述]",
         }
       }
     ]

@@ -189,7 +189,6 @@ const handleImageSearch = async (
 };
 
 const handleTextSearch = async (
-  clothingType: ClothingType,
   query: string,
   model: string,
   gender: Gender
@@ -197,7 +196,6 @@ const handleTextSearch = async (
   try {
     console.log("user query", query);
     const prompt: string = constructPromptForTextSearch({
-      clothingType,
       query,
       gender,
     });
@@ -212,7 +210,7 @@ const handleTextSearch = async (
     if (rawLabelString) {
       const cleanedLabels = validateAndCleanLabelString(
         rawLabelString,
-        clothingType,
+        "top",
         true
       );
 
