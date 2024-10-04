@@ -1,5 +1,6 @@
 "use server";
 
+import { getRecommendationRecordById } from "@/actions/recommendation";
 import ItemList from "@/components/item-list";
 import { Recommendation } from "@/type";
 import FeedbackCard from "./feedback-card";
@@ -12,10 +13,9 @@ const RecommendationPage = async ({
   params: { recommendation_id: number };
   searchParams?: { [key: string]: string | undefined };
 }) => {
-  // const recommendation: Recommendation = (await getRecommendationRecordById(
-  //   params.recommendation_id
-  // )) as Recommendation;
-  const recommendation: Recommendation = {} as Recommendation;
+  const recommendation: Recommendation = (await getRecommendationRecordById(
+    params.recommendation_id
+  )) as Recommendation;
   console.log(recommendation);
   return (
     <div className='w-full flex flex-col items-center justify-center'>

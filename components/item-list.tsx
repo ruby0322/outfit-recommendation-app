@@ -81,7 +81,7 @@ const ItemList = ({
 
       <div className='flex gap-4 flex-wrap items-start justify-center'>
         {(isExpanded ? series : series.slice(0, 4)).map((s) => {
-          return <ItemCard series={s} key={`item-card-${s.id}`} />;
+          return <ItemCard series={s} key={`item-card-${s.items[0].id}`} />;
         })}
       </div>
 
