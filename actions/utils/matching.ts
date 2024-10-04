@@ -1,7 +1,9 @@
 "use server";
-import { Gender, SearchResult } from "@/type";
+import { Gender, ItemTable, SearchResult } from "@/type";
 import supabase from "@/lib/supabaseClient";
 import { calculateDistance, generateEmbedding } from "./embedding";
+import { string } from "zod";
+import { error } from "console";
 
 export interface UnstoredResult {
   distance: number;
@@ -31,6 +33,31 @@ const vectorSearch = async (
   }
 
   return similarItems;
+}
+
+const getSeriesByIds = async (
+  seriesIds : string[]
+): Promise<SearchResult | null> => {
+  try {
+    const { data: items, error } = await supabase
+     .from("item")
+     .select("*")
+     .in("series_id", seriesIds);
+
+     console.log('items', items);
+
+    if(error) {
+      console.error("Error fetching series:", error);
+      return null;
+    }
+
+    return { series: seriesIds.map(seriesId => { 
+      return { items: items?.filter(item => item.series_id === seriesId)}
+    })};
+  } catch(error) {
+    console.error("Unexpected error in getSeriesByIds:", error);
+    return null;
+  }
 }
 
 const semanticSearchForRecommendation = async ({
@@ -78,7 +105,7 @@ const semanticSearchForSearching = async ({
   try {
     const similarItems = await vectorSearch(
       suggestedLabelString,
-      1,
+      5,
       gender
     );
 
@@ -86,16 +113,13 @@ const semanticSearchForSearching = async ({
       return null;
     }
 
-    const result: SearchResult = {
-      series: similarItems
-    };
-    
+    const seriesIds = similarItems.map((similarItem: ItemTable) => similarItem.series_id);
+    const result = await getSeriesByIds(seriesIds);
     return result;
   } catch (error) {
     console.error("Error in semanticSearchForSearching:", error);
     return null;
   }
 };
-
 
 export { semanticSearchForSearching, semanticSearchForRecommendation };

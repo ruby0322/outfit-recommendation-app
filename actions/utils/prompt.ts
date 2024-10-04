@@ -79,15 +79,15 @@ const constructPromptForImageSearch = ({
 
 const constructPromptForTextSearch = ({
   clothingType,
-  userRequest,
+  userQuery,
   gender,
 }: {
   clothingType: ClothingType;
-  userRequest: string;
+  userQuery: string;
   gender: Gender;
 }): string => {
   return `
-    請將這位${gender === "male" ? "男性" : "女性"}使用者的需求：${userRequest}，改寫成固定格式
+    請將這位${gender === "male" ? "男性" : "女性"}使用者的需求：${userQuery}，改寫成固定格式
     請使用下方 JSON 格式回覆，回答無需包含其他資訊：
     [
       {
