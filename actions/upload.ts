@@ -1,22 +1,22 @@
 "use server";
-import { ClothingType, Gender, SearchResult, Recommendation } from "@/type";
+import { ClothingType, Gender, SearchResult } from "@/type";
 import { sendImgURLAndPromptToGPT, sendPromptToGPT } from "./utils/chat";
 import {
+  insertParam,
   insertRecommendation,
   insertResults,
   insertSuggestion,
   insertUpload,
-  insertParam
 } from "./utils/insert";
-import { 
-  UnstoredResult, 
-  semanticSearchForSearching, 
-  semanticSearchForRecommendation 
+import {
+  UnstoredResult,
+  semanticSearchForRecommendation,
+  semanticSearchForSearching,
 } from "./utils/matching";
-import { 
-  constructPromptForRecommendation, 
-  constructPromptForImageSearch, 
-  constructPromptForTextSearch 
+import {
+  constructPromptForImageSearch,
+  constructPromptForRecommendation,
+  constructPromptForTextSearch,
 } from "./utils/prompt";
 
 const validateAndCleanLabelString = (
@@ -25,22 +25,42 @@ const validateAndCleanLabelString = (
   isSimilar: boolean
 ) => {
   try {
-    const recommendationsArray = JSON.parse(recommendations.replace(/```json\n?|\n?```/g, "").trim());
-    if (!Array.isArray(recommendationsArray)) throw new Error("Invalid recommendation format");
+    const recommendationsArray = JSON.parse(
+      recommendations.replace(/```json\n?|\n?```/g, "").trim()
+    );
+    if (!Array.isArray(recommendationsArray))
+      throw new Error("Invalid recommendation format");
 
     return recommendationsArray
       .filter((rec) => {
-        const requiredKeys = ["顏色", "服裝類型", "剪裁版型", "設計特點", "材質", "細節"];
+        const requiredKeys = [
+          "顏色",
+          "服裝類型",
+          "剪裁版型",
+          "設計特點",
+          "材質",
+          "細節",
+        ];
         const specificKeys = isSimilar
-          ? clothingType === "top" ? ["領子", "袖子"] : ["褲管", "裙擺"]
-          : clothingType === "top" ? ["褲管", "裙擺"] : ["領子", "袖子"];
+          ? clothingType === "top"
+            ? ["領子", "袖子"]
+            : ["褲管", "裙擺"]
+          : clothingType === "top"
+          ? ["褲管", "裙擺"]
+          : ["領子", "袖子"];
 
-        return [...requiredKeys, ...specificKeys].every((key) => key in rec.item);
+        return [...requiredKeys, ...specificKeys].every(
+          (key) => key in rec.item
+        );
       })
       .map((rec) => {
         const specificInfo = isSimilar
-          ? clothingType === "top" ? `領子: ${rec.item.領子}, 袖子: ${rec.item.袖子}` : `褲管: ${rec.item.褲管}, 裙擺: ${rec.item.裙擺}`
-          : clothingType === "top" ? `褲管: ${rec.item.褲管}, 裙擺: ${rec.item.裙擺}` : `領子: ${rec.item.領子}, 袖子: ${rec.item.袖子}`;
+          ? clothingType === "top"
+            ? `領子: ${rec.item.領子}, 袖子: ${rec.item.袖子}`
+            : `褲管: ${rec.item.褲管}, 裙擺: ${rec.item.裙擺}`
+          : clothingType === "top"
+          ? `褲管: ${rec.item.褲管}, 裙擺: ${rec.item.裙擺}`
+          : `領子: ${rec.item.領子}, 袖子: ${rec.item.袖子}`;
 
         return {
           styleName: rec.styleName,
@@ -107,12 +127,13 @@ const handleRecommendation = async ({
           description: rec.description,
         });
 
-        const results: UnstoredResult[] = (await semanticSearchForRecommendation({
-          suggestionId,
-          suggestedLabelString: rec.labelString,
-          numMaxItem,
-          gender,
-        })) as UnstoredResult[];
+        const results: UnstoredResult[] =
+          (await semanticSearchForRecommendation({
+            suggestionId,
+            suggestedLabelString: rec.labelString,
+            numMaxItem,
+            gender,
+          })) as UnstoredResult[];
 
         await insertResults(results);
       }
@@ -158,12 +179,13 @@ const handleImageSearch = async ({
 
       console.log("Cleaned labels in image search: ", cleanedLabels);
 
-      if(cleanedLabels.length > 0) {
+      if (cleanedLabels.length > 0) {
         const labelString = cleanedLabels[0].labelString;
-        const searchResult: SearchResult | null = await semanticSearchForSearching({
-          suggestedLabelString: labelString,
-          gender,
-        })
+        const searchResult: SearchResult | null =
+          await semanticSearchForSearching({
+            suggestedLabelString: labelString,
+            gender,
+          });
         return searchResult;
       } else {
         console.error("No valid labels found after cleaning");
@@ -181,28 +203,31 @@ const handleImageSearch = async ({
 
 const handleTextSearch = async ({
   clothingType,
-  userRequest,
+  query,
   model,
-  gender
-} : {
+  gender,
+}: {
   clothingType: ClothingType;
-  userRequest: string;
+  query: string;
   model: string;
   gender: Gender;
-}) : Promise<SearchResult | null> => {
+}): Promise<SearchResult | null> => {
   try {
+    console.log("user query", query);
     const prompt: string = constructPromptForTextSearch({
       clothingType,
-      userRequest,
-      gender
+      query,
+      gender,
     });
+    console.log("prompt", prompt);
 
     const rawLabelString: string | null = await sendPromptToGPT({
       model,
       prompt,
     });
+    console.log("Raw labels in text search: ", rawLabelString);
 
-    if(rawLabelString) {
+    if (rawLabelString) {
       const cleanedLabels = validateAndCleanLabelString(
         rawLabelString,
         clothingType,
@@ -211,13 +236,14 @@ const handleTextSearch = async ({
 
       console.log("Cleaned labels in text search: ", cleanedLabels);
 
-      if(cleanedLabels.length > 0) {
+      if (cleanedLabels.length > 0) {
         const labelString = cleanedLabels[0].labelString;
 
-        const searchResult: SearchResult | null = await semanticSearchForSearching({
-          suggestedLabelString: labelString,
-          gender
-        });
+        const searchResult: SearchResult | null =
+          await semanticSearchForSearching({
+            suggestedLabelString: labelString,
+            gender,
+          });
         return searchResult;
       } else {
         console.error("No valid labels found after cleaning");
@@ -231,6 +257,6 @@ const handleTextSearch = async ({
     console.error("Error in handleTextSearch:", error);
     return null;
   }
-}
+};
 
-export {handleImageSearch, handleTextSearch, handleRecommendation}
+export { handleImageSearch, handleRecommendation, handleTextSearch };

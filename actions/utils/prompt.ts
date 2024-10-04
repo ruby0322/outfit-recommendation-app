@@ -15,9 +15,7 @@ const constructPromptForRecommendation = ({
     ${gender === "male" ? "男性" : "女性"}
     ${clothingType === "top" ? "上衣" : "下身類衣物"}
     ，請推薦${numMaxSuggestion}種與之搭配的
-    ${
-      clothingType === "top" ? "下身類衣物" : "上衣"
-    }。
+    ${clothingType === "top" ? "下身類衣物" : "上衣"}。
     對於每一種搭配，請提供一個風格名稱和推薦的原因。
     請使用下方 JSON 格式回覆，回答無需包含其他資訊：
     [
@@ -79,15 +77,15 @@ const constructPromptForImageSearch = ({
 
 const constructPromptForTextSearch = ({
   clothingType,
-  userRequest,
+  query,
   gender,
 }: {
   clothingType: ClothingType;
-  userRequest: string;
+  query: string;
   gender: Gender;
 }): string => {
   return `
-    請將這位${gender === "male" ? "男性" : "女性"}使用者的需求：${userRequest}，改寫成固定格式
+    請將這位${gender === "male" ? "男性" : "女性"}使用者的需求：${query}
     請使用下方 JSON 格式回覆，回答無需包含其他資訊：
     [
       {
@@ -109,4 +107,8 @@ const constructPromptForTextSearch = ({
   `;
 };
 
-export { constructPromptForRecommendation, constructPromptForImageSearch, constructPromptForTextSearch }
+export {
+  constructPromptForImageSearch,
+  constructPromptForRecommendation,
+  constructPromptForTextSearch,
+};

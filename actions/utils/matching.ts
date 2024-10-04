@@ -1,7 +1,7 @@
 "use server";
-import { Gender, SearchResult } from "@/type";
 import supabase from "@/lib/supabaseClient";
-import { calculateDistance, generateEmbedding } from "./embedding";
+import { Gender, SearchResult } from "@/type";
+import { generateEmbedding } from "./embedding";
 
 export interface UnstoredResult {
   distance: number;
@@ -25,25 +25,25 @@ const vectorSearch = async (
     }
   );
 
-  if(err) {
+  if (err) {
     console.error("Error fetching results from Supabase:", err);
     return null;
   }
 
   return similarItems;
-}
+};
 
 const semanticSearchForRecommendation = async ({
   suggestionId,
   suggestedLabelString,
   numMaxItem,
   gender = "male",
-} : {
+}: {
   suggestionId: number;
   suggestedLabelString: string;
   numMaxItem: number;
   gender: Gender;
-}) : Promise<UnstoredResult[] | null> => {
+}): Promise<UnstoredResult[] | null> => {
   try {
     const similarItems = await vectorSearch(
       suggestedLabelString,
@@ -55,11 +55,13 @@ const semanticSearchForRecommendation = async ({
       return null;
     }
 
-    const results: UnstoredResult[] = similarItems.map((item: { id: any; }, index: any) => ({
-      distance: index,
-      item_id: item.id,
-      suggestion_id: suggestionId,
-    }));
+    const results: UnstoredResult[] = similarItems.map(
+      (item: { id: any }, index: any) => ({
+        distance: index,
+        item_id: item.id,
+        suggestion_id: suggestionId,
+      })
+    );
 
     return results;
   } catch (error) {
@@ -71,25 +73,21 @@ const semanticSearchForRecommendation = async ({
 const semanticSearchForSearching = async ({
   suggestedLabelString,
   gender = "male",
-} : {
+}: {
   suggestedLabelString: string;
-  gender: Gender;  
-}) : Promise<SearchResult | null> => {
+  gender: Gender;
+}): Promise<SearchResult | null> => {
   try {
-    const similarItems = await vectorSearch(
-      suggestedLabelString,
-      1,
-      gender
-    );
+    const similarItems = await vectorSearch(suggestedLabelString, 20, gender);
 
     if (!similarItems) {
       return null;
     }
 
     const result: SearchResult = {
-      series: similarItems
+      series: similarItems,
     };
-    
+
     return result;
   } catch (error) {
     console.error("Error in semanticSearchForSearching:", error);
@@ -97,5 +95,4 @@ const semanticSearchForSearching = async ({
   }
 };
 
-
-export { semanticSearchForSearching, semanticSearchForRecommendation };
+export { semanticSearchForRecommendation, semanticSearchForSearching };

@@ -115,7 +115,6 @@ const Header = () => {
       const {
         data: { user: userResponse },
       } = await supabase.auth.getUser();
-      console.log(userResponse);
       setUser(userResponse);
     })();
   }, []);
