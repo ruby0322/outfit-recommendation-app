@@ -5,9 +5,10 @@ import { storeImageToStorage } from "@/actions/utils/insert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
+import { cn } from "@/lib/utils";
 import { createClient } from "@/utils/supabase/client";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { AnimatePresence, motion } from "framer-motion";
+import { motion } from "framer-motion";
 import { CheckCircle, ChevronLeft } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -86,6 +87,17 @@ const FormFields = ({ nextStep }: { nextStep: () => void }) => {
   );
 };
 
+const toHHMMSS = (secs: number) => {
+  var hours = Math.floor(secs / 3600);
+  var minutes = Math.floor(secs / 60) % 60;
+  var seconds = secs % 60;
+
+  return [hours, minutes, seconds]
+    .map((v) => (v < 10 ? "0" + v : v))
+    .filter((v, i) => v !== "00" || i > 0)
+    .join(":");
+};
+
 // Overview Component
 const Overview = ({
   onConfirm,
@@ -125,15 +137,8 @@ const Overview = ({
 };
 
 function ConfirmButton() {
-  const [showCheck, setShowCheck] = useState(false);
-
-  const handleClick = () => {
-    setShowCheck(true);
-    setTimeout(() => {
-      setShowCheck(false);
-    }, 1000); // The check icon will disappear after 1 second
-  };
-
+  const router = useRouter();
+  const [secondsSpent, setSecondsSpent] = useState<number>(0);
   return (
     <motion.button
       whileTap={{ scale: 0.95 }}
@@ -141,24 +146,27 @@ function ConfirmButton() {
       className='w-full text-white font-bold rounded-lg bg-indigo-400'
     >
       <Button
-        className={`transition-opacity duration-300 bg-indigo-400 hover:bg-indigo-300 w-full px-8 py-2 rounded-md`}
-        onClick={handleClick}
-      >
-        一鍵成為穿搭達人！
-      </Button>
-      <AnimatePresence>
-        {showCheck && (
-          <motion.div
-            className='absolute inset-0 flex items-center justify-center'
-            initial={{ scale: 0, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0, opacity: 0 }}
-            transition={{ duration: 0.3 }}
-          >
-            <CheckCircle className='text-green-500 w-6 h-6' />
-          </motion.div>
+        className={cn(
+          "transition-opacity duration-300 w-full px-8 py-2 rounded-md",
+          secondsSpent > 0
+            ? "bg-red-400 hover:bg-red-300"
+            : "bg-indigo-400 hover:bg-indigo-300"
         )}
-      </AnimatePresence>
+        onClick={() => {
+          if (secondsSpent > 0) {
+            console.log("refresh");
+            window.location.reload();
+          } else {
+            setInterval(() => {
+              setSecondsSpent((s) => s + 1);
+            }, 1000);
+          }
+        }}
+      >
+        {secondsSpent > 0
+          ? `${toHHMMSS(secondsSpent)} 終止並退出`
+          : "一鍵成為穿搭達人！"}
+      </Button>
     </motion.button>
   );
 }
