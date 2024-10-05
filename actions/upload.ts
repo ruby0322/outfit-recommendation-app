@@ -140,14 +140,12 @@ const handleRecommendation = async (
 };
 
 const handleImageSearch = async (
-  clothingType: ClothingType,
   gender: Gender,
   model: string,
   imageUrl: string
 ): Promise<SearchResult | null> => {
   try {
     const prompt: string = constructPromptForImageSearch({
-      clothingType,
       gender,
     });
 
@@ -160,7 +158,7 @@ const handleImageSearch = async (
     if (rawLabelString) {
       const cleanedLabels = validateAndCleanLabelString(
         rawLabelString,
-        clothingType,
+        "top",
         true
       );
 

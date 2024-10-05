@@ -1,6 +1,7 @@
 "use client";
 
-import { handleTextSearch } from "@/actions/upload";
+import { handleImageSearch, handleTextSearch } from "@/actions/upload";
+import { storeImageToStorage } from "@/actions/utils/insert";
 import ItemList from "@/components/item-list";
 import ItemListSkeleton from "@/components/item-list-skeleton";
 import { Button } from "@/components/ui/button";
@@ -35,6 +36,7 @@ export default function SearchPage() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [searchInput, setSearchInput] = useState("");
   const [results, setResults] = useState<Series[]>([]);
+  const [uploadedImageUrl, setUploadedImageUrl] = useState<string>("");
 
   const promptSuggestions = [
     "適合夏天的輕薄白色襯衫，材質要透氣，適合上班穿的。",
@@ -50,6 +52,13 @@ export default function SearchPage() {
 
   const handleImageUpload = async () => {
     setIsDialogOpen(false);
+    if (!uploadedImageUrl) return;
+    const res = await handleImageSearch(
+      "male",
+      "gpt-4o-mini",
+      uploadedImageUrl
+    );
+    setResults([...(res?.series as Series[])] as Series[]);
   };
 
   const onSubmit = async () => {
@@ -61,6 +70,29 @@ export default function SearchPage() {
     setSearchInput("");
     console.log(res?.series);
     setLoading(false);
+  };
+
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (!event.target.files || event.target.files.length === 0) {
+      return; // User canceled file selection
+    }
+
+    const file = event.target.files[0];
+    console.log(file);
+    const reader = new FileReader();
+    reader.onloadend = async () => {
+      if (typeof reader.result === "string") {
+        const base64 = reader.result;
+        try {
+          const imageUrl = await storeImageToStorage(base64);
+          /* TODO: Perform image search with the image uarl */
+          setUploadedImageUrl(imageUrl);
+        } catch (error) {
+          console.error("Error in onSubmit:", error);
+        }
+      }
+    };
+    reader.readAsDataURL(file);
   };
 
   return (
@@ -102,6 +134,7 @@ export default function SearchPage() {
                       type='file'
                       accept='image/*'
                       className='col-span-4'
+                      onChange={handleFileUpload}
                     />
                   </div>
                 </div>

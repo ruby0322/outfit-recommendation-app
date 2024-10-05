@@ -42,17 +42,14 @@ const constructPromptForRecommendation = ({
 };
 
 const constructPromptForImageSearch = ({
-  clothingType,
   gender,
 }: {
-  clothingType: ClothingType;
   gender: Gender;
 }): string => {
   const prompt: string = `
     請仔細觀察這張圖片中的
     ${gender === "male" ? "男性" : "女性"}
-    ${clothingType === "top" ? "上衣" : "下身類衣物"}
-    ，並且提供一組詳盡的描述。
+    衣物，並且提供一組詳盡的描述。
     請使用下方 JSON 格式回覆，回答無需包含其他資訊：
     [
       {
@@ -63,11 +60,10 @@ const constructPromptForImageSearch = ({
           "設計特點": "[描述]", 
           "材質": "[材質]", 
           "細節": "[描述]", 
-          ${
-            clothingType === "top"
-              ? '"領子": "[描述]", "袖子": "[描述]"'
-              : '"褲管": "[描述]", "裙擺": "[描述]"'
-          }
+          "領子": "[描述]", 
+          "袖子": "[描述]",
+          "褲管": "[描述]", 
+          "裙擺": "[描述]"
         }
       }
     ]
