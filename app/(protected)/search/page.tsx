@@ -37,6 +37,7 @@ export default function SearchPage() {
   const [searchInput, setSearchInput] = useState("");
   const [results, setResults] = useState<Series[]>([]);
   const [uploadedImageUrl, setUploadedImageUrl] = useState<string>("");
+  const [imageUploading, setImageUploading] = useState<boolean>(false);
 
   const promptSuggestions = [
     "適合夏天的輕薄白色襯衫，材質要透氣，適合上班穿的。",
@@ -76,7 +77,7 @@ export default function SearchPage() {
     if (!event.target.files || event.target.files.length === 0) {
       return; // User canceled file selection
     }
-
+    setImageUploading(true);
     const file = event.target.files[0];
     console.log(file);
     const reader = new FileReader();
@@ -87,6 +88,7 @@ export default function SearchPage() {
           const imageUrl = await storeImageToStorage(base64);
           /* TODO: Perform image search with the image uarl */
           setUploadedImageUrl(imageUrl);
+          setImageUploading(false);
         } catch (error) {
           console.error("Error in onSubmit:", error);
         }
@@ -138,7 +140,13 @@ export default function SearchPage() {
                     />
                   </div>
                 </div>
-                <Button onClick={handleImageUpload}>上傳並搜尋</Button>
+                <LoadingButton
+                  disabled={imageUploading}
+                  loading={imageUploading}
+                  onClick={handleImageUpload}
+                >
+                  上傳並搜尋
+                </LoadingButton>
               </DialogContent>
             </Dialog>
           </div>
