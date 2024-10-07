@@ -54,12 +54,14 @@ export default function SearchPage() {
   const handleImageUpload = async () => {
     setIsDialogOpen(false);
     if (!uploadedImageUrl) return;
+    setLoading(true);
     const res = await handleImageSearch(
       "male",
       "gpt-4o-mini",
       uploadedImageUrl
     );
     setResults([...(res?.series as Series[])] as Series[]);
+    setLoading(false);
   };
 
   const onSubmit = async () => {
@@ -182,6 +184,7 @@ export default function SearchPage() {
           series={results}
           id={""}
           index={0}
+          expandOnMount={true}
         />
       )}
     </div>

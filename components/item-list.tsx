@@ -18,14 +18,16 @@ const ItemList = ({
   series,
   index,
   description,
+  expandOnMount,
 }: {
   title: string;
   id: string;
   series: Series[];
   index: number;
   description: string;
+  expandOnMount?: boolean;
 }) => {
-  const [isExpanded, setIsExpanded] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(expandOnMount || false);
 
   const toggleExpand = () => {
     setIsExpanded(!isExpanded);
@@ -45,7 +47,7 @@ const ItemList = ({
         <Button
           variant='ghost'
           size='sm'
-          className='text-primary'
+          className={cn("text-primary", series.length === 0 && "hidden")}
           onClick={toggleExpand}
           disabled={series.length <= 4}
           aria-expanded={isExpanded}
@@ -62,22 +64,11 @@ const ItemList = ({
           )}
         </Button>
       </div>
-      <p className='text-center italic text-gray-600 m-4'>
-        {description && `「${description}」`}
-      </p>
-      {/* <div className='flex flex-wrap gap-2'>
-        {parseTags(title).map((tag, index) => {
-          return (
-            <Badge
-            className='bg-white'
-              variant='outline'
-              key={`style-preference-badge-${index}`}
-            >
-              {tag}
-            </Badge>
-          );
-        })}
-      </div> */}
+      {description && (
+        <p className='text-center italic text-gray-600 m-4'>
+          {`「${description}」`}
+        </p>
+      )}
 
       <div className='flex gap-4 flex-wrap items-start justify-center'>
         {(isExpanded ? series : series.slice(0, 4)).map((s) => {

@@ -245,7 +245,7 @@ export type Database = {
             foreignKeyName: "result_item_id_fkey"
             columns: ["item_id"]
             isOneToOne: false
-            referencedRelation: "item_old2"
+            referencedRelation: "item"
             referencedColumns: ["id"]
           },
           {
@@ -413,6 +413,14 @@ export type Database = {
       }
     }
     Functions: {
+      query_similar_female_items: {
+        Args: {
+          query_embedding: string
+          match_threshold: number
+          max_item_count: number
+        }
+        Returns: unknown[]
+      }
       query_similar_items:
         | {
             Args: Record<PropertyKey, never>
@@ -456,6 +464,14 @@ export type Database = {
               title: string | null
             }[]
           }
+      query_similar_male_items: {
+        Args: {
+          query_embedding: string
+          match_threshold: number
+          max_item_count: number
+        }
+        Returns: unknown[]
+      }
       test: {
         Args: Record<PropertyKey, never>
         Returns: {
@@ -469,7 +485,7 @@ export type Database = {
     Enums: {
       body_type: "slim" | "average" | "athletic" | "curvy"
       clothing_type: "top" | "bottom"
-      gender: "male" | "female"
+      gender: "male" | "female" | "neutral"
     }
     CompositeTypes: {
       [_ in never]: never

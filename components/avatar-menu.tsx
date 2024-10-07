@@ -49,16 +49,15 @@ export default function AvatarMenu() {
     setIsEditUsernameDialogOpen(true);
   };
 
-  const handleChangeProfilePicture = async () => {
-    console.log("Change profile picture clicked");
-    const supabase = createClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    console.log(location.origin);
-    await updateUserProfile(location.origin, user?.id as string);
-    // Implement profile picture change logic here
-  };
+  // const handleChangeProfilePicture = async () => {
+  //   console.log("Change profile picture clicked");
+  //   const supabase = createClient();
+  //   const {
+  //     data: { user },
+  //   } = await supabase.auth.getUser();
+  //   await updateUserProfile(location.origin, user?.id as string);
+  //   // Implement profile picture change logic here
+  // };
 
   return (
     <>
@@ -96,7 +95,7 @@ export default function AvatarMenu() {
           </DropdownMenuItem>
           <DropdownMenuItem
             className='cursor-pointer'
-            onClick={handleChangeProfilePicture}
+            // onClick={handleChangeProfilePicture}
           >
             <Camera className='mr-2 h-4 w-4' />
             <span>更改使用者頭像</span>
