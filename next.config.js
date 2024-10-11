@@ -30,6 +30,10 @@ const nextConfig = {
         protocol: 'https',
         hostname: 'www.uniqlo.com',
       },
+      {
+        protocol: 'https',
+        hostname: 's3.hicloud.net.tw',
+      }
     ],
   },
   experimental: {

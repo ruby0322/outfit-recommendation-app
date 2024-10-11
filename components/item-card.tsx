@@ -15,6 +15,14 @@ import {
   CarouselThumbsContainer,
   SliderMainItem,
 } from "@/components/ui/extension/carousel";
+import { cn } from "@/lib/utils";
+import { Badge } from "./ui/badge";
+
+const PROVIDER_CLASSNAME_MAPPING: { [k: string]: string } = {
+  'UNIQLO': 'bg-blue-100 hover:bg-blue-100 text-gray-800',
+  'Fifty Percent': 'bg-rose-100 hover:bg-rose-100 text-gray-800',
+  'H&M': 'bg-violet-100 hover:bg-violet-100 text-vigray-800'
+};  
 
 const ItemCard = ({ series }: { series: Series }) => {
   // console.log("This is the item image url: ");
@@ -22,9 +30,15 @@ const ItemCard = ({ series }: { series: Series }) => {
   return (
     <Card className='w-64 rounded-none flex flex-col justify-between h-fit gap-1 shadow-none border-0'>
       <div className='relative inline-block w-full h-full'>
-        {/* <Badge className='bg-muted text-muted-foreground border-0 shadow-none absolute top-0 left-0 m-2'>
-          {series.provider}
-        </Badge> */}
+        {
+          series.items.length > 0 &&
+          <Badge className={cn(
+            'border-0 shadow-none absolute top-0 left-0 m-2 z-10',
+            PROVIDER_CLASSNAME_MAPPING[series.items[0].provider as string]
+          )}>
+            {series.items[0].provider}
+          </Badge>
+        }
         {series.items.length > 1 ? (
           <Carousel>
             <CarouselNext />
