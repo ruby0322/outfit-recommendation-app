@@ -1,18 +1,167 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
+// schema.prisma
 
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+datasource db {
+  provider = "postgresql" 
+  url      = env("DATABASE_URL")
+}
 
 generator client {
   provider = "prisma-client-js"
 }
 
-model Test {
-  id    Int     @id @default(autoincrement())
+enum BodyType {
+  slim
+  average
+  athletic
+  curvy
 }
 
-datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+enum ClothingType {
+  top
+  bottom
+}
+
+enum Gender {
+  male
+  female
+  neutral
+}
+
+model Item {
+  id            String    @id
+  clothing_type String?
+  color         String?
+  embedding     String?
+  external_link String?
+  gender        String?
+  image_url     String?
+  label_string  String?
+  price         Float?
+  provider      String?
+  series_id     String
+  title         String
+
+  series        Series    @relation(fields: [series_id], references: [id])
+  results       Result[]
+
+  @@index([series_id])
+  @@index([clothing_type])
+  @@index([gender])
+  @@index([price])
+  @@index([provider])
+}
+
+model Param {
+  id             Int          @id @default(autoincrement())
+  clothing_type  ClothingType?
+  created_at     DateTime     @default(now())
+  gender         Gender?
+  model          String?
+
+  recommendations Recommendation[]
+
+  @@index([clothing_type])
+  @@index([gender])
+  @@index([model])
+}
+
+model Profile {
+  user_id         String              @id
+  avatar_url      String?
+  created_at      DateTime            @default(now())
+  username        String?
+
+  recommendations Recommendation[]
+  uploads         Upload[]
+  activity_logs   UserActivityLog[]
+
+  @@index([username])
+}
+
+model Recommendation {
+  id          Int        @id @default(autoincrement())
+  created_at  DateTime   @default(now())
+  param_id    Int?
+  upload_id   Int?
+  user_id     String?
+
+  param         Param?     @relation(fields: [param_id], references: [id])
+  upload        Upload?    @relation(fields: [upload_id], references: [id])
+  user          Profile?   @relation(fields: [user_id], references: [user_id])
+  suggestions   Suggestion[]
+
+  @@index([param_id])  
+  @@index([upload_id]) 
+  @@index([user_id])   
+  @@index([created_at])
+}
+
+model Result {
+  id            Int         @id @default(autoincrement())
+  created_at    DateTime    @default(now())
+  distance      Float?
+  item_id       String?
+  suggestion_id Int?
+
+  item        Item?       @relation(fields: [item_id], references: [id])
+  suggestion  Suggestion? @relation(fields: [suggestion_id], references: [id])
+
+  @@index([item_id])       
+  @@index([suggestion_id]) 
+  @@index([distance])
+}
+
+model Series {
+  id            String     @id
+  clothing_type String?
+  external_link String?
+  gender        Gender?
+  price         String?
+  provider      String?
+  title         String?
+
+  items         Item[]
+
+  @@index([clothing_type])
+  @@index([gender])
+  @@index([price])
+  @@index([provider])
+}
+
+model Suggestion {
+  id                Int        @id @default(autoincrement())
+  created_at        DateTime   @default(now())
+  description       String?
+  label_string      String?
+  recommendation_id Int?
+  style_name        String?
+
+  recommendation  Recommendation? @relation(fields: [recommendation_id], references: [id])
+  results         Result[]
+
+  @@index([recommendation_id])
+  @@index([style_name])
+}
+
+model Upload {
+  id             Int        @id @default(autoincrement())
+  created_at     DateTime   @default(now())
+  image_url      String?
+  user_id        String?
+
+  user           Profile?   @relation(fields: [user_id], references: [user_id])
+  recommendations Recommendation[]
+
+  @@index([user_id])
+}
+
+model UserActivityLog {
+  id          Int       @id @default(autoincrement())
+  created_at  DateTime  @default(now())
+  description String?
+  user_id     String?
+
+  user        Profile?  @relation(fields: [user_id], references: [user_id])
+
+  @@index([user_id])
 }
