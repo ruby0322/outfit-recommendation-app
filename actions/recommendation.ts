@@ -22,43 +22,40 @@ import supabase from "@/lib/supabaseClient";
 const getSeries = async (
   series_ids: string[],
   originalItemIds: string[],
-  gender: string
+  gender: string,
+  clothingType: string
 ): Promise<Series[] | null> => {
   try {
     console.time("getSeries");
-    // console.log(`Starting getSeries with ${series_ids.length} series IDs, gender: ${gender}`);
-    const seriesArray: Series[] = [];
-    const dbGender = gender === "man" ? "male" : "female";
+    
+    const matViewName = `${gender}_${clothingType}_item_matview`;
 
-    for (const seriesId of series_ids) {
+    const uniqueSeriesIds = Array.from(new Set(series_ids));
+    const seriesArray: Series[] = [];
+
+    for (const seriesId of uniqueSeriesIds) {
       const { data, error } = await supabase
-        .from("item")
+        .from(matViewName)
         .select("*")
         .eq("series_id", seriesId);
 
       if (error) {
-        console.error("Error fetching items:", error);
+        console.error(`Error fetching items from ${matViewName}:`, error);
         return null;
       }
 
-      const validItems = (data as ItemTable[]).filter((item) => {
-        if (item.gender !== dbGender) {
-          console.error(
-            `Gender mismatch for item ${item.id} in series ${seriesId}: ${item.gender} !== ${dbGender}`
-          );
-          return false;
-        }
-        return true;
-      });
-
-      if (validItems.length === 0) {
-        console.log(`No valid items for series ${seriesId} due to gender mismatch.`);
+      if (data.length === 0) {
+        console.log(`No valid items for series ${seriesId}.`);
         continue;
       }
 
-      const sortedItems = validItems.sort(
-        (a, b) => originalItemIds.indexOf(a.id) - originalItemIds.indexOf(b.id)
-      );
+      const originalItems = data.filter(item => originalItemIds.includes(item.id));
+      const otherItems = data.filter(item => !originalItemIds.includes(item.id));
+
+      const sortedItems = [
+        ...originalItems.sort((a, b) => originalItemIds.indexOf(a.id) - originalItemIds.indexOf(b.id)),
+        ...otherItems
+      ];
 
       const series: Series = {
         items: sortedItems,
@@ -66,7 +63,6 @@ const getSeries = async (
       seriesArray.push(series);
     }
     console.timeEnd("getSeries");
-    // console.log("finish getSeries");
     return seriesArray.length > 0 ? seriesArray : null;
   } catch (error) {
     console.error("Unexpected error in getSeries:", error);
@@ -112,8 +108,9 @@ const getRecommendationRecordById = async (
       const series_ids = (await getSeriesIdsByItemIds(item_ids)) as string[];
       if (!series_ids.length) throw new Error("No series IDs found");
 
-      const gender = recommendation_record.param.gender === "male" ? "man" : "woman";
-      const series = (await getSeries(series_ids, item_ids, gender)) as Series[];
+      const gender = recommendation_record.param.gender ?? "neutral";
+      const clothingType = recommendation_record.param.clothing_type ?? "top";
+      const series = (await getSeries(series_ids, item_ids, gender, clothingType)) as Series[];
       if (!series) throw new Error("No series found");
 
       recommendation_record.styles![styleName] = {
