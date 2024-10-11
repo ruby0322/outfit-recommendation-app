@@ -1,14 +1,22 @@
 "user server";
-import supabase from "@/lib/supabaseClient";
+import prisma from '@/prisma/db';
 
 const deleteParamById = async (paramId: number) => {
-  const response = await supabase.from("param").delete().eq("id", paramId);
+  await prisma.param.delete({
+    where: {
+      id: paramId,
+    },
+  });
   // console.log(response);
   return;
 };
 
 const deleteUploadById = async (uploadId: number) => {
-  const response = await supabase.from("upload").delete().eq("id", uploadId);
+  await prisma.upload.delete({
+    where: {
+      id: uploadId,
+    },
+  });
   // console.log(response);
   return;
 };

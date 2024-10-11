@@ -2,34 +2,34 @@
 import { ProfileTable, RecommendationPreview } from "@/type";
 import { createClient } from "@/utils/supabase/server";
 import { revalidatePath } from "next/cache";
+import prisma from "@/prisma/db";
 
 const createProfile = async (user_id: string): Promise<boolean> => {
   const supabase = createClient();
-  const { data } = await supabase
-    .from("profile")
-    .select("*")
-    .eq("user_id", user_id)
-    .single();
-  if (data) return false;
+  const existingProfile = await prisma.profile.findUnique({
+    where: { user_id },
+  });
+  if (existingProfile) return false;
+
   try {
     const {
       data: { user },
       error: authError,
     } = await supabase.auth.getUser();
+
     if (authError || !user) {
       throw new Error("Failed to retrieve authenticated user");
     }
+
     const username = user.email?.split("@")[0];
 
-    const { error } = await supabase.from("profile").insert({
-      user_id,
-      username,
-      avatar_url: user.user_metadata.avatar_url,
+    await prisma.profile.create({
+      data: {
+        user_id,
+        username,
+        avatar_url: user.user_metadata.avatar_url || "",
+      },
     });
-
-    if (error) {
-      throw new Error(`Error inserting profile data: ${error.message}`);
-    }
 
     return true;
   } catch (error) {
@@ -39,21 +39,23 @@ const createProfile = async (user_id: string): Promise<boolean> => {
 };
 
 const getProfileByUserId = async (user_id: string): Promise<ProfileTable> => {
-  const supabase = createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  const { data, error } = await supabase
-    .from("profile")
-    .select("*")
-    .eq("user_id", user_id);
-  if (error) {
-    throw new Error(`Error fetching user profile: ${error.message}`);
+  try {
+    const profile = await prisma.profile.findUnique({
+      where: { user_id },
+    });
+
+    if (!profile) {
+      throw new Error(`User with ID ${user_id} not found`);
+    }
+
+    return {
+      ...profile,
+      created_at: profile.created_at.toISOString(),
+    };
+  } catch (error) {
+    console.error("Error fetching user profile:", error);
+    throw new Error("Failed to get profile");
   }
-  if (!data || data.length === 0) {
-    throw new Error(`User with ID ${user_id} not found`);
-  }
-  return data[0];
 };
 
 const updateUserProfile = async (
@@ -71,6 +73,7 @@ const updateUserProfile = async (
     if (authError || !user) {
       throw new Error("Failed to retrieve authenticated user");
     }
+
     const updates: { username?: string; avatar_url?: string } = {};
     if (username) {
       updates.username = username;
@@ -80,16 +83,12 @@ const updateUserProfile = async (
     }
 
     if (Object.keys(updates).length > 0) {
-      const { error } = await supabase
-        .from("profile")
-        .update(updates)
-        .eq("user_id", user.id);
+      await prisma.profile.update({
+        where: { user_id: user.id },
+        data: updates,
+      });
 
-      if (error) {
-        console.error("Error updating profile:", error);
-      } else {
-        console.log("Profile updated successfully");
-      }
+      console.log("Profile updated successfully");
     } else {
       console.log("No valid fields to update");
     }
@@ -97,7 +96,7 @@ const updateUserProfile = async (
     revalidatePath(origin);
     return true;
   } catch (error) {
-    console.error(error);
+    console.error("Error updating profile:", error);
     throw new Error("Failed to update profile");
   }
 };
@@ -106,32 +105,25 @@ const getPreviewsByUserId = async (
   user_id: string
 ): Promise<RecommendationPreview[]> => {
   try {
-    const supabase = createClient();
-    const { data, error: getUploadError } = await supabase
-      .from("recommendation")
-      .select(
-        `
-        *,
-        upload (
-          image_url
-        )
-      `
-      )
-      .eq("user_id", user_id);
-
-    console.log(data);
-
-    if (!data || data.length == 0) {
-      return [];
-    }
-
-    if (getUploadError) {
-      throw new Error(`Error getting upload data`);
-    }
-    return data;
+    const recommendations = await prisma.recommendation.findMany({
+      where: { user_id },
+      include: {
+        upload: {
+          select: { image_url: true },
+        },
+      },
+    });
+    return recommendations.map(recommendation => ({
+      created_at: recommendation.created_at.toISOString(),
+      id: recommendation.id,
+      param_id: recommendation.param_id,
+      upload_id: recommendation.upload_id,
+      user_id: recommendation.user_id,
+      upload: recommendation.upload || null,
+    })) as RecommendationPreview[];
   } catch (error) {
-    console.error(error);
-    throw new Error("Failed to get profile");
+    console.error("Failed to get profile:", error);
+    throw new Error("Error fetching recommendations");
   }
 };
 

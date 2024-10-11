@@ -11,7 +11,7 @@ const constructPromptForRecommendation = ({
   numMaxSuggestion: number;
 }): string => {
   const prompt: string = `
-    請擔任我的造型師，仔細觀察這張圖片中的
+    請擔任我的造型師，仔細觀察這張圖片裡的
     ${gender === "male" ? "男性" : "女性"}
     ${clothingType === "top" ? "上衣" : "下身類衣物"}
     ，請推薦${numMaxSuggestion}種與之搭配的

@@ -126,7 +126,7 @@ const handleRecommendation = async (
             numMaxItem,
             gender,
           })) as UnstoredResult[];
-
+        // console.log("results: ", results);
         await insertResults(results);
       }
       return recommendationId;

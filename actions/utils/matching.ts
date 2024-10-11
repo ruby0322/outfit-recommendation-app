@@ -1,7 +1,10 @@
 "use server";
-import supabase from "@/lib/supabaseClient";
 import { Gender, ItemTable, SearchResult } from "@/type";
 import { generateEmbedding } from "./embedding";
+import prisma from "@/prisma/db";
+import fs from 'fs';
+import path from 'path';
+import { ClothingType } from "@prisma/client";
 
 export interface UnstoredResult {
   distance: number;
@@ -12,46 +15,53 @@ export interface UnstoredResult {
 const vectorSearch = async (
   suggestedLabelString: string,
   numMaxItem: number,
-  gender: Gender
-) => {
-  const suggestedEmbedding = await generateEmbedding(suggestedLabelString);
-  const rpcFunctionName = `query_similar_${gender}_items`;
-  const { data: similarItems, error: err } = await supabase.rpc(
-    rpcFunctionName,
-    {
-      query_embedding: suggestedEmbedding,
-      match_threshold: 0.2,
-      max_item_count: numMaxItem,
-    }
-  );
+  gender: Gender,
+  clothingType: ClothingType,
+): Promise<ItemTable[] | null> => {
+  try {
+    const suggestedEmbedding = await generateEmbedding(suggestedLabelString);
+    const matchThreshold = 0.2;
 
-  if (err) {
-    console.error("Error fetching results from Supabase:", err);
+    const viewName = `${gender}_${clothingType}_item_matview`;
+
+    const queryFilePath = path.join(__dirname, 'prisma/sql/querySimilarItems.sql');
+    const query = fs.readFileSync(queryFilePath, 'utf8');
+
+    const similarItems: ItemTable[] = await prisma.$queryRawUnsafe(query, {
+      view_name: viewName,
+      query_embedding: suggestedEmbedding,
+      match_threshold: matchThreshold,
+      max_item_count: numMaxItem,
+    });
+
+    return similarItems;
+  } catch (error) {
+    console.error("Error fetching similar items:", error);
     return null;
   }
-
-  return similarItems;
 };
 
 const getSeriesByIds = async (
   seriesIds: string[]
 ): Promise<SearchResult | null> => {
   try {
-    const { data: items, error } = await supabase
-      .from("item")
-      .select("*")
-      .in("series_id", seriesIds);
+    const items = await prisma.item.findMany({
+      where: {
+        series_id: {
+          in: seriesIds, 
+        },
+      },
+    });
 
-    console.log("items", items);
-
-    if (error) {
-      console.error("Error fetching series:", error);
+    if (!items) {
+      console.error("No items found for the provided series IDs");
       return null;
     }
-
     return {
       series: seriesIds.map((seriesId) => {
-        return { items: items?.filter((item) => item.series_id === seriesId) };
+        return { 
+          items: items.filter((item) => item.series_id === seriesId)
+        };
       }),
     };
   } catch (error) {
@@ -65,17 +75,20 @@ const semanticSearchForRecommendation = async ({
   suggestedLabelString,
   numMaxItem,
   gender = "male",
+  clothing_type = "top",
 }: {
   suggestionId: number;
   suggestedLabelString: string;
   numMaxItem: number;
   gender: Gender;
+  clothing_type: ClothingType;
 }): Promise<UnstoredResult[] | null> => {
   try {
     const similarItems = await vectorSearch(
       suggestedLabelString,
       numMaxItem,
-      gender
+      gender,
+      clothing_type,
     );
 
     if (!similarItems) {
@@ -83,9 +96,9 @@ const semanticSearchForRecommendation = async ({
     }
 
     const results: UnstoredResult[] = similarItems.map(
-      (item: { id: any }, index: any) => ({
+      (item: ItemTable, index: number) => ({
         distance: index,
-        item_id: item.id,
+        item_id: Number(item.id),
         suggestion_id: suggestionId,
       })
     );
@@ -100,20 +113,28 @@ const semanticSearchForRecommendation = async ({
 const semanticSearchForSearching = async ({
   suggestedLabelString,
   gender = "male",
+  clothing_type = "top",
 }: {
   suggestedLabelString: string;
   gender: Gender;
+  clothing_type: ClothingType; 
 }): Promise<SearchResult | null> => {
   try {
-    const similarItems = await vectorSearch(suggestedLabelString, 20, gender);
+    const similarItems = await vectorSearch(
+      suggestedLabelString,
+      20,
+      gender,
+      clothing_type
+    );
 
     if (!similarItems) {
       return null;
     }
 
     const seriesIds = similarItems.map(
-      (similarItem: ItemTable) => similarItem.series_id
+      (similarItem: ItemTable) => similarItem.series_id 
     );
+
     const result = await getSeriesByIds(seriesIds);
     return result;
   } catch (error) {

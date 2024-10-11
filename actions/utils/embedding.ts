@@ -1,6 +1,6 @@
 "use server";
 import openai from "@/utils/openai";
-import supabase from "@/lib/supabaseClient";
+import prisma from "@/prisma/db";
 
 interface Item {
   id: string;
@@ -10,13 +10,21 @@ interface Item {
 
 const getAllItems = async (start: number = 1000, end: number = 2000): Promise<Item[] | null> => {
   try {
-    const { data, error } = await supabase
-      .from("item")
-      .select("id, label_string")
-      .range(start, end);
+    const items = await prisma.item.findMany({
+      select: {
+        id: true,
+        label_string: true,
+      },
+      skip: start,
+      take: end - start + 1,
+    });
     
-    if(error) throw error;
-    return data;
+    const sanitizedItems = items.map(item => ({
+      id: item.id,
+      label_string: item.label_string ?? "",
+    }));
+
+    return sanitizedItems.length > 0 ? sanitizedItems : null;
   } catch (error) {
     console.error("Error getting items:", error);
     return null;
@@ -39,39 +47,47 @@ const generateEmbedding = async (text: string): Promise<number[] | null> => {
 
 const handler = async (): Promise<void> => {
   try {
-    const { data, error, status } = await supabase
-      .from("item")
-      .select("id, label_string")
-      .is("embedding", null);
+    // Find all items where 'embedding' is null
+    const items = await prisma.item.findMany({
+      where: { embedding: null },
+      select: {
+        id: true,
+        label_string: true,
+      },
+    });
 
-    if (error && status !== 406) {
-      throw error;
-    }
+    if (items.length > 0) {
+      const updates = items.map(async (item) => {
+        // Check if label_string is not null before generating the embedding
+        if (item.label_string !== null) {
+          const embedding = await generateEmbedding(item.label_string);
 
-    if (data) {
-      const updates = data.map(async (item) => {
-        const embedding = await generateEmbedding(item.label_string);
-
-        if (embedding) {
-          const { error } = await supabase
-            .from("item")
-            .update({ embedding })
-            .eq("id", item.id);
-        
-          if(error) {
-            console.error(`Error updating embedding for item ${item.id}:`, error);
+          if (embedding) {
+            try {
+              // Update the embedding for the item
+              await prisma.item.update({
+                where: { id: item.id },
+                data: { embedding: JSON.stringify(embedding)  },
+              });
+            } catch (error) {
+              console.error(`Error updating embedding for item ${item.id}:`, error);
+            }
+          } else {
+            console.error(`Error generating embedding for item ${item.id}`);
           }
         } else {
-          console.error(`Error generating embedding for item ${item.id}`);
+          console.error(`label_string is null for item ${item.id}`);
         }
       });
-    
+
       await Promise.all(updates);
     }
   } catch (error) {
     console.error("Error generating embeddings:", error);
   }
 };
+
+
 
 const calculateDistance = (
   embedding1: number[] | string,

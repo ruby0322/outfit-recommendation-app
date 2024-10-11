@@ -4,6 +4,8 @@ import { ClothingType, Gender } from "@/type";
 import { revalidatePath } from "next/cache";
 import { v4 as uuidv4 } from "uuid";
 import { UnstoredResult } from "./matching";
+import prisma from "@/prisma/db";
+
 
 const base64ToBlob = (base64: string): Blob => {
   const byteString = atob(base64.split(",")[1]);
@@ -38,22 +40,24 @@ const insertResults = async (
   results: UnstoredResult[]
 ): Promise<number[] | null> => {
   try {
-    const { data, error } = await supabase
-      .from("result")
-      .insert(results)
-      .select("id");
+    const formattedResults = results.map(result => ({
+      ...result,
+      item_id: result.item_id.toString(),
+    }));
 
-    if (error) {
-      console.error("Error inserting results:", error);
-      return null;
-    }
+    const insertedResults = await prisma.result.createMany({
+      data: formattedResults,
+    });
 
-    return data ? data.map((obj) => obj.id) : [];
+    return insertedResults.count > 0
+      ? results.map((_, index) => index)
+      : [];
   } catch (error) {
     console.error("Unexpected error in insertResults:", error);
     return null;
   }
 };
+
 
 // Inserts a suggestion into the database
 const insertSuggestion = async ({
@@ -68,22 +72,15 @@ const insertSuggestion = async ({
   description: string;
 }): Promise<number> => {
   try {
-    const { data, error } = await supabase
-      .from("suggestion")
-      .insert({
+    const suggestion = await prisma.suggestion.create({
+      data: {
         recommendation_id: recommendationId,
         label_string: labelString,
         style_name: styleName,
-        description: description,
-      })
-      .select("id");
-
-    if (error) {
-      console.error("Error inserting suggestion:", error);
-      return -1;
-    }
-
-    return data && data.length > 0 ? data[0].id : -1;
+        description,
+      },
+    });
+    return suggestion.id;
   } catch (error) {
     console.error("Unexpected error in insertSuggestion:", error);
     return -1;
@@ -101,17 +98,14 @@ const insertRecommendation = async ({
   userId: string;
 }): Promise<number> => {
   try {
-    const { data, error } = await supabase
-      .from("recommendation")
-      .insert([{ param_id: paramId, upload_id: uploadId, user_id: userId }])
-      .select("id");
-
-    if (error) {
-      console.error("Error inserting recommendation:", error);
-      return -1;
-    }
-
-    return data && data.length > 0 ? data[0].id : -1;
+    const recommendation = await prisma.recommendation.create({
+      data: {
+        param_id: paramId,
+        upload_id: uploadId,
+        user_id: userId,
+      },
+    });
+    return recommendation.id;
   } catch (error) {
     console.error("Unexpected error in insertRecommendation:", error);
     return -1;
@@ -123,40 +117,33 @@ const insertParam = async (
   clothingType: ClothingType,
   model: string
 ): Promise<number> => {
-  const { data, error } = await supabase
-    .from("param")
-    .insert([
-      {
+  try {
+    const param = await prisma.param.create({
+      data: {
         gender,
         clothing_type: clothingType,
         model,
       },
-    ])
-    .select("id");
-  if (error) {
-    console.log(error);
-  }
-  if (data && data.length > 0) {
-    const paramId = data[0].id;
-    return paramId as number;
-  } else {
+    });
+    return param.id;
+  } catch (error) {
+    console.error("Unexpected error in insertParam:", error);
     return -1;
   }
 };
 
 const insertUpload = async (imageUrl: string, userId: string) => {
-  const { data, error } = await supabase
-    .from("upload")
-    .insert([{ image_url: imageUrl, user_id: userId }])
-    .select("id");
-  revalidatePath("/upload");
-  if (error) {
-    console.log(error);
-  }
-  if (data && data.length > 0) {
-    const uploadId = data[0].id;
-    return uploadId as number;
-  } else {
+  try {
+    const upload = await prisma.upload.create({
+      data: {
+        image_url: imageUrl,
+        user_id: userId,
+      },
+    });
+    revalidatePath("/upload");
+    return upload.id;
+  } catch (error) {
+    console.error("Unexpected error in insertUpload:", error);
     return -1;
   }
 };

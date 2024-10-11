@@ -17,7 +17,7 @@ import {
   getSuggestion,
   getUploadById,
 } from "./utils/fetch";
-import supabase from "@/lib/supabaseClient";
+import prisma from "@/prisma/db";
 
 const getSeries = async (
   series_ids: string[],
@@ -29,20 +29,11 @@ const getSeries = async (
     console.time("getSeries");
     
     const matViewName = `${gender}_${clothingType}_item_matview`;
-
     const uniqueSeriesIds = Array.from(new Set(series_ids));
     const seriesArray: Series[] = [];
 
     for (const seriesId of uniqueSeriesIds) {
-      const { data, error } = await supabase
-        .from(matViewName)
-        .select("*")
-        .eq("series_id", seriesId);
-
-      if (error) {
-        console.error(`Error fetching items from ${matViewName}:`, error);
-        return null;
-      }
+      const data = await prisma.$queryRaw<ItemTable[]>`SELECT * FROM ${matViewName} WHERE series_id = ${seriesId}`;
 
       if (data.length === 0) {
         console.log(`No valid items for series ${seriesId}.`);
@@ -62,6 +53,7 @@ const getSeries = async (
       };
       seriesArray.push(series);
     }
+    
     console.timeEnd("getSeries");
     return seriesArray.length > 0 ? seriesArray : null;
   } catch (error) {

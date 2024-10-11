@@ -1,4 +1,5 @@
 "use server";
+import prisma from '@/prisma/db';
 import {
   ItemTable,
   ParamTable,
@@ -7,24 +8,27 @@ import {
   SuggestionTable,
   UploadTable,
 } from "@/type";
-import supabase from "@/lib/supabaseClient";
 
 // Fetches results based on a suggestion ID
 const getResults = async (
   suggestionId: number
 ): Promise<ResultTable[] | null> => {
   try {
-    const { data, error } = await supabase
-      .from("result")
-      .select("*")
-      .eq("suggestion_id", suggestionId);
+    const results = await prisma.result.findMany({
+      where: { suggestion_id: suggestionId },
+      select: {
+        id: true,
+        created_at: true,
+        distance: true,
+        item_id: true,
+        suggestion_id: true,
+      },
+    });
 
-    if (error) {
-      console.error("Error fetching results:", error);
-      return null;
-    }
-
-    return data as ResultTable[];
+    return results.map(result => ({
+      ...result,
+      created_at: result.created_at.toISOString(),
+    })) as ResultTable[];
   } catch (error) {
     console.error("Unexpected error in getResults:", error);
     return null;
@@ -36,37 +40,30 @@ const getSuggestion = async (
   recommendationId: number
 ): Promise<SuggestionTable[] | null> => {
   try {
-    const { data, error } = await supabase
-      .from("suggestion")
-      .select("*")
-      .eq("recommendation_id", recommendationId);
+    const suggestions = await prisma.suggestion.findMany({
+      where: { recommendation_id: recommendationId },
+    });
 
-    if (error) {
-      console.error("Error fetching suggestions:", error);
-      return null;
-    }
-
-    return data as SuggestionTable[];
+    return suggestions.map(suggestion => ({
+      ...suggestion,
+      created_at: suggestion.created_at.toISOString(),
+    })) as SuggestionTable[];
   } catch (error) {
     console.error("Unexpected error in getSuggestion:", error);
     return null;
   }
 };
 
+
 const getRecommendationById = async (
   recommendationId: number
 ): Promise<RecommendationTable | null> => {
   try {
-    const { data: recommendation, error } = await supabase
-      .from("recommendation")
-      .select("*")
-      .eq("id", recommendationId)
-      .returns<RecommendationTable[]>();
+    const recommendation = await prisma.recommendation.findUnique({
+      where: { id: recommendationId },
+    });
 
-    if (!recommendation || recommendation.length === 0) {
-      return null;
-    }
-    return recommendation[0];
+    return recommendation as RecommendationTable | null;
   } catch (error) {
     console.error("Error fetching recommendation:", error);
     return null;
@@ -75,16 +72,11 @@ const getRecommendationById = async (
 
 const getParamById = async (paramId: number): Promise<ParamTable | null> => {
   try {
-    const { data, error } = await supabase
-      .from("param")
-      .select("*")
-      .eq("id", paramId)
-      .single();
-    if (error) {
-      console.error("Error fetching item:", error);
-      return null;
-    }
-    return data as ParamTable;
+    const param = await prisma.param.findUnique({
+      where: { id: paramId },
+    });
+
+    return param as ParamTable | null;
   } catch (error) {
     console.error("Unexpected error:", error);
     return null;
@@ -93,16 +85,11 @@ const getParamById = async (paramId: number): Promise<ParamTable | null> => {
 
 const getUploadById = async (uploadId: number): Promise<UploadTable | null> => {
   try {
-    const { data, error } = await supabase
-      .from("upload")
-      .select("*")
-      .eq("id", uploadId)
-      .single();
-    if (error) {
-      console.error("Error fetching item:", error);
-      return null;
-    }
-    return data as UploadTable;
+    const upload = await prisma.upload.findUnique({
+      where: { id: uploadId },
+    });
+
+    return upload as UploadTable | null;
   } catch (error) {
     console.error("Unexpected error:", error);
     return null;
@@ -112,18 +99,11 @@ const getUploadById = async (uploadId: number): Promise<UploadTable | null> => {
 // Fetch a single item by its ID
 const getItemById = async (itemId: string): Promise<ItemTable | null> => {
   try {
-    const { data, error } = await supabase
-      .from("item")
-      .select("*")
-      .eq("id", itemId)
-      .single();
+    const item = await prisma.item.findUnique({
+      where: { id: itemId },
+    });
 
-    if (error) {
-      console.error("Error fetching item:", error);
-      return null;
-    }
-
-    return data as ItemTable;
+    return item as ItemTable | null;
   } catch (error) {
     console.error("Unexpected error:", error);
     return null;
@@ -131,21 +111,13 @@ const getItemById = async (itemId: string): Promise<ItemTable | null> => {
 };
 
 // Fetch multiple items by their IDs
-const getItemsByIds = async (
-  itemIds: string[]
-): Promise<ItemTable[] | null> => {
+const getItemsByIds = async (itemIds: string[]): Promise<ItemTable[] | null> => {
   try {
-    const { data, error } = await supabase
-      .from("item")
-      .select("*")
-      .in("id", itemIds);
+    const items = await prisma.item.findMany({
+      where: { id: { in: itemIds } },
+    });
 
-    if (error) {
-      console.error("Error fetching items:", error);
-      return null;
-    }
-
-    return data as ItemTable[];
+    return items as ItemTable[];
   } catch (error) {
     console.error("Unexpected error:", error);
     return null;
@@ -155,28 +127,22 @@ const getItemsByIds = async (
 // Fetch the series ID by item ID
 const getSeriesIDByItemId = async (itemId: string): Promise<string | null> => {
   try {
-    const { data, error } = await supabase
-      .from("item")
-      .select("series_id")
-      .eq("id", itemId)
-      .single();
+    const item = await prisma.item.findUnique({
+      where: { id: itemId },
+      select: { series_id: true },
+    });
 
-    if (error) {
-      console.error("Error fetching series ID:", error);
-      return null;
-    }
-
-    return data.series_id as string;
+    return item?.series_id ?? null;
   } catch (error) {
     console.error("Unexpected error:", error);
     return null;
   }
 };
 
-const getSeriesIdsByItemIds = async (item_ids: string[]): Promise<string[]> => {
+const getSeriesIdsByItemIds = async (itemIds: string[]): Promise<string[]> => {
   const seriesIdsSet = new Set<string>();
 
-  for (const itemId of item_ids) {
+  for (const itemId of itemIds) {
     const seriesId = await getSeriesIDByItemId(itemId);
     if (seriesId) {
       seriesIdsSet.add(seriesId);
@@ -189,17 +155,11 @@ const getSeriesIdsByItemIds = async (item_ids: string[]): Promise<string[]> => {
 // Fetch the series by series ID
 const getSeriesById = async (seriesId: string): Promise<ItemTable[] | null> => {
   try {
-    const { data, error } = await supabase
-      .from("item")
-      .select("*")
-      .eq("series_id", seriesId);
+    const items = await prisma.item.findMany({
+      where: { series_id: seriesId },
+    });
 
-    if (error) {
-      console.error("Error fetching series ID:", error);
-      return null;
-    }
-
-    return data;
+    return items as ItemTable[];
   } catch (error) {
     console.error("Unexpected error:", error);
     return null;
@@ -211,16 +171,12 @@ const getItemsIDBySeriesId = async (
   seriesId: string
 ): Promise<string[] | null> => {
   try {
-    const { data, error } = await supabase
-      .from("item")
-      .select("item_id")
-      .eq("series_id", seriesId);
+    const items = await prisma.item.findMany({
+      where: { series_id: seriesId },
+      select: { id: true },
+    });
 
-    if (error) {
-      console.error("Error fetching series ID:", error);
-      return null;
-    }
-    const itemIDs = data.map((item) => item.item_id);
+    const itemIDs = items.map((item: { id: string }) => item.id);
 
     return itemIDs;
   } catch (error) {
