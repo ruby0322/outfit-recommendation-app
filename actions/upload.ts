@@ -192,18 +192,18 @@ const handleTextSearch = async (
   gender: Gender
 ): Promise<SearchResult | null> => {
   try {
-    console.log("user query", query);
+    // console.log("user query", query);
     const prompt: string = constructPromptForTextSearch({
       query,
       gender,
     });
-    console.log("prompt", prompt);
+    // console.log("prompt", prompt);
 
     const rawLabelString: string | null = await sendPromptToGPT({
       model,
       prompt,
     });
-    console.log("Raw labels in text search: ", rawLabelString);
+    // console.log("Raw labels in text search: ", rawLabelString);
 
     if (rawLabelString) {
       const cleanedLabels = validateAndCleanLabelString(
@@ -212,7 +212,7 @@ const handleTextSearch = async (
         true
       );
 
-      console.log("Cleaned labels in text search: ", cleanedLabels);
+      // console.log("Cleaned labels in text search: ", cleanedLabels);
 
       if (cleanedLabels.length > 0) {
         const labelString = cleanedLabels[0].labelString;
