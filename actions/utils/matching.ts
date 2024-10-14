@@ -47,7 +47,6 @@ const vectorSearchForRecommendation = async (
 const vectorSearchForSearching = async (
   suggestedLabelString: string,
   numMaxItem: number,
-  gender: Gender,
 ) : Promise<ItemTable[] | null> => {
   try { 
     const suggestedEmbedding = await generateEmbedding(suggestedLabelString);
@@ -149,14 +148,12 @@ const semanticSearchForRecommendation = async ({
 
 const semanticSearchForSearching = async ({
   suggestedLabelString,
-  gender = "male",
 }: {
   suggestedLabelString: string;
-  gender: Gender;
 }): Promise<SearchResult | null> => {
   try {
     // console.log("suggestedLabelString: ", suggestedLabelString);
-    const similarItems = await vectorSearchForSearching(suggestedLabelString, 20, gender);
+    const similarItems = await vectorSearchForSearching(suggestedLabelString, 20);
     // console.log("similarItems: ", similarItems?.length);
 
     if (!similarItems || similarItems.length === 0) {

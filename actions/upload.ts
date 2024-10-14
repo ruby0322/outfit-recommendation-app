@@ -169,8 +169,7 @@ const handleImageSearch = async (
         const labelString = cleanedLabels[0].labelString;
         const searchResult: SearchResult | null =
           await semanticSearchForSearching({
-            suggestedLabelString: labelString,
-            gender,
+            suggestedLabelString: labelString
           });
         return searchResult;
       } else {
@@ -220,8 +219,7 @@ const handleTextSearch = async (
 
         const searchResult: SearchResult | null =
           await semanticSearchForSearching({
-            suggestedLabelString: labelString,
-            gender,
+            suggestedLabelString: labelString
           });
         return searchResult;
       } else {
