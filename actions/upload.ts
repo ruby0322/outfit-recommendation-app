@@ -125,6 +125,7 @@ const handleRecommendation = async (
             suggestedLabelString: rec.labelString,
             numMaxItem,
             gender,
+            clothing_type: clothingType,
           })) as UnstoredResult[];
 
         await insertResults(results);

@@ -1,6 +1,6 @@
 "use server";
 import supabase from "@/lib/supabaseClient";
-import { Gender, ItemTable, SearchResult } from "@/type";
+import { ClothingType, Gender, ItemTable, SearchResult } from "@/type";
 import { generateEmbedding } from "./embedding";
 
 export interface UnstoredResult {
@@ -13,14 +13,45 @@ interface Series {
   items: ItemTable[];
 }
 
-const vectorSearch = async (
+const vectorSearchForRecommendation = async (
   suggestedLabelString: string,
   numMaxItem: number,
-  gender: Gender
+  gender: Gender,
+  clothing_type: ClothingType
 ) : Promise<ItemTable[] | null> => {
   try { 
     const suggestedEmbedding = await generateEmbedding(suggestedLabelString);
-    const rpcFunctionName = `query_similar_${gender}_items`;
+    const rpcFunctionName = `query_similar_${gender}_${clothing_type}_items`;
+    
+    const { data: similarItems, error: err } = await supabase.rpc(
+      rpcFunctionName,
+      {
+        query_embedding: suggestedEmbedding,
+        match_threshold: 0.2,
+        max_item_count: numMaxItem,
+      }
+    );
+
+    if (err) {
+      console.error("Error fetching results from Supabase:", err);
+      return null;
+    }
+
+    return similarItems as ItemTable[];
+  } catch (error) {
+    console.error("Unexpected error:", error);
+    return null;
+  }
+};
+
+const vectorSearchForSearching = async (
+  suggestedLabelString: string,
+  numMaxItem: number,
+  gender: Gender,
+) : Promise<ItemTable[] | null> => {
+  try { 
+    const suggestedEmbedding = await generateEmbedding(suggestedLabelString);
+    const rpcFunctionName = `query_similar_items`;
     
     const { data: similarItems, error: err } = await supabase.rpc(
       rpcFunctionName,
@@ -80,18 +111,21 @@ const semanticSearchForRecommendation = async ({
   suggestionId,
   suggestedLabelString,
   numMaxItem,
-  gender = "male",
+  gender = "neutral",
+  clothing_type = "top",
 }: {
   suggestionId: number;
   suggestedLabelString: string;
   numMaxItem: number;
   gender: Gender;
+  clothing_type: ClothingType;
 }): Promise<UnstoredResult[] | null> => {
   try {
-    const similarItems = await vectorSearch(
+    const similarItems = await vectorSearchForRecommendation(
       suggestedLabelString,
       numMaxItem,
-      gender
+      gender,
+      clothing_type
     );
 
     if (!similarItems) {
@@ -121,7 +155,9 @@ const semanticSearchForSearching = async ({
   gender: Gender;
 }): Promise<SearchResult | null> => {
   try {
-    const similarItems = await vectorSearch(suggestedLabelString, 20, gender);
+    // console.log("suggestedLabelString: ", suggestedLabelString);
+    const similarItems = await vectorSearchForSearching(suggestedLabelString, 20, gender);
+    // console.log("similarItems: ", similarItems?.length);
 
     if (!similarItems || similarItems.length === 0) {
       return null;
