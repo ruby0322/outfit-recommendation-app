@@ -108,7 +108,7 @@ const Overview = ({
 }) => {
   const { getValues } = useFormContext();
   const formData = getValues();
-  console.log(formData.uploadedImage[0]);
+  // console.log(formData.uploadedImage[0]);
   return (
     <div className='flex-1 flex flex-col items-center justify-center h-auto gap-4'>
       <h1 className='w-full text-start text-2xl text-gray-600'>➌ 確認上傳</h1>

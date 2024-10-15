@@ -26,6 +26,7 @@ const getSeries = async (
 ): Promise<Series[] | null> => {
   try {
     console.time("getSeries");
+    clothingType = clothingType === "top" ? "bottom" : "top";
     
     const matViewName = `${gender}_${clothingType}_item_matview`;
 
