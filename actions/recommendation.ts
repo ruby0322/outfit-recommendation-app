@@ -1,6 +1,5 @@
 "use server";
 import {
-  ItemTable,
   ParamTable,
   Recommendation,
   RecommendationTable,
