@@ -20,6 +20,7 @@ const vectorSearchForRecommendation = async (
   clothing_type: ClothingType
 ) : Promise<ItemTable[] | null> => {
   try { 
+    clothing_type = clothing_type === "top" ? "bottom" : "top";
     const suggestedEmbedding = await generateEmbedding(suggestedLabelString);
     const rpcFunctionName = `query_similar_${gender}_${clothing_type}_items`;
     
@@ -47,10 +48,11 @@ const vectorSearchForRecommendation = async (
 const vectorSearchForSearching = async (
   suggestedLabelString: string,
   numMaxItem: number,
+  gender: Gender,
 ) : Promise<ItemTable[] | null> => {
   try { 
     const suggestedEmbedding = await generateEmbedding(suggestedLabelString);
-    const rpcFunctionName = `query_similar_items`;
+    const rpcFunctionName = `query_similar_${gender}_items`;
     
     const { data: similarItems, error: err } = await supabase.rpc(
       rpcFunctionName,
@@ -73,35 +75,52 @@ const vectorSearchForSearching = async (
   }
 };
 
-const getSeriesByIds = async (
-  seriesIds: string[]
-): Promise<SearchResult | null> => {
+const getSeriesByIdsForSearching = async (
+  series_ids: string[],
+  originalItemIds: string[],
+  gender: string,
+): Promise<Series[] | null> => {
   try {
-    const { data: items, error } = await supabase
-      .from("item")
-      .select("*")
-      .in("series_id", seriesIds);
+    console.time("getSeries");
     
-    if (error) {
-      console.error("Error fetching series:", error);
-      return null;
-    }
+    const matViewName = `${gender}_item_matview`;
 
-    const seriesMap = new Map<string, ItemTable[]>();
-    for(const item of items) {
-      if(!seriesMap.has(item.series_id)) {
-        seriesMap.set(item.series_id, []);
+    const uniqueSeriesIds = Array.from(new Set(series_ids));
+    const seriesArray: Series[] = [];
+
+    for (const seriesId of uniqueSeriesIds) {
+      const { data, error } = await supabase
+        .from(matViewName)
+        .select("*")
+        .eq("series_id", seriesId);
+
+      if (error) {
+        console.error(`Error fetching items from ${matViewName}:`, error);
+        return null;
       }
-      seriesMap.get(item.series_id)!.push(item);
+
+      if (data.length === 0) {
+        console.log(`No valid items for series ${seriesId}.`);
+        continue;
+      }
+
+      const originalItems = data.filter(item => originalItemIds.includes(item.id));
+      const otherItems = data.filter(item => !originalItemIds.includes(item.id));
+
+      const sortedItems = [
+        ...originalItems.sort((a, b) => originalItemIds.indexOf(a.id) - originalItemIds.indexOf(b.id)),
+        ...otherItems
+      ];
+
+      const series: Series = {
+        items: sortedItems,
+      };
+      seriesArray.push(series);
     }
-
-    const seriesArray: Series[] = seriesIds.map((seriesId) => ({
-      items: seriesMap.get(seriesId) || [],
-    }));
-
-    return {series: seriesArray};
+    console.timeEnd("getSeries");
+    return seriesArray.length > 0 ? seriesArray : null;
   } catch (error) {
-    console.error("Unexpected error in getSeriesByIds:", error);
+    console.error("Unexpected error in getSeries:", error);
     return null;
   }
 };
@@ -110,8 +129,8 @@ const semanticSearchForRecommendation = async ({
   suggestionId,
   suggestedLabelString,
   numMaxItem,
-  gender = "neutral",
-  clothing_type = "top",
+  gender,
+  clothing_type,
 }: {
   suggestionId: number;
   suggestedLabelString: string;
@@ -148,11 +167,13 @@ const semanticSearchForRecommendation = async ({
 
 const semanticSearchForSearching = async ({
   suggestedLabelString,
+  gender,
 }: {
   suggestedLabelString: string;
+  gender: Gender;
 }): Promise<SearchResult | null> => {
   try {
-    const similarItems = await vectorSearchForSearching(suggestedLabelString, 20);
+    const similarItems = await vectorSearchForSearching(suggestedLabelString, 20, gender);
 
     if (!similarItems || similarItems.length === 0) {
       return null;
@@ -168,10 +189,16 @@ const semanticSearchForSearching = async ({
         seenSeriesIds.add(seriesId);
       }
     }
+    // console.log("uniqueSeriesIds: ", uniqueSeriesIds);
+    const similarItemIds = similarItems.map(item => item.id);
 
-    const result = await getSeriesByIds(uniqueSeriesIds);
-
-    return result;
+    const seriesArray = await getSeriesByIdsForSearching(uniqueSeriesIds, similarItemIds, gender);
+    const safeSeriesArray: Series[] = seriesArray || [];
+    const searchResult: SearchResult = {
+      series: safeSeriesArray,
+    };
+    
+    return searchResult;
   } catch (error) {
     console.error("Error in semanticSearchForSearching:", error);
     return null;

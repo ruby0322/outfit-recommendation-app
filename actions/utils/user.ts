@@ -119,7 +119,7 @@ const getPreviewsByUserId = async (
       )
       .eq("user_id", user_id);
 
-    console.log(data);
+    // console.log(data);
 
     if (!data || data.length == 0) {
       return [];
