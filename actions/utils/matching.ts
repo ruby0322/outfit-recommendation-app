@@ -1,10 +1,9 @@
 "use server";
-import { Gender, ItemTable, SearchResult } from "@/type";
+import { Gender, ItemTable, SearchResult, ClothingType } from "@/type";
 import { generateEmbedding } from "./embedding";
 import prisma from "@/prisma/db";
 import fs from 'fs';
 import path from 'path';
-import { ClothingType } from "@prisma/client";
 
 export interface UnstoredResult {
   distance: number;
@@ -112,19 +111,16 @@ const semanticSearchForRecommendation = async ({
 
 const semanticSearchForSearching = async ({
   suggestedLabelString,
-  gender = "male",
-  clothing_type = "top",
 }: {
   suggestedLabelString: string;
   gender: Gender;
   clothing_type: ClothingType; 
 }): Promise<SearchResult | null> => {
   try {
+    // find origin item
     const similarItems = await vectorSearch(
       suggestedLabelString,
       20,
-      gender,
-      clothing_type
     );
 
     if (!similarItems) {

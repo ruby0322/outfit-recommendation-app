@@ -125,6 +125,7 @@ const handleRecommendation = async (
             suggestedLabelString: rec.labelString,
             numMaxItem,
             gender,
+            clothing_type: clothingType,
           })) as UnstoredResult[];
         // console.log("results: ", results);
         await insertResults(results);
@@ -168,8 +169,7 @@ const handleImageSearch = async (
         const labelString = cleanedLabels[0].labelString;
         const searchResult: SearchResult | null =
           await semanticSearchForSearching({
-            suggestedLabelString: labelString,
-            gender,
+            suggestedLabelString: labelString
           });
         return searchResult;
       } else {
