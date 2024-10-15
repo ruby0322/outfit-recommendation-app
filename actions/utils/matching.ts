@@ -117,7 +117,6 @@ const semanticSearchForSearching = async ({
   clothing_type: ClothingType; 
 }): Promise<SearchResult | null> => {
   try {
-    // find origin item
     const similarItems = await vectorSearch(
       suggestedLabelString,
       20,
