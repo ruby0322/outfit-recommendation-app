@@ -152,9 +152,7 @@ const semanticSearchForSearching = async ({
   suggestedLabelString: string;
 }): Promise<SearchResult | null> => {
   try {
-    // console.log("suggestedLabelString: ", suggestedLabelString);
     const similarItems = await vectorSearchForSearching(suggestedLabelString, 20);
-    // console.log("similarItems: ", similarItems?.length);
 
     if (!similarItems || similarItems.length === 0) {
       return null;
