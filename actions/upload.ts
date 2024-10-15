@@ -125,6 +125,7 @@ const handleRecommendation = async (
             suggestedLabelString: rec.labelString,
             numMaxItem,
             gender,
+            clothing_type: clothingType,
           })) as UnstoredResult[];
 
         await insertResults(results);
@@ -168,8 +169,7 @@ const handleImageSearch = async (
         const labelString = cleanedLabels[0].labelString;
         const searchResult: SearchResult | null =
           await semanticSearchForSearching({
-            suggestedLabelString: labelString,
-            gender,
+            suggestedLabelString: labelString
           });
         return searchResult;
       } else {
@@ -192,18 +192,18 @@ const handleTextSearch = async (
   gender: Gender
 ): Promise<SearchResult | null> => {
   try {
-    console.log("user query", query);
+    // console.log("user query", query);
     const prompt: string = constructPromptForTextSearch({
       query,
       gender,
     });
-    console.log("prompt", prompt);
+    // console.log("prompt", prompt);
 
     const rawLabelString: string | null = await sendPromptToGPT({
       model,
       prompt,
     });
-    console.log("Raw labels in text search: ", rawLabelString);
+    // console.log("Raw labels in text search: ", rawLabelString);
 
     if (rawLabelString) {
       const cleanedLabels = validateAndCleanLabelString(
@@ -212,15 +212,14 @@ const handleTextSearch = async (
         true
       );
 
-      console.log("Cleaned labels in text search: ", cleanedLabels);
+      // console.log("Cleaned labels in text search: ", cleanedLabels);
 
       if (cleanedLabels.length > 0) {
         const labelString = cleanedLabels[0].labelString;
 
         const searchResult: SearchResult | null =
           await semanticSearchForSearching({
-            suggestedLabelString: labelString,
-            gender,
+            suggestedLabelString: labelString
           });
         return searchResult;
       } else {
