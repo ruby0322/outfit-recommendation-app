@@ -46,7 +46,7 @@ const ImageUploader = ({
           <Image
             src={preview}
             alt='Uploaded Image'
-            layout='fill'
+            fill
             className='object-cover'
           />
         ) : (

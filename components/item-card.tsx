@@ -51,8 +51,8 @@ const ItemCard = ({ series }: { series: Series }) => {
                       <Image
                         src={item.image_url as string}
                         className='object-cover'
-                        objectFit='cover'
-                        layout='fill'
+                        style={{objectFit:"cover"}}
+                        fill
                         alt={`Image of product "${item.title}" ${index}`}
                       />
                     </div>
@@ -73,8 +73,8 @@ const ItemCard = ({ series }: { series: Series }) => {
             <Image
               src={series.items[0].image_url as string}
               className='object-cover'
-              objectFit='cover'
-              layout='fill'
+              style={{objectFit:"cover"}}
+              fill
               alt={`Image of product "${series.items[0].title}" 0`}
             />
           </div>

@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.0",
+    "@prisma/client": "^5.20.0",
     "@radix-ui/react-accordion": "^1 .2.0",
     "@radix-ui/react-avatar": "^1.0.4",
     "@radix-ui/react-checkbox": "^1.0.4",
@@ -67,7 +68,8 @@
     "@types/react": "18.2.48",
     "@types/react-dom": "18.2.18",
     "@types/uuid": "^9.0.8",
-    "encoding": "^0.1.13"
+    "encoding": "^0.1.13",
+    "prisma": "^5.20.0"
   },
   "overrides": {
     "@supabase/supabase-js": "2.24.0",
