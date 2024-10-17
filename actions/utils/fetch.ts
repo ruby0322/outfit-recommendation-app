@@ -17,18 +17,15 @@ const getResults = async (
     const results = await prisma.result.findMany({
       where: { suggestion_id: suggestionId },
       select: {
-        id: true,
         created_at: true,
+        id: true,
         distance: true,
         item_id: true,
         suggestion_id: true,
       },
     });
 
-    return results.map(result => ({
-      ...result,
-      created_at: result.created_at.toISOString(),
-    })) as ResultTable[];
+    return results;
   } catch (error) {
     console.error("Unexpected error in getResults:", error);
     return null;
@@ -44,10 +41,7 @@ const getSuggestion = async (
       where: { recommendation_id: recommendationId },
     });
 
-    return suggestions.map(suggestion => ({
-      ...suggestion,
-      created_at: suggestion.created_at.toISOString(),
-    })) as SuggestionTable[];
+    return suggestions;
   } catch (error) {
     console.error("Unexpected error in getSuggestion:", error);
     return null;

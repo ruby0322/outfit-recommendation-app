@@ -48,10 +48,7 @@ const getProfileByUserId = async (user_id: string): Promise<ProfileTable> => {
       throw new Error(`User with ID ${user_id} not found`);
     }
 
-    return {
-      ...profile,
-      created_at: profile.created_at.toISOString(),
-    };
+    return profile;
   } catch (error) {
     console.error("Error fetching user profile:", error);
     throw new Error("Failed to get profile");
@@ -106,24 +103,22 @@ const getPreviewsByUserId = async (
 ): Promise<RecommendationPreview[]> => {
   try {
     const recommendations = await prisma.recommendation.findMany({
-      where: { user_id },
+      where: {
+        user_id: user_id,
+      },
       include: {
-        upload: {
-          select: { image_url: true },
-        },
+        upload: true,
       },
     });
-    return recommendations.map(recommendation => ({
-      created_at: recommendation.created_at.toISOString(),
-      id: recommendation.id,
-      param_id: recommendation.param_id,
-      upload_id: recommendation.upload_id,
-      user_id: recommendation.user_id,
-      upload: recommendation.upload || null,
-    })) as RecommendationPreview[];
+
+    if (!recommendations || recommendations.length === 0) {
+      return [];
+    }
+
+    return recommendations as RecommendationPreview[];
   } catch (error) {
-    console.error("Failed to get profile:", error);
-    throw new Error("Error fetching recommendations");
+    console.error(error);
+    throw new Error("Failed to get recommendations");
   }
 };
 

@@ -1,70 +1,130 @@
 "use server";
-import { Gender, ItemTable, SearchResult, ClothingType } from "@/type";
+import { Gender, ItemTable, SearchResult, ClothingType, Series, SimplifiedItemTable, UnstoredResult } from "@/type";
 import { generateEmbedding } from "./embedding";
 import prisma from "@/prisma/db";
 import fs from 'fs';
 import path from 'path';
 
-export interface UnstoredResult {
-  distance: number;
-  item_id: number;
-  suggestion_id: number;
-}
-
-const vectorSearch = async (
+const vectorSearchForRecommendation = async (
   suggestedLabelString: string,
   numMaxItem: number,
   gender: Gender,
-  clothingType: ClothingType,
-): Promise<ItemTable[] | null> => {
+  clothing_type: ClothingType,
+): Promise<Series[] | null> => {
   try {
+    clothing_type = clothing_type === "top" ? "bottom" : "top";
     const suggestedEmbedding = await generateEmbedding(suggestedLabelString);
     const matchThreshold = 0.2;
 
-    const viewName = `${gender}_${clothingType}_item_matview`;
+    const viewName = `${gender}_${clothing_type}_item_matview`;
 
     const queryFilePath = path.join(__dirname, 'prisma/sql/querySimilarItems.sql');
     const query = fs.readFileSync(queryFilePath, 'utf8');
 
-    const similarItems: ItemTable[] = await prisma.$queryRawUnsafe(query, {
-      view_name: viewName,
-      query_embedding: suggestedEmbedding,
-      match_threshold: matchThreshold,
-      max_item_count: numMaxItem,
+    const items: ItemTable[] = await prisma.$queryRawUnsafe<ItemTable[]>(
+      query,
+      viewName, 
+      suggestedEmbedding,
+      matchThreshold,
+      numMaxItem
+    );
+
+    const simplifiedItems: SimplifiedItemTable[] = items.map(item => {
+      const { embedding, ...simplifiedItem } = item;
+      return simplifiedItem as SimplifiedItemTable;
     });
 
-    return similarItems;
+    const series: Series[] = simplifiedItems.map(simplifiedItem => ({
+      items: [simplifiedItem],
+    }));
+
+    return series;
   } catch (error) {
     console.error("Error fetching similar items:", error);
     return null;
   }
 };
 
-const getSeriesByIds = async (
-  seriesIds: string[]
-): Promise<SearchResult | null> => {
+const vectorSearchForSearching = async (
+  suggestedLabelString: string,
+  numMaxItem: number,
+  gender: Gender,
+): Promise<Series[] | null> => {
   try {
-    const items = await prisma.item.findMany({
-      where: {
-        series_id: {
-          in: seriesIds, 
-        },
-      },
+    const suggestedEmbedding = await generateEmbedding(suggestedLabelString);
+    const matchThreshold = 0.2;
+
+    const viewName = `${gender}_item_matview`;
+
+    const queryFilePath = path.join(__dirname, 'prisma/sql/querySimilarItems.sql');
+    const query = fs.readFileSync(queryFilePath, 'utf8');
+
+    const items: ItemTable[] = await prisma.$queryRawUnsafe<ItemTable[]>(
+      query,
+      viewName, 
+      suggestedEmbedding,
+      matchThreshold,
+      numMaxItem
+    );
+
+    const simplifiedItems: SimplifiedItemTable[] = items.map(item => {
+      const { embedding, ...simplifiedItem } = item;
+      return simplifiedItem as SimplifiedItemTable;
     });
 
-    if (!items) {
-      console.error("No items found for the provided series IDs");
-      return null;
-    }
-    return {
-      series: seriesIds.map((seriesId) => {
-        return { 
-          items: items.filter((item) => item.series_id === seriesId)
-        };
-      }),
-    };
+    const series: Series[] = simplifiedItems.map(simplifiedItem => ({
+      items: [simplifiedItem],
+    }));
+
+    return series;
   } catch (error) {
-    console.error("Unexpected error in getSeriesByIds:", error);
+    console.error("Error fetching similar items:", error);
+    return null;
+  }
+};
+
+const getSeriesByIdsForSearching = async (
+  series_ids: string[],
+  originalItemIds: string[],
+  gender: string,
+): Promise<Series[] | null> => {
+  try {
+    console.time("getSeries");
+
+    const matViewName = `${gender}_item_matview`;
+
+    const uniqueSeriesIds = Array.from(new Set(series_ids));
+    const seriesArray: Series[] = [];
+
+    for (const seriesId of uniqueSeriesIds) {
+      const items = await prisma.$queryRawUnsafe<SimplifiedItemTable[]>(
+        `SELECT * FROM ${matViewName} WHERE series_id = $1`,
+        seriesId
+      );
+
+      if (!items || items.length === 0) {
+        console.log(`No valid items for series ${seriesId}.`);
+        continue;
+      }
+
+      const originalItems = items.filter(item => originalItemIds.includes(item.id));
+      const otherItems = items.filter(item => !originalItemIds.includes(item.id));
+
+      const sortedItems = [
+        ...originalItems.sort((a, b) => originalItemIds.indexOf(a.id) - originalItemIds.indexOf(b.id)),
+        ...otherItems
+      ];
+
+      const series: Series = {
+        items: sortedItems,
+      };
+      seriesArray.push(series);
+    }
+
+    console.timeEnd("getSeries");
+    return seriesArray.length > 0 ? seriesArray : null;
+  } catch (error) {
+    console.error("Unexpected error in getSeries:", error);
     return null;
   }
 };
@@ -73,8 +133,8 @@ const semanticSearchForRecommendation = async ({
   suggestionId,
   suggestedLabelString,
   numMaxItem,
-  gender = "male",
-  clothing_type = "top",
+  gender,
+  clothing_type,
 }: {
   suggestionId: number;
   suggestedLabelString: string;
@@ -83,7 +143,7 @@ const semanticSearchForRecommendation = async ({
   clothing_type: ClothingType;
 }): Promise<UnstoredResult[] | null> => {
   try {
-    const similarItems = await vectorSearch(
+    const similarItems = await vectorSearchForRecommendation(
       suggestedLabelString,
       numMaxItem,
       gender,
@@ -95,9 +155,9 @@ const semanticSearchForRecommendation = async ({
     }
 
     const results: UnstoredResult[] = similarItems.map(
-      (item: ItemTable, index: number) => ({
+      (series: Series, index: number) => ({
         distance: index,
-        item_id: Number(item.id),
+        item_id: Number(series.items[0].id),
         suggestion_id: suggestionId,
       })
     );
@@ -111,31 +171,44 @@ const semanticSearchForRecommendation = async ({
 
 const semanticSearchForSearching = async ({
   suggestedLabelString,
+  gender,
 }: {
   suggestedLabelString: string;
   gender: Gender;
-  clothing_type: ClothingType; 
 }): Promise<SearchResult | null> => {
   try {
-    const similarItems = await vectorSearch(
-      suggestedLabelString,
-      20,
-    );
+    const similarItems = await vectorSearchForSearching(suggestedLabelString, 20, gender);
 
-    if (!similarItems) {
+    if (!similarItems || similarItems.length === 0) {
       return null;
     }
 
-    const seriesIds = similarItems.map(
-      (similarItem: ItemTable) => similarItem.series_id 
-    );
+    const uniqueSeriesIds: string[] = [];
+    const seenSeriesIds = new Set<string>();
 
-    const result = await getSeriesByIds(seriesIds);
-    return result;
+    for (const series of similarItems) {
+      for (const item of series.items) {
+        const seriesId = item.series_id;
+        if (seriesId && !seenSeriesIds.has(seriesId)) {
+          uniqueSeriesIds.push(seriesId);
+          seenSeriesIds.add(seriesId);
+        }
+      }
+    }
+    const similarItemIds = similarItems.flatMap(series => series.items.map(item => item.id));
+
+    const seriesArray = await getSeriesByIdsForSearching(uniqueSeriesIds, similarItemIds, gender);
+    const safeSeriesArray: Series[] = seriesArray || [];
+
+    const searchResult: SearchResult = {
+      series: safeSeriesArray,
+    };
+    return searchResult;
   } catch (error) {
     console.error("Error in semanticSearchForSearching:", error);
     return null;
   }
 };
+
 
 export { semanticSearchForRecommendation, semanticSearchForSearching };

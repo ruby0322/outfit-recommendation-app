@@ -1,18 +1,18 @@
-import { Enums, Tables } from "@/types/supabase";
+import { ClothingType, BodyType, Gender, Item, Param, Recommendation, Upload, Result, Profile, Suggestion } from "@prisma/client";
 
-export type ItemTable = Tables<"item">;
-export type ParamTable = Tables<"param">;
-export type RecommendationTable = Tables<"recommendation">;
-export type SuggestionTable = Tables<"suggestion">;
-export type UploadTable = Tables<"upload">;
-export type ResultTable = Tables<"result">;
-export type ProfileTable = Tables<"profile">;
+import prisma from "./prisma/db";
 
-export type ClothingType = Enums<"clothing_type">;
-export type BodyType = Enums<"body_type">;
-export type Gender = Enums<"gender">;
+export type ItemTable = Item;
+export type ParamTable = Param;
+export type RecommendationTable = Recommendation;
+export type SuggestionTable = Suggestion;
+export type UploadTable = Upload;
+export type ResultTable = Result;
+export type ProfileTable = Profile;
 
-export type Series = { items: ItemTable[] };
+export type SimplifiedItemTable = Omit<Item, 'embedding'>;
+
+export type Series = { items: SimplifiedItemTable[] };
 
 export interface Recommendation {
   param: ParamTable;
@@ -26,6 +26,16 @@ export interface SearchResult {
   series: Series[];
 }
 
-export type RecommendationPreview = RecommendationTable & {
+export type RecommendationPreview = Recommendation & {
   upload: UploadTable;
 };
+
+export interface UnstoredResult {
+  distance: number;
+  item_id: number;
+  suggestion_id: number;
+}
+
+export type ClothingType = ClothingType;
+export type BodyType = BodyType;
+export type Gender = Gender;
