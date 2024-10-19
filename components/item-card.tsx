@@ -25,8 +25,7 @@ const PROVIDER_CLASSNAME_MAPPING: { [k: string]: string } = {
 };  
 
 const ItemCard = ({ series }: { series: Series }) => {
-  // console.log("This is the item image url: ");
-  // console.log(item.image_url);
+  
   return (
     <Card className='w-64 rounded-none flex flex-col justify-between h-fit gap-1 shadow-none border-0'>
       <div className='relative inline-block w-full h-full'>

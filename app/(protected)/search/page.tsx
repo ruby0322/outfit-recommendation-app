@@ -21,6 +21,8 @@ import { SearchIcon, UploadIcon } from "lucide-react";
 import { useState } from "react";
 import { z } from "zod";
 
+import imageCompression from 'browser-image-compression';
+
 const schema = z.object({
   uploadedImage: (typeof window === "undefined"
     ? z.any()
@@ -75,7 +77,7 @@ export default function SearchPage() {
     setLoading(false);
   };
 
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     if (!event.target.files || event.target.files.length === 0) {
       return; // User canceled file selection
     }
@@ -96,7 +98,18 @@ export default function SearchPage() {
         }
       }
     };
-    reader.readAsDataURL(file);
+    const options = {
+      maxSizeMB: 1,
+      maxWidthOrHeight: 1920,
+      useWebWorker: true,
+    }
+    try {
+      const compressedFile = await imageCompression(file, options);
+      reader.readAsDataURL(compressedFile);
+    } catch (error) {
+      console.log(error);
+    }
+    
   };
 
   return (
