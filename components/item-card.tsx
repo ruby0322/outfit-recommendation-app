@@ -6,6 +6,7 @@ import { Heart, ShoppingCart } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
+
 import {
   Carousel,
   CarouselIndicator,
@@ -58,10 +59,13 @@ const ItemCard = ({ series }: { series: Series }) => {
                   </SliderMainItem>
                 ))}
               </CarouselMainContainer>
-              <div className='absolute bottom-2 left-1/2 -translate-x-1/2'>
-                <CarouselThumbsContainer className='gap-x-1'>
+              <div className='relative w-full bottom-2 left-1/2 -translate-x-1/2'>
+                <CarouselThumbsContainer className='gap-x-1 w-full'>
                   {series.items.map((_, index) => (
-                    <CarouselIndicator key={index} index={index} />
+                    <CarouselIndicator
+                      key={index}
+                      index={index}
+                    />
                   ))}
                 </CarouselThumbsContainer>
               </div>

@@ -239,11 +239,11 @@ const CarouselThumbsContainer = forwardRef<
   const { thumbsRef, orientation, direction } = useCarousel();
 
   return (
-    <div {...props} ref={thumbsRef} className='overflow-hidden' dir={direction}>
+    <div {...props} ref={thumbsRef} className='relative w-full overflow-hidden' dir={direction}>
       <div
         ref={ref}
         className={cn(
-          "flex",
+          "flex w-full items-center justify-center",
           `${orientation === "vertical" ? "flex-col" : ""}`,
           className
         )}
@@ -423,5 +423,6 @@ export {
   CarouselThumbsContainer,
   SliderMainItem,
   SliderThumbItem,
-  useCarousel,
+  useCarousel
 };
+
