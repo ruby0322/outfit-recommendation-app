@@ -16,7 +16,6 @@ const RecommendationPage = async ({
   const recommendation: Recommendation = (await getRecommendationRecordById(
     params.recommendation_id
   )) as Recommendation;
-  // console.log(recommendation);
   return (
     <div className='w-full flex flex-col items-center justify-center'>
       <div className='py-10 w-full flex flex-col items-center justify-center'>
