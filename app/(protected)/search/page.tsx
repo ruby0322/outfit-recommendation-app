@@ -64,6 +64,7 @@ export default function SearchPage() {
     );
     setResults([...(res?.series as Series[])] as Series[]);
     setLoading(false);
+    setQuery('');
   };
 
   const onSubmit = async () => {
