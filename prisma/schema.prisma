@@ -49,6 +49,8 @@ model Item {
   @@index([gender])
   @@index([price])
   @@index([provider])
+
+  @@map("item")
 }
 
 model Param {
@@ -63,6 +65,8 @@ model Param {
   @@index([clothing_type])
   @@index([gender])
   @@index([model])
+
+  @@map("param")
 }
 
 model Profile {
@@ -76,6 +80,8 @@ model Profile {
   activity_logs   UserActivityLog[]
 
   @@index([username])
+
+  @@map("profile")
 }
 
 model Recommendation {
@@ -94,6 +100,8 @@ model Recommendation {
   @@index([upload_id]) 
   @@index([user_id])   
   @@index([created_at])
+
+  @@map("recommendation")
 }
 
 model Result {
@@ -109,6 +117,8 @@ model Result {
   @@index([item_id])       
   @@index([suggestion_id]) 
   @@index([distance])
+
+  @@map("result")
 }
 
 model Series {
@@ -126,6 +136,8 @@ model Series {
   @@index([gender])
   @@index([price])
   @@index([provider])
+
+  @@map("series")
 }
 
 model Suggestion {
@@ -141,6 +153,8 @@ model Suggestion {
 
   @@index([recommendation_id])
   @@index([style_name])
+
+  @@map("suggestion")
 }
 
 model Upload {
@@ -153,6 +167,8 @@ model Upload {
   recommendations Recommendation[]
 
   @@index([user_id])
+
+  @@map("upload")
 }
 
 model UserActivityLog {
@@ -164,4 +180,6 @@ model UserActivityLog {
   user        Profile?  @relation(fields: [user_id], references: [user_id])
 
   @@index([user_id])
+
+  @@map("useractivitylog")
 }

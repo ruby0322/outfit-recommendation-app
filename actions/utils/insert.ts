@@ -1,9 +1,8 @@
 "use server";
 import supabase from "@/lib/supabaseClient";
-import { ClothingType, Gender } from "@/type";
+import { ClothingType, Gender, UnstoredResult } from "@/type";
 import { revalidatePath } from "next/cache";
 import { v4 as uuidv4 } from "uuid";
-import { UnstoredResult } from "./matching";
 import prisma from "@/prisma/db";
 
 
