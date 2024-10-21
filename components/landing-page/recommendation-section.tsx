@@ -10,7 +10,7 @@ import ResultWindow from "./result-window";
 const images = [
   "https://eapzlwxcyrinipmcdoir.supabase.co/storage/v1/object/public/image/image-750cc231-23d4-436a-a085-7286e0fdeed3?t=2024-09-25T17%3A20%3A26.729Z",
   "https://eapzlwxcyrinipmcdoir.supabase.co/storage/v1/object/public/image/image-73bd431f-c7b5-41e1-8c23-2843057755bb",
-  "https://eapzlwxcyrinipmcdoir.supabase.co/storage/v1/object/public/image/image-6e09494f-9e76-4d52-96c9-dfac2f0b460a",
+  "https://eapzlwxcyrinipmcdoir.supabase.co/storage/v1/object/public/image/image-00ee47f4-8768-42d9-b68b-29a0702243ea",
 ];
 
 function DragAndDropImageUploaderMock({
