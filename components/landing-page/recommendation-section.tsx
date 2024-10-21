@@ -113,7 +113,7 @@ function DragAndDropImageUploaderMock({
               alt='Dropped image'
               width='256'
               height='256'
-              objectFit='cover'
+              style={{objectFit:"cover"}}
               className='w-full animate-pulse'
             />
           </motion.div>

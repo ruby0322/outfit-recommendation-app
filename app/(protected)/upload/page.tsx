@@ -8,6 +8,7 @@ import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
 import { createClient } from "@/utils/supabase/client";
 import { zodResolver } from "@hookform/resolvers/zod";
+import imageCompression from 'browser-image-compression';
 import { motion } from "framer-motion";
 import { CheckCircle, ChevronLeft } from "lucide-react";
 import Image from "next/image";
@@ -108,7 +109,7 @@ const Overview = ({
 }) => {
   const { getValues } = useFormContext();
   const formData = getValues();
-  console.log(formData.uploadedImage[0]);
+  // console.log(formData.uploadedImage[0]);
   return (
     <div className='flex-1 flex flex-col items-center justify-center h-auto gap-4'>
       <h1 className='w-full text-start text-2xl text-gray-600'>➌ 確認上傳</h1>
@@ -249,7 +250,20 @@ export default function UploadPage() {
         }
       }
     };
-    reader.readAsDataURL(data.uploadedImage[0]);
+
+    const options = {
+      maxSizeMB: 1,
+      maxWidthOrHeight: 1920,
+      useWebWorker: true,
+    }
+    try {
+      const compressedFile = await imageCompression(data.uploadedImage[0], options);
+      reader.readAsDataURL(compressedFile);
+  
+    } catch (error) {
+      console.log(error);
+    }
+    
     const NUM_MAX_SUGGESTION: number = 3;
     const NUM_MAX_ITEM: number = 10;
   };

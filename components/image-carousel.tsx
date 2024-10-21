@@ -1,8 +1,8 @@
 "use client";
 import {
-  Carousel,
-  CarouselMainContainer,
-  SliderMainItem,
+    Carousel,
+    CarouselMainContainer,
+    SliderMainItem,
 } from "@/components/extension/carousel";
 import AutoScroll from "embla-carousel-auto-scroll";
 import Image from "next/image";
@@ -28,7 +28,7 @@ const ImageCarousel = ({ imageUrls }: { imageUrls: string[] }) => {
                 width={1024}
                 height={1024}
                 className='w-full'
-                objectFit='cover'
+                style={{objectFit:"cover"}}
                 alt={""}
               />
             </div>

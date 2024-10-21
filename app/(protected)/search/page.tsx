@@ -16,10 +16,20 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { LoadingButton } from "@/components/ui/loading-button";
-import { Series } from "@/type";
+import { Gender, Series } from "@/type";
 import { SearchIcon, UploadIcon } from "lucide-react";
 import { useState } from "react";
 import { z } from "zod";
+
+import imageCompression from 'browser-image-compression';
+
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from "@/components/ui/select";
 
 const schema = z.object({
   uploadedImage: (typeof window === "undefined"
@@ -32,6 +42,7 @@ const schema = z.object({
 
 export default function SearchPage() {
   const [query, setQuery] = useState<string>("");
+  const [gender, setGender] = useState<Gender>('neutral');
   const [loading, setLoading] = useState<boolean>(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [searchInput, setSearchInput] = useState("");
@@ -56,12 +67,13 @@ export default function SearchPage() {
     if (!uploadedImageUrl) return;
     setLoading(true);
     const res = await handleImageSearch(
-      "male",
+      gender,
       "gpt-4o-mini",
       uploadedImageUrl
     );
     setResults([...(res?.series ?? [])] as Series[]);
     setLoading(false);
+    setQuery('');
   };
 
   const onSubmit = async () => {
@@ -75,7 +87,7 @@ export default function SearchPage() {
     setLoading(false);
   };
 
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     if (!event.target.files || event.target.files.length === 0) {
       return; // User canceled file selection
     }
@@ -96,7 +108,18 @@ export default function SearchPage() {
         }
       }
     };
-    reader.readAsDataURL(file);
+    const options = {
+      maxSizeMB: 1,
+      maxWidthOrHeight: 1920,
+      useWebWorker: true,
+    }
+    try {
+      const compressedFile = await imageCompression(file, options);
+      reader.readAsDataURL(compressedFile);
+    } catch (error) {
+      console.log(error);
+    }
+    
   };
 
   return (
@@ -152,6 +175,19 @@ export default function SearchPage() {
               </DialogContent>
             </Dialog>
           </div>
+          <Select onValueChange={(value: Gender) => {
+            setGender(value);
+            console.log(value);
+          }}> 
+            <SelectTrigger className="w-[100px] bg-white">
+              <SelectValue placeholder="性別" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="neutral">中性</SelectItem>
+              <SelectItem value="male">男性</SelectItem>
+              <SelectItem value="female">女性</SelectItem>
+            </SelectContent>
+          </Select>
           <LoadingButton
             className='bg-indigo-400 hover:bg-indigo-300'
             onClick={onSubmit}

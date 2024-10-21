@@ -6,6 +6,7 @@ import { Heart, ShoppingCart } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
+
 import {
   Carousel,
   CarouselIndicator,
@@ -25,8 +26,7 @@ const PROVIDER_CLASSNAME_MAPPING: { [k: string]: string } = {
 };  
 
 const ItemCard = ({ series }: { series: Series }) => {
-  // console.log("This is the item image url: ");
-  // console.log(item.image_url);
+  
   return (
     <Card className='w-64 rounded-none flex flex-col justify-between h-fit gap-1 shadow-none border-0'>
       <div className='relative inline-block w-full h-full'>
@@ -51,18 +51,21 @@ const ItemCard = ({ series }: { series: Series }) => {
                       <Image
                         src={item.image_url as string}
                         className='object-cover'
-                        objectFit='cover'
-                        layout='fill'
+                        style={{objectFit:"cover"}}
+                        fill
                         alt={`Image of product "${item.title}" ${index}`}
                       />
                     </div>
                   </SliderMainItem>
                 ))}
               </CarouselMainContainer>
-              <div className='absolute bottom-2 left-1/2 -translate-x-1/2'>
-                <CarouselThumbsContainer className='gap-x-1'>
+              <div className='relative w-full bottom-2 left-1/2 -translate-x-1/2'>
+                <CarouselThumbsContainer className='gap-x-1 w-full'>
                   {series.items.map((_, index) => (
-                    <CarouselIndicator key={index} index={index} />
+                    <CarouselIndicator
+                      key={index}
+                      index={index}
+                    />
                   ))}
                 </CarouselThumbsContainer>
               </div>
@@ -73,8 +76,8 @@ const ItemCard = ({ series }: { series: Series }) => {
             <Image
               src={series.items[0].image_url as string}
               className='object-cover'
-              objectFit='cover'
-              layout='fill'
+              style={{objectFit:"cover"}}
+              fill
               alt={`Image of product "${series.items[0].title}" 0`}
             />
           </div>
