@@ -54,6 +54,7 @@ const ItemCard = ({ series }: { series: Series }) => {
                         style={{objectFit:"cover"}}
                         fill
                         alt={`Image of product "${item.title}" ${index}`}
+                        unoptimized
                       />
                     </div>
                   </SliderMainItem>
@@ -79,6 +80,7 @@ const ItemCard = ({ series }: { series: Series }) => {
               style={{objectFit:"cover"}}
               fill
               alt={`Image of product "${series.items[0].title}" 0`}
+              unoptimized
             />
           </div>
         )}
