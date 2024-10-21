@@ -34,9 +34,10 @@ const getResults = async (
 
 // Fetches suggestions based on a recommendation ID
 const getSuggestion = async (
-  recommendationId: number
+  inputRecommendationId: number
 ): Promise<SuggestionTable[] | null> => {
   try {
+    const recommendationId = inputRecommendationId ? Number(inputRecommendationId) : null;
     const suggestions = await prisma.suggestion.findMany({
       where: { recommendation_id: recommendationId },
     });
@@ -50,11 +51,12 @@ const getSuggestion = async (
 
 
 const getRecommendationById = async (
-  recommendationId: number
+  inputRecommendationId: number
 ): Promise<RecommendationTable | null> => {
   try {
+    const recommendationId = inputRecommendationId ? Number(inputRecommendationId) : null;
     const recommendation = await prisma.recommendation.findUnique({
-      where: { id: recommendationId },
+      where: { id: recommendationId as number },
     });
 
     return recommendation as RecommendationTable | null;

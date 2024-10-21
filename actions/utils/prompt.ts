@@ -11,8 +11,8 @@ const constructPromptForRecommendation = ({
   numMaxSuggestion: number;
 }): string => {
   const prompt: string = `
-    請擔任我的造型師，仔細觀察這張圖片中的
-    ${gender === "male" ? "男性" : "女性"}
+    請擔任我的造型師，仔細觀察這張圖片中性別為
+    ${gender}的
     ${clothingType === "top" ? "上衣" : "下身類衣物"}
     ，請推薦${numMaxSuggestion}種與之搭配的
     ${clothingType === "top" ? "下身類衣物" : "上衣"}。
@@ -47,8 +47,7 @@ const constructPromptForImageSearch = ({
   gender: Gender;
 }): string => {
   const prompt: string = `
-    請仔細觀察這張圖片中的
-    ${gender === "male" ? "男性" : "女性"}
+    請仔細觀察這張圖片中性別為${gender}的
     衣物，並且提供一組詳盡的描述。
     請使用下方 JSON 格式回覆，回答無需包含其他資訊：
     [
@@ -79,7 +78,7 @@ const constructPromptForTextSearch = ({
   gender: Gender;
 }): string => {
   return `
-    請將這位${gender === "male" ? "男性" : "女性"}使用者的需求：${query}
+    請將這位性別為${gender}的使用者的需求：${query}
     請使用下方 JSON 格式回覆，回答無需包含其他資訊：
     [
       {

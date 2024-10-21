@@ -33,6 +33,14 @@ const nextConfig = {
       {
         protocol: 'https',
         hostname: 's3.hicloud.net.tw',
+      },
+      {
+        protocol: 'https',
+        hostname: 'www.50-shop.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'lp2.hm.com',
       }
     ],
   },

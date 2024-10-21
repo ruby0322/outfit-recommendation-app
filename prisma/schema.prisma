@@ -3,25 +3,27 @@
 datasource db {
   provider = "postgresql" 
   url      = env("DATABASE_URL")
+  extensions = [vector]
 }
 
 generator client {
   provider = "prisma-client-js"
+  previewFeatures = ["typedSql", "postgresqlExtensions"]
 }
 
-enum BodyType {
+enum body_type {
   slim
   average
   athletic
   curvy
 }
 
-enum ClothingType {
+enum clothing_type {
   top
   bottom
 }
 
-enum Gender {
+enum gender {
   male
   female
   neutral
@@ -36,7 +38,7 @@ model Item {
   gender        String?
   image_url     String?
   label_string  String?
-  price         Float?
+  price         Int?
   provider      String?
   series_id     String
   title         String
@@ -55,9 +57,9 @@ model Item {
 
 model Param {
   id             Int          @id @default(autoincrement())
-  clothing_type  ClothingType?
+  clothing_type  clothing_type?
   created_at     DateTime     @default(now())
-  gender         Gender?
+  gender         gender?
   model          String?
 
   recommendations Recommendation[]
@@ -125,7 +127,7 @@ model Series {
   id            String     @id
   clothing_type String?
   external_link String?
-  gender        Gender?
+  gender        gender?
   price         String?
   provider      String?
   title         String?

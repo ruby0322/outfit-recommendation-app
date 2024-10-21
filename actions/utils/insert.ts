@@ -1,6 +1,6 @@
 "use server";
 import supabase from "@/lib/supabaseClient";
-import { ClothingType, Gender, UnstoredResult } from "@/type";
+import { UnstoredResult, ClothingType, Gender } from "@/type";
 import { revalidatePath } from "next/cache";
 import { v4 as uuidv4 } from "uuid";
 import prisma from "@/prisma/db";
@@ -22,7 +22,6 @@ const storeImageToStorage = async (base64: string) => {
   console.time("storeImageToStorage");
   const blob: Blob = base64ToBlob(base64);
   const filename = `image-${uuidv4()}`;
-  // console.log(filename);
   await supabase.storage.from("image").upload(filename, blob, {
     cacheControl: "3600",
     upsert: false,
@@ -56,7 +55,6 @@ const insertResults = async (
     return null;
   }
 };
-
 
 // Inserts a suggestion into the database
 const insertSuggestion = async ({

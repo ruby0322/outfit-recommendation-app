@@ -7,7 +7,6 @@ const deleteParamById = async (paramId: number) => {
       id: paramId,
     },
   });
-  // console.log(response);
   return;
 };
 
@@ -17,7 +16,6 @@ const deleteUploadById = async (uploadId: number) => {
       id: uploadId,
     },
   });
-  // console.log(response);
   return;
 };
 

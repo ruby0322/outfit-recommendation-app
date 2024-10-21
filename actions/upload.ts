@@ -1,5 +1,5 @@
 "use server";
-import { ClothingType, Gender, SearchResult, UnstoredResult } from "@/type";
+import { SearchResult, UnstoredResult } from "@/type";
 import { sendImgURLAndPromptToGPT, sendPromptToGPT } from "./utils/chat";
 import {
   insertParam,
@@ -17,6 +17,8 @@ import {
   constructPromptForRecommendation,
   constructPromptForTextSearch,
 } from "./utils/prompt";
+
+import { ClothingType, Gender } from "@prisma/client";
 
 const validateForRecommendation = (
   recommendations: string,
@@ -163,7 +165,6 @@ const handleRecommendation = async (
             gender,
             clothing_type: clothingType,
           })) as UnstoredResult[];
-        // console.log("results: ", results);
         await insertResults(results);
       }
       return recommendationId;
@@ -227,18 +228,15 @@ const handleTextSearch = async (
   gender: Gender
 ): Promise<SearchResult | null> => {
   try {
-    // console.log("user query", query);
     const prompt: string = constructPromptForTextSearch({
       query,
       gender,
     });
-    // console.log("prompt", prompt);
 
     const rawLabelString: string | null = await sendPromptToGPT({
       model,
       prompt,
     });
-    // console.log("Raw labels in text search: ", rawLabelString);
 
     if (rawLabelString) {
       const cleanedLabels = validateForSearching(

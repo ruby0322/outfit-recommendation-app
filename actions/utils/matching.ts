@@ -1,9 +1,7 @@
 "use server";
-import { Gender, ItemTable, SearchResult, ClothingType, Series, SimplifiedItemTable, UnstoredResult } from "@/type";
+import { SearchResult, Series, SimplifiedItemTable, UnstoredResult, ClothingType, Gender } from "@/type";
 import { generateEmbedding } from "./embedding";
 import prisma from "@/prisma/db";
-import fs from 'fs';
-import path from 'path';
 
 const vectorSearchForRecommendation = async (
   suggestedLabelString: string,
@@ -13,29 +11,25 @@ const vectorSearchForRecommendation = async (
 ): Promise<Series[] | null> => {
   try {
     clothing_type = clothing_type === "top" ? "bottom" : "top";
+    let genderString = gender === "neutral" ? "all" : gender;
     const suggestedEmbedding = await generateEmbedding(suggestedLabelString);
     const matchThreshold = 0.2;
 
-    const viewName = `${gender}_${clothing_type}_item_matview`;
+    const viewName = `${genderString}_${clothing_type}_item_matview`;
 
-    const queryFilePath = path.join(__dirname, 'prisma/sql/querySimilarItems.sql');
-    const query = fs.readFileSync(queryFilePath, 'utf8');
+    const items: SimplifiedItemTable[] = await prisma.$queryRawUnsafe(`
+      SELECT id, clothing_type, color, external_link, gender, image_url, label_string, price, provider, series_id, title
+      FROM ${viewName}
+      WHERE ${viewName}.embedding <#> $1::vector < $2
+      ORDER BY ${viewName}.embedding <#> $1::vector
+      LIMIT $3;
+    `, suggestedEmbedding, matchThreshold, numMaxItem);
 
-    const items: ItemTable[] = await prisma.$queryRawUnsafe<ItemTable[]>(
-      query,
-      viewName, 
-      suggestedEmbedding,
-      matchThreshold,
-      numMaxItem
-    );
-
-    const simplifiedItems: SimplifiedItemTable[] = items.map(item => {
-      const { embedding, ...simplifiedItem } = item;
-      return simplifiedItem as SimplifiedItemTable;
-    });
-
-    const series: Series[] = simplifiedItems.map(simplifiedItem => ({
-      items: [simplifiedItem],
+    const series: Series[] = items.map(simplifiedItem => ({
+      items: [{
+        ...simplifiedItem,
+        price: simplifiedItem.price ? Number(simplifiedItem.price) : 0,
+      }],
     }));
 
     return series;
@@ -53,27 +47,23 @@ const vectorSearchForSearching = async (
   try {
     const suggestedEmbedding = await generateEmbedding(suggestedLabelString);
     const matchThreshold = 0.2;
+    let viewName;
+    if (gender === "neutral") viewName = "Item";
+    else viewName = `${gender}_item_matview`;
 
-    const viewName = `${gender}_item_matview`;
-
-    const queryFilePath = path.join(__dirname, 'prisma/sql/querySimilarItems.sql');
-    const query = fs.readFileSync(queryFilePath, 'utf8');
-
-    const items: ItemTable[] = await prisma.$queryRawUnsafe<ItemTable[]>(
-      query,
-      viewName, 
-      suggestedEmbedding,
-      matchThreshold,
-      numMaxItem
-    );
-
-    const simplifiedItems: SimplifiedItemTable[] = items.map(item => {
-      const { embedding, ...simplifiedItem } = item;
-      return simplifiedItem as SimplifiedItemTable;
-    });
-
-    const series: Series[] = simplifiedItems.map(simplifiedItem => ({
-      items: [simplifiedItem],
+    const items: SimplifiedItemTable[] = await prisma.$queryRawUnsafe(`
+      SELECT id, clothing_type, color, external_link, gender, image_url, label_string, price, provider, series_id, title
+      FROM ${viewName}
+      WHERE ${viewName}.embedding <#> $1::vector < $2
+      ORDER BY ${viewName}.embedding <#> $1::vector
+      LIMIT $3;
+    `, suggestedEmbedding, matchThreshold, numMaxItem);
+    
+    const series: Series[] = items.map(simplifiedItem => ({
+      items: [{
+        ...simplifiedItem,
+        price: simplifiedItem.price ? Number(simplifiedItem.price) : 0,
+      }],
     }));
 
     return series;
@@ -89,19 +79,17 @@ const getSeriesByIdsForSearching = async (
   gender: string,
 ): Promise<Series[] | null> => {
   try {
-    console.time("getSeries");
-
-    const matViewName = `${gender}_item_matview`;
+    const matViewName = gender === "neutral" ? `Item` : `${gender}_item_matview`;
 
     const uniqueSeriesIds = Array.from(new Set(series_ids));
     const seriesArray: Series[] = [];
 
     for (const seriesId of uniqueSeriesIds) {
       const items = await prisma.$queryRawUnsafe<SimplifiedItemTable[]>(
-        `SELECT * FROM ${matViewName} WHERE series_id = $1`,
+        `SELECT id, clothing_type, color, external_link, gender, image_url, label_string, price, provider, series_id, title
+        FROM ${matViewName} WHERE series_id = $1::uuid`,
         seriesId
       );
-
       if (!items || items.length === 0) {
         console.log(`No valid items for series ${seriesId}.`);
         continue;
@@ -113,7 +101,10 @@ const getSeriesByIdsForSearching = async (
       const sortedItems = [
         ...originalItems.sort((a, b) => originalItemIds.indexOf(a.id) - originalItemIds.indexOf(b.id)),
         ...otherItems
-      ];
+      ].map(item => ({
+        ...item,
+        price: item.price ? Number(item.price) : 0,
+      }));
 
       const series: Series = {
         items: sortedItems,
@@ -121,10 +112,9 @@ const getSeriesByIdsForSearching = async (
       seriesArray.push(series);
     }
 
-    console.timeEnd("getSeries");
     return seriesArray.length > 0 ? seriesArray : null;
   } catch (error) {
-    console.error("Unexpected error in getSeries:", error);
+    console.error("Unexpected error in getSeries for Searching:", error);
     return null;
   }
 };
@@ -157,7 +147,7 @@ const semanticSearchForRecommendation = async ({
     const results: UnstoredResult[] = similarItems.map(
       (series: Series, index: number) => ({
         distance: index,
-        item_id: Number(series.items[0].id),
+        item_id: series.items[0].id,
         suggestion_id: suggestionId,
       })
     );
@@ -209,6 +199,5 @@ const semanticSearchForSearching = async ({
     return null;
   }
 };
-
 
 export { semanticSearchForRecommendation, semanticSearchForSearching };
