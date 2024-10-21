@@ -7,6 +7,7 @@ import {
   Series,
   SuggestionTable,
   UploadTable,
+  SimplifiedItemTable
 } from "@/type";
 import {
   getParamById,
@@ -16,7 +17,7 @@ import {
   getSuggestion,
   getUploadById,
 } from "./utils/fetch";
-import supabase from "@/lib/supabaseClient";
+import prisma from "@/prisma/db";
 
 const getSeries = async (
   series_ids: string[],
@@ -25,24 +26,20 @@ const getSeries = async (
   clothingType: string
 ): Promise<Series[] | null> => {
   try {
-    console.time("getSeries");
+    console.time("getSeriesForRecommendation");
     clothingType = clothingType === "top" ? "bottom" : "top";
-    
-    const matViewName = `${gender}_${clothingType}_item_matview`;
+    let genderString = gender === "neutral" ? "all" : gender;
 
+    const viewName = `${genderString}_${clothingType}_item_matview`;
+  
     const uniqueSeriesIds = Array.from(new Set(series_ids));
     const seriesArray: Series[] = [];
 
     for (const seriesId of uniqueSeriesIds) {
-      const { data, error } = await supabase
-        .from(matViewName)
-        .select("*")
-        .eq("series_id", seriesId);
-
-      if (error) {
-        console.error(`Error fetching items from ${matViewName}:`, error);
-        return null;
-      }
+      const data: SimplifiedItemTable[] = await prisma.$queryRawUnsafe(
+        `SELECT id, clothing_type, color, external_link, gender, image_url, label_string, price, provider, series_id, title
+        FROM ${viewName} WHERE series_id = $1::uuid;`, seriesId
+      );
 
       if (data.length === 0) {
         console.log(`No valid items for series ${seriesId}.`);
@@ -55,17 +52,21 @@ const getSeries = async (
       const sortedItems = [
         ...originalItems.sort((a, b) => originalItemIds.indexOf(a.id) - originalItemIds.indexOf(b.id)),
         ...otherItems
-      ];
+      ].map(item => ({
+        ...item,
+        price: item.price ? Number(item.price) : 0,
+      }));
 
       const series: Series = {
         items: sortedItems,
       };
       seriesArray.push(series);
     }
-    console.timeEnd("getSeries");
+    
+    console.timeEnd("getSeriesForRecommendation");
     return seriesArray.length > 0 ? seriesArray : null;
   } catch (error) {
-    console.error("Unexpected error in getSeries:", error);
+    console.error("Unexpected error in getSeries for Recommendation:", error);
     return null;
   }
 };
@@ -74,8 +75,6 @@ const getRecommendationRecordById = async (
   recommendation_id: number
 ): Promise<Recommendation | null> => {
   try {
-    // console.time("getRecommendationRecordById");
-    // console.time("get param, upload, suggestion");
     const recommendation = (await getRecommendationById(
       recommendation_id
     )) as RecommendationTable;
@@ -93,13 +92,9 @@ const getRecommendationRecordById = async (
     const suggestions = (await getSuggestion(
       recommendation_id
     )) as SuggestionTable[];
-    // console.timeEnd("get param, upload, suggestion");
-    // console.time("get results, series, items");
     for (const s of suggestions) {
       const styleName = s.style_name as string;
       const description = s.description as string;
-      // console.log("styleName", styleName);
-      // console.log("description", description);
       const results = (await getResults(s.id)) as ResultTable[];
       if (!results) throw new Error("No results found");
 
@@ -118,8 +113,6 @@ const getRecommendationRecordById = async (
         description
       };
     }
-    // console.timeEnd("get results, series, items");
-    // console.timeEnd("getRecommendationRecordById");
 
     return recommendation_record as Recommendation;
   } catch (error) {

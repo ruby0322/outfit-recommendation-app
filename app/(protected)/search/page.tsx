@@ -71,7 +71,7 @@ export default function SearchPage() {
       "gpt-4o-mini",
       uploadedImageUrl
     );
-    setResults([...(res?.series as Series[])] as Series[]);
+    setResults([...(res?.series ?? [])] as Series[]);
     setLoading(false);
     setQuery('');
   };
@@ -83,7 +83,7 @@ export default function SearchPage() {
     setResults([...(res?.series as Series[])] as Series[]);
     setQuery(searchInput);
     setSearchInput("");
-    console.log(res?.series);
+    // console.log(res?.series);
     setLoading(false);
   };
 

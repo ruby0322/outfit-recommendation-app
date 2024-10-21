@@ -92,4 +92,5 @@ const isImageUrlValid = async (url: string): Promise<boolean> => {
   }
 };
 
+
 export { sendImgURLAndPromptToGPT, isImageUrlValid, sendPromptToGPT };

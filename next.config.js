@@ -36,10 +36,6 @@ const nextConfig = {
       },
       {
         protocol: 'https',
-        hostname: 's3.hicloud.net.tw',
-      },
-      {
-        protocol: 'https',
         hostname: 'www.50-shop.com',
       },
       {
