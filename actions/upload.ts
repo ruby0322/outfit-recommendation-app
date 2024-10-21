@@ -18,7 +18,7 @@ import {
   constructPromptForTextSearch,
 } from "./utils/prompt";
 
-import { ClothingType, Gender } from "@prisma/client";
+import { ClothingType, Gender } from "@/type";
 
 const validateForRecommendation = (
   recommendations: string,
