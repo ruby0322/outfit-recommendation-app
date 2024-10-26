@@ -38,7 +38,7 @@ const getSeries = async (
     for (const seriesId of uniqueSeriesIds) {
       const data: SimplifiedItemTable[] = await prisma.$queryRawUnsafe(
         `SELECT id, clothing_type, color, external_link, gender, image_url, label_string, price, provider, series_id, title
-        FROM ${viewName} WHERE series_id = $1::uuid;`, seriesId
+        FROM ${viewName} WHERE series_id = $1;`, seriesId
       );
 
       if (data.length === 0) {
