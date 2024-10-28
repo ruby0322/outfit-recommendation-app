@@ -47,9 +47,8 @@ const vectorSearchForSearching = async (
   try {
     const suggestedEmbedding = await generateEmbedding(suggestedLabelString);
     const matchThreshold = 0.2;
-    let viewName;
-    if (gender === "neutral") viewName = "Item";
-    else viewName = `${gender}_item_matview`;
+    let genderString = gender === "neutral" ? "all" : gender;
+    const viewName = `${genderString}_item_matview`;
 
     const items: SimplifiedItemTable[] = await prisma.$queryRawUnsafe(`
       SELECT id, clothing_type, color, external_link, gender, image_url, label_string, price, provider, series_id, title
