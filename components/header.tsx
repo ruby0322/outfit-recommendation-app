@@ -109,7 +109,11 @@ const LandingPageHeader = () => {
 
 const Header = () => {
   const [user, setUser] = useState<User | null>(null);
+  const [isMobile, setIsMobile] = useState<boolean>(false);
   useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
     (async () => {
       const supabase = createClient();
       const {
@@ -117,6 +121,14 @@ const Header = () => {
       } = await supabase.auth.getUser();
       setUser(userResponse);
     })();
+    if (typeof window !== "undefined") {
+      window.addEventListener("resize", handleResize);
+      handleResize();
+
+      return () => {
+        window.removeEventListener("resize", handleResize);
+      };
+    }
   }, []);
   const pathname = usePathname();
   if (pathname === "/") return <LandingPageHeader />;
@@ -124,16 +136,53 @@ const Header = () => {
   return (
     <header>
       <div className='font-semibold bg-gray-100 border-solid border-b-2 flex p-4 py-2 gap-4 h-[7vh] items-center justify-between shadow-[0px_2px_3px_-1px_rgba(0,0,0,0.1),0px_1px_0px_0px_rgba(25,28,33,0.02),0px_0px_0px_1px_rgba(25,28,33,0.08)]'>
-        <div className='flex gap-4'>
+        <div className='flex gap-4 items-center justify-center'>
           <Link href='/'>
             <WandSparkles className='text-indigo-400' />
           </Link>
           <p className='text-lg'>
             會不會<span className='text-indigo-400'>穿搭</span>啊
           </p>
+          {
+            !isMobile && <>
+              <p className="font-normal">
+                <Link href='/upload'>
+                  穿搭推薦
+                </Link>
+              </p>
+              <p className="font-normal">
+                <Link href='/search'>
+                  文字／圖片搜尋
+                </Link>
+              </p>
+            </>
+          }
         </div>
-
-        {user && <AvatarMenu />}
+        {
+          isMobile && <Sheet>
+            <SheetTrigger asChild>
+              <Button variant='ghost' size='icon'>
+                <Menu className='h-6 w-6' />
+              </Button>
+            </SheetTrigger>
+            <SheetContent className='w-[40vw] bg-gray-100/80'>
+              <nav className='flex flex-col gap-4 mt-8'>
+              {user && <AvatarMenu />}
+                <p className="font-normal">
+                  <Link href='/upload'>
+                    穿搭推薦
+                  </Link>
+                </p>
+                <p className="font-normal">
+                  <Link href='/search'>
+                    文字／圖片搜尋
+                  </Link>
+                </p>
+              </nav>
+            </SheetContent>
+          </Sheet>
+        }
+        {user && !isMobile && <AvatarMenu />}
       </div>
     </header>
   );

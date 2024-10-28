@@ -86,6 +86,7 @@ const ItemCard = ({ series }: { series: Series }) => {
         )}
       </div>
       <Link
+        target="_blank"
         href={
           series.items[0].external_link ? series.items[0].external_link : "#"
         }

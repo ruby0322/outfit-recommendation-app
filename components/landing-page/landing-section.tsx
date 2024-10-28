@@ -14,7 +14,7 @@ const HeroSection = () => {
     router.push("/upload"); // Navigate to the /upload route
   };
   return (
-    <section className='md:h-[80vh] h-fit py-32 text-gray-800 relative flex md:flex-row flex-col-reverse  items-center justify-center bg-cover bg-center md:gap-24 gap-8 px-10'>
+    <section className='md:h-[75vh] h-fit py-32 text-gray-800 relative flex md:flex-row flex-col-reverse  items-center justify-center bg-cover bg-center md:gap-24 gap-8 px-10'>
       <div className='relative z-10 md:text-start text-center'>
         <h1 className='flex text-2xl md:text-4xl font-bold mb-4 animate-fade-in-up'>
           <AnimatedTextCharacter text='輕鬆找到屬於你的' />

@@ -241,10 +241,13 @@ const handleImageSearch = async (
       imageUrl,
     });
 
+    
     if (rawLabelString) {
       const cleanedLabels = validateForSearching(
         rawLabelString,
       );
+      
+      
 
       console.log("Cleaned labels in image search: ", cleanedLabels);
 
@@ -291,7 +294,7 @@ const handleTextSearch = async (
         rawLabelString,
       );
 
-      // console.log("Cleaned labels in text search: ", cleanedLabels);
+      console.log("Cleaned labels in text search: ", cleanedLabels);
 
       if (cleanedLabels.length > 0) {
         const labelString = cleanedLabels[0].labelString;
