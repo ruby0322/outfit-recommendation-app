@@ -43,8 +43,8 @@ model Item {
   series_id     String
   title         String
 
-  series        Series    @relation(fields: [series_id], references: [id])
   results       Result[]
+  activity_items UserActivityItem[]
 
   @@index([series_id])
   @@index([clothing_type])
@@ -79,7 +79,9 @@ model Profile {
 
   recommendations Recommendation[]
   uploads         Upload[]
-  activity_logs   UserActivityLog[]
+  activity_items         UserActivityItem[]
+  activity_recommendations UserActivityRecommendation[]
+  activity_suggestions   UserActivitySuggestion[]
 
   @@index([username])
 
@@ -93,10 +95,11 @@ model Recommendation {
   upload_id   Int?
   user_id     String?
 
-  param         Param?     @relation(fields: [param_id], references: [id])
-  upload        Upload?    @relation(fields: [upload_id], references: [id])
-  user          Profile?   @relation(fields: [user_id], references: [user_id])
+  param         Param?     @relation(fields: [param_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  upload        Upload?    @relation(fields: [upload_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  user          Profile?   @relation(fields: [user_id], references: [user_id], onUpdate: Cascade, onDelete: SetNull)
   suggestions   Suggestion[]
+  activity_recommendations UserActivityRecommendation[]
 
   @@index([param_id])  
   @@index([upload_id]) 
@@ -113,33 +116,14 @@ model Result {
   item_id       String?
   suggestion_id Int?
 
-  item        Item?       @relation(fields: [item_id], references: [id])
-  suggestion  Suggestion? @relation(fields: [suggestion_id], references: [id])
+  item        Item?       @relation(fields: [item_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  suggestion  Suggestion? @relation(fields: [suggestion_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
 
   @@index([item_id])       
   @@index([suggestion_id]) 
   @@index([distance])
 
   @@map("result")
-}
-
-model Series {
-  id            String     @id
-  clothing_type String?
-  external_link String?
-  gender        gender?
-  price         String?
-  provider      String?
-  title         String?
-
-  items         Item[]
-
-  @@index([clothing_type])
-  @@index([gender])
-  @@index([price])
-  @@index([provider])
-
-  @@map("series")
 }
 
 model Suggestion {
@@ -150,8 +134,9 @@ model Suggestion {
   recommendation_id Int?
   style_name        String?
 
-  recommendation  Recommendation? @relation(fields: [recommendation_id], references: [id])
+  recommendation  Recommendation? @relation(fields: [recommendation_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
   results         Result[]
+  activity_suggestions UserActivitySuggestion[]
 
   @@index([recommendation_id])
   @@index([style_name])
@@ -165,7 +150,7 @@ model Upload {
   image_url      String?
   user_id        String?
 
-  user           Profile?   @relation(fields: [user_id], references: [user_id])
+  user           Profile?   @relation(fields: [user_id], references: [user_id], onUpdate: Cascade, onDelete: Cascade)
   recommendations Recommendation[]
 
   @@index([user_id])
@@ -173,15 +158,51 @@ model Upload {
   @@map("upload")
 }
 
-model UserActivityLog {
-  id          Int       @id @default(autoincrement())
-  created_at  DateTime  @default(now())
-  description String?
-  user_id     String?
+model UserActivityItem {
+  id            Int      @id @default(autoincrement())
+  user_id        String?
+  item_id        String?
+  activity_type  String?
+  activity_time  DateTime @default(now())
 
-  user        Profile?  @relation(fields: [user_id], references: [user_id])
+  user   Profile? @relation(fields: [user_id], references: [user_id], onUpdate: Cascade, onDelete: SetNull)
+  item   Item?    @relation(fields: [item_id], references: [id], onUpdate: Cascade, onDelete: SetNull)
 
   @@index([user_id])
+  @@index([item_id])
 
-  @@map("useractivitylog")
+  @@map("user_activity_item")
 }
+
+model UserActivityRecommendation {
+  id               Int      @id @default(autoincrement())
+  user_id           String?
+  recommendation_id Int?
+  activity_type     String?
+  activity_time     DateTime @default(now())
+
+  user           Profile?        @relation(fields: [user_id], references: [user_id], onUpdate: Cascade, onDelete: SetNull)
+  recommendation Recommendation? @relation(fields: [recommendation_id], references: [id], onUpdate: Cascade, onDelete: SetNull)
+
+  @@index([user_id])
+  @@index([recommendation_id])
+
+  @@map("user_activity_recommendation")
+}
+
+model UserActivitySuggestion {
+  id             Int      @id @default(autoincrement())
+  user_id         String?
+  suggestion_id   Int?
+  activity_type   String?
+  activity_time   DateTime @default(now())
+
+  user        Profile?      @relation(fields: [user_id], references: [user_id], onUpdate: Cascade, onDelete: SetNull)
+  suggestion  Suggestion?   @relation(fields: [suggestion_id], references: [id], onUpdate: Cascade, onDelete: SetNull)
+
+  @@index([user_id])
+  @@index([suggestion_id])
+
+  @@map("user_activity_suggestion")
+}
+
