@@ -131,6 +131,7 @@ const Header = () => {
     }
   }, []);
   const pathname = usePathname();
+  console.log(pathname);
   if (pathname === "/") return <LandingPageHeader />;
 
   return (
@@ -145,12 +146,12 @@ const Header = () => {
           </p>
           {
             !isMobile && <>
-              <p className="font-normal">
+              <p className={cn("font-normal", pathname === '/upload' && 'border-b-2 border-indigo-400')}>
                 <Link href='/upload'>
                   穿搭推薦
                 </Link>
               </p>
-              <p className="font-normal">
+              <p className={cn("font-normal", pathname === '/search' && 'border-b-2 border-indigo-400')}>
                 <Link href='/search'>
                   文字／圖片搜尋
                 </Link>
@@ -168,12 +169,12 @@ const Header = () => {
             <SheetContent className='w-[40vw] bg-gray-100/80'>
               <nav className='flex flex-col gap-4 mt-8'>
               {user && <AvatarMenu />}
-                <p className="font-normal">
+                <p className={cn("font-normal", pathname === '/upload' && 'border-b-2 border-indigo-400')}>
                   <Link href='/upload'>
                     穿搭推薦
                   </Link>
                 </p>
-                <p className="font-normal">
+                <p className={cn("font-normal", pathname === '/search' && 'border-b-2 border-indigo-400')}>
                   <Link href='/search'>
                     文字／圖片搜尋
                   </Link>

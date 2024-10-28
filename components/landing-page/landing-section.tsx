@@ -30,14 +30,16 @@ const HeroSection = () => {
           className='border-l-4 border-black md:pl-4 pl-2 text-sm md:text-lg mb-16 max-w-3xl mx-auto animate-fade-in-up animation-delay-300'
           text='一鍵找到最適合您的穿搭靈感'
         />
-        <motion.div initial={{ scale: 0 }} whileInView={{ scale: 1 }}>
+        <motion.div className="flex items-center justify-center w-full" initial={{ scale: 0 }} whileInView={{ scale: 1 }}>
           <Button
-            size='lg'
-            className='bg-indigo-200 hover:bg-indigo-200/80 text-white animate-fade-in-up animation-delay-600 shadow-[3px_3px_0px_0px_rgba(139,92,246)] border-2 border-indigo-500'
+            // size='lg'
+            className='shadow-[5px_5px_0px_0px_rgba(109,40,217)] bg-indigo-400 hover:bg-indigo-400/80 text-white animate-fade-in-up animation-delay-600 py-6 px-10'
             onClick={handleClick}
           >
-            <WandSparkles className='text-indigo-600 mr-2 h-4 w-4' />
-            <p className='text-indigo-600'>手刀進入，解鎖你的風格！</p>
+            {/* <WandSparkles className='text-indigo-600 mr-2 h-4 w-4' /> */}
+            <WandSparkles className='text-white mr-2 h-4 w-4' />
+            {/* <p className='text-indigo-600 text-lg'>手刀進入！</p> */}
+            <p className='text-white text-lg'>立即體驗</p>
           </Button>
         </motion.div>
       </div>
