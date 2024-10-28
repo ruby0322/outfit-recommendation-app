@@ -138,7 +138,7 @@ export default function SearchPage() {
   const onSubmit = async () => {
     if (!searchInput) return;
     setLoading(true);
-    const res = await handleTextSearch(searchInput, "gpt-4o-mini", "male");
+    const res = await handleTextSearch(searchInput, "gpt-4o-mini", gender);
     setResults([...(res?.series as Series[])] as Series[]);
     setQuery(searchInput);
     setSearchInput("");
