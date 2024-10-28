@@ -113,54 +113,6 @@ const validateForSearching = (
   }
 };
 
-const validateAndCleanLabelStringForSearching = (
-  recommendations: string,
-  isSimilar: boolean
-) => {
-  try {
-    const recommendationsArray = JSON.parse(
-      recommendations.replace(/```json\n?|\n?```/g, "").trim()
-    );
-    if (!Array.isArray(recommendationsArray))
-      throw new Error("Invalid recommendation format");
-
-    return recommendationsArray
-      .filter((rec) => {
-        const requiredKeys = [
-          "顏色",
-          "服裝類型",
-          "剪裁版型",
-          "設計特點",
-          "材質",
-          "細節",
-        ];
-
-        // 檢查每個必需的 key 是否存在於 rec.item 中
-        return requiredKeys.every((key) => key in rec.item);
-      })
-      .map((rec) => {
-        // 構建選填的字段部分，僅當字段存在時才加入
-        const optionalFields = [];
-        if (rec.item.領子) optionalFields.push(`領子: ${rec.item.領子}`);
-        if (rec.item.袖子) optionalFields.push(`袖子: ${rec.item.袖子}`);
-        if (rec.item.褲管) optionalFields.push(`褲管: ${rec.item.褲管}`);
-        if (rec.item.裙擺) optionalFields.push(`裙擺: ${rec.item.裙擺}`);
-
-        const optionalInfo = optionalFields.length > 0 ? `, ${optionalFields.join(", ")}` : "";
-
-        return {
-          styleName: rec.styleName,
-          description: rec.description,
-          labelString: `顏色: ${rec.item.顏色}, 服裝類型: ${rec.item.服裝類型}, 剪裁版型: ${rec.item.剪裁版型}, 設計特點: ${rec.item.設計特點}, 材質: ${rec.item.材質}, 細節: ${rec.item.細節}${optionalInfo}`,
-        };
-      });
-  } catch (error) {
-    console.error("Error in validateAndCleanLabelString", error);
-    return [];
-  }
-};
-
-
 const handleRecommendation = async (
   clothingType: ClothingType,
   gender: Gender,
