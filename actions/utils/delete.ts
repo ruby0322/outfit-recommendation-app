@@ -19,4 +19,7 @@ const deleteUploadById = async (uploadId: number) => {
   return;
 };
 
+const bruteForceAction = async (recommendation_id: number) => {
+}
+
 export { deleteParamById, deleteUploadById };
