@@ -7,14 +7,20 @@ import {
   ResultTable,
   SuggestionTable,
   UploadTable,
+  Series,
+  SimplifiedItemTable
 } from "@/type";
 
+// Centralized error handling function
+const handleDatabaseError = (error: unknown, functionName: string) => {
+  console.error(`Unexpected error in ${functionName}:`, error);
+  return null; // or handle it as per your application's needs
+};
+
 // Fetches results based on a suggestion ID
-const getResults = async (
-  suggestionId: number
-): Promise<ResultTable[] | null> => {
+const getResults = async (suggestionId: number): Promise<ResultTable[] | null> => {
   try {
-    const results = await prisma.result.findMany({
+    return await prisma.result.findMany({
       where: { suggestion_id: suggestionId },
       select: {
         created_at: true,
@@ -24,159 +30,222 @@ const getResults = async (
         suggestion_id: true,
       },
     });
-
-    return results;
   } catch (error) {
-    console.error("Unexpected error in getResults:", error);
-    return null;
+    return handleDatabaseError(error, 'getResults');
   }
 };
 
 // Fetches suggestions based on a recommendation ID
-const getSuggestion = async (
-  inputRecommendationId: number
-): Promise<SuggestionTable[] | null> => {
+const getSuggestion = async (inputRecommendationId: number): Promise<SuggestionTable[] | null> => {
   try {
     const recommendationId = inputRecommendationId ? Number(inputRecommendationId) : null;
-    const suggestions = await prisma.suggestion.findMany({
+    return await prisma.suggestion.findMany({
       where: { recommendation_id: recommendationId },
     });
-
-    return suggestions;
   } catch (error) {
-    console.error("Unexpected error in getSuggestion:", error);
-    return null;
+    return handleDatabaseError(error, 'getSuggestion');
   }
 };
 
-
-const getRecommendationById = async (
-  inputRecommendationId: number
-): Promise<RecommendationTable | null> => {
+// Fetches recommendation by ID
+const getRecommendationById = async (inputRecommendationId: number): Promise<RecommendationTable | null> => {
   try {
     const recommendationId = inputRecommendationId ? Number(inputRecommendationId) : null;
-    const recommendation = await prisma.recommendation.findUnique({
+    return await prisma.recommendation.findUnique({
       where: { id: recommendationId as number },
-    });
-
-    return recommendation as RecommendationTable | null;
+    }) as RecommendationTable | null;
   } catch (error) {
-    console.error("Error fetching recommendation:", error);
-    return null;
+    return handleDatabaseError(error, 'getRecommendationById');
   }
 };
 
+// Fetches parameter by ID
 const getParamById = async (paramId: number): Promise<ParamTable | null> => {
   try {
-    const param = await prisma.param.findUnique({
+    return await prisma.param.findUnique({
       where: { id: paramId },
-    });
-
-    return param as ParamTable | null;
+    }) as ParamTable | null;
   } catch (error) {
-    console.error("Unexpected error:", error);
-    return null;
+    return handleDatabaseError(error, 'getParamById');
   }
 };
 
+// Fetches upload by ID
 const getUploadById = async (uploadId: number): Promise<UploadTable | null> => {
   try {
-    const upload = await prisma.upload.findUnique({
+    return await prisma.upload.findUnique({
       where: { id: uploadId },
-    });
-
-    return upload as UploadTable | null;
+    }) as UploadTable | null;
   } catch (error) {
-    console.error("Unexpected error:", error);
-    return null;
+    return handleDatabaseError(error, 'getUploadById');
   }
 };
 
-// Fetch a single item by its ID
+// Fetches item by ID
 const getItemById = async (itemId: string): Promise<ItemTable | null> => {
   try {
-    const item = await prisma.item.findUnique({
+    return await prisma.item.findUnique({
       where: { id: itemId },
-    });
-
-    return item as ItemTable | null;
+    }) as ItemTable | null;
   } catch (error) {
-    console.error("Unexpected error:", error);
-    return null;
+    return handleDatabaseError(error, 'getItemById');
   }
 };
 
-// Fetch multiple items by their IDs
+// Fetches multiple items by their IDs
 const getItemsByIds = async (itemIds: string[]): Promise<ItemTable[] | null> => {
   try {
-    const items = await prisma.item.findMany({
+    return await prisma.item.findMany({
       where: { id: { in: itemIds } },
-    });
-
-    return items as ItemTable[];
+    }) as ItemTable[];
   } catch (error) {
-    console.error("Unexpected error:", error);
-    return null;
+    return handleDatabaseError(error, 'getItemsByIds');
   }
 };
 
-// Fetch the series ID by item ID
+// Fetches series ID by item ID
 const getSeriesIDByItemId = async (itemId: string): Promise<string | null> => {
   try {
     const item = await prisma.item.findUnique({
       where: { id: itemId },
       select: { series_id: true },
     });
-
     return item?.series_id ?? null;
   } catch (error) {
-    console.error("Unexpected error:", error);
-    return null;
+    return handleDatabaseError(error, 'getSeriesIDByItemId');
   }
 };
 
+// Fetches series IDs by multiple item IDs
 const getSeriesIdsByItemIds = async (itemIds: string[]): Promise<string[]> => {
   const seriesIdsSet = new Set<string>();
-
   for (const itemId of itemIds) {
     const seriesId = await getSeriesIDByItemId(itemId);
     if (seriesId) {
       seriesIdsSet.add(seriesId);
     }
   }
-
   return Array.from(seriesIdsSet);
 };
 
-// Fetch the series by series ID
+// Fetches items in a series by series ID
 const getSeriesById = async (seriesId: string): Promise<ItemTable[] | null> => {
   try {
-    const items = await prisma.item.findMany({
+    return await prisma.item.findMany({
       where: { series_id: seriesId },
-    });
-
-    return items as ItemTable[];
+    }) as ItemTable[];
   } catch (error) {
-    console.error("Unexpected error:", error);
-    return null;
+    return handleDatabaseError(error, 'getSeriesById');
   }
 };
 
-// Fetch the items by series ID
-const getItemsIDBySeriesId = async (
-  seriesId: string
-): Promise<string[] | null> => {
+// Fetches item IDs in a series by series ID
+const getItemsIDBySeriesId = async (seriesId: string): Promise<string[] | null> => {
   try {
     const items = await prisma.item.findMany({
       where: { series_id: seriesId },
       select: { id: true },
     });
-
-    const itemIDs = items.map((item: { id: string }) => item.id);
-
-    return itemIDs;
+    return items.map(item => item.id);
   } catch (error) {
-    console.error("Unexpected error:", error);
+    return handleDatabaseError(error, 'getItemsIDBySeriesId');
+  }
+};
+
+const getSeriesByIdsForSearching = async (
+  series_ids: string[],
+  originalItemIds: string[],
+  gender: string,
+): Promise<Series[] | null> => {
+  try {
+    const matViewName = gender === "neutral" ? `Item` : `${gender}_item_matview`;
+
+    const uniqueSeriesIds = Array.from(new Set(series_ids));
+    const seriesArray: Series[] = [];
+
+    for (const seriesId of uniqueSeriesIds) {
+      const items = await prisma.$queryRawUnsafe<SimplifiedItemTable[]>(
+        `SELECT id, clothing_type, color, external_link, gender, image_url, label_string, price, provider, series_id, title
+        FROM ${matViewName} WHERE series_id = $1`,
+        seriesId
+      );
+      if (!items || items.length === 0) {
+        console.log(`No valid items for series ${seriesId}.`);
+        continue;
+      }
+
+      const originalItems = items.filter(item => originalItemIds.includes(item.id));
+      const otherItems = items.filter(item => !originalItemIds.includes(item.id));
+
+      const sortedItems = [
+        ...originalItems.sort((a, b) => originalItemIds.indexOf(a.id) - originalItemIds.indexOf(b.id)),
+        ...otherItems
+      ].map(item => ({
+        ...item,
+        price: item.price ? Number(item.price) : 0,
+      }));
+
+      const series: Series = {
+        items: sortedItems,
+      };
+      seriesArray.push(series);
+    }
+
+    return seriesArray.length > 0 ? seriesArray : null;
+  } catch (error) {
+    console.error("Unexpected error in getSeries for Searching:", error);
+    return null;
+  }
+};
+
+const getSeriesForRecommendation = async (
+  series_ids: string[],
+  originalItemIds: string[],
+  gender: string,
+  clothingType: string
+): Promise<Series[] | null> => {
+  try {
+    console.time("getSeriesForRecommendation");
+    clothingType = clothingType === "top" ? "bottom" : "top";
+    let genderString = gender === "neutral" ? "all" : gender;
+
+    const viewName = `${genderString}_${clothingType}_item_matview`;
+  
+    const uniqueSeriesIds = Array.from(new Set(series_ids));
+    const seriesArray: Series[] = [];
+
+    for (const seriesId of uniqueSeriesIds) {
+      const data: SimplifiedItemTable[] = await prisma.$queryRawUnsafe(
+        `SELECT id, clothing_type, color, external_link, gender, image_url, label_string, price, provider, series_id, title
+        FROM ${viewName} WHERE series_id = $1;`, seriesId
+      );
+
+      if (data.length === 0) {
+        console.log(`No valid items for series ${seriesId}.`);
+        continue;
+      }
+
+      const originalItems = data.filter(item => originalItemIds.includes(item.id));
+      const otherItems = data.filter(item => !originalItemIds.includes(item.id));
+
+      const sortedItems = [
+        ...originalItems.sort((a, b) => originalItemIds.indexOf(a.id) - originalItemIds.indexOf(b.id)),
+        ...otherItems
+      ].map(item => ({
+        ...item,
+        price: item.price ? Number(item.price) : 0,
+      }));
+
+      const series: Series = {
+        items: sortedItems,
+      };
+      seriesArray.push(series);
+    }
+    
+    console.timeEnd("getSeriesForRecommendation");
+    return seriesArray.length > 0 ? seriesArray : null;
+  } catch (error) {
+    console.error("Unexpected error in getSeries for Recommendation:", error);
     return null;
   }
 };
@@ -192,4 +261,6 @@ export {
   getSeriesIdsByItemIds,
   getSuggestion,
   getUploadById,
+  getSeriesByIdsForSearching,
+  getSeriesForRecommendation
 };

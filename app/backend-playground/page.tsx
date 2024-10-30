@@ -1,10 +1,10 @@
 "use server";
 
-import { bruteForceAction } from "@/actions/utils/delete";
+import { handleRecommendationWithoutLogin } from "@/actions/upload";
 
 export default async function Playground2() {
   try {
-      // const result = bruteForceAction(23);
+      // const result = handleRecommendationWithoutLogin("top", "female", "gpt-4o-mini", 3, 10, "https://eapzlwxcyrinipmcdoir.supabase.co/storage/v1/object/public/image/image-56522f10-093d-4ddf-b602-8fde70c00e4b");
       // console.log(result);
 
   } catch (error) {

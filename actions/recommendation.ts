@@ -16,60 +16,8 @@ import {
   getSeriesIdsByItemIds,
   getSuggestion,
   getUploadById,
+  getSeriesForRecommendation
 } from "./utils/fetch";
-import prisma from "@/prisma/db";
-
-const getSeries = async (
-  series_ids: string[],
-  originalItemIds: string[],
-  gender: string,
-  clothingType: string
-): Promise<Series[] | null> => {
-  try {
-    console.time("getSeriesForRecommendation");
-    clothingType = clothingType === "top" ? "bottom" : "top";
-    let genderString = gender === "neutral" ? "all" : gender;
-
-    const viewName = `${genderString}_${clothingType}_item_matview`;
-  
-    const uniqueSeriesIds = Array.from(new Set(series_ids));
-    const seriesArray: Series[] = [];
-
-    for (const seriesId of uniqueSeriesIds) {
-      const data: SimplifiedItemTable[] = await prisma.$queryRawUnsafe(
-        `SELECT id, clothing_type, color, external_link, gender, image_url, label_string, price, provider, series_id, title
-        FROM ${viewName} WHERE series_id = $1;`, seriesId
-      );
-
-      if (data.length === 0) {
-        console.log(`No valid items for series ${seriesId}.`);
-        continue;
-      }
-
-      const originalItems = data.filter(item => originalItemIds.includes(item.id));
-      const otherItems = data.filter(item => !originalItemIds.includes(item.id));
-
-      const sortedItems = [
-        ...originalItems.sort((a, b) => originalItemIds.indexOf(a.id) - originalItemIds.indexOf(b.id)),
-        ...otherItems
-      ].map(item => ({
-        ...item,
-        price: item.price ? Number(item.price) : 0,
-      }));
-
-      const series: Series = {
-        items: sortedItems,
-      };
-      seriesArray.push(series);
-    }
-    
-    console.timeEnd("getSeriesForRecommendation");
-    return seriesArray.length > 0 ? seriesArray : null;
-  } catch (error) {
-    console.error("Unexpected error in getSeries for Recommendation:", error);
-    return null;
-  }
-};
 
 const getRecommendationRecordById = async (
   recommendation_id: number
@@ -105,7 +53,7 @@ const getRecommendationRecordById = async (
 
       const gender = recommendation_record.param.gender ?? "neutral";
       const clothingType = recommendation_record.param.clothing_type ?? "top";
-      const series = (await getSeries(series_ids, item_ids, gender, clothingType)) as Series[];
+      const series = (await getSeriesForRecommendation(series_ids, item_ids, gender, clothingType)) as Series[];
       if (!series) throw new Error("No series found");
 
       recommendation_record.styles![styleName] = {

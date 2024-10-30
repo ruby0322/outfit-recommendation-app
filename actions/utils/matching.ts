@@ -1,5 +1,6 @@
 "use server";
-import { SearchResult, Series, SimplifiedItemTable, UnstoredResult, ClothingType, Gender } from "@/type";
+import { SearchResult, Series, SimplifiedItemTable, UnstoredResult, ClothingType, Gender, ItemTable } from "@/type";
+import { getSeriesByIdsForSearching } from "./fetch";
 import { generateEmbedding } from "./embedding";
 import prisma from "@/prisma/db";
 
@@ -72,52 +73,6 @@ const vectorSearchForSearching = async (
   }
 };
 
-const getSeriesByIdsForSearching = async (
-  series_ids: string[],
-  originalItemIds: string[],
-  gender: string,
-): Promise<Series[] | null> => {
-  try {
-    const matViewName = gender === "neutral" ? `Item` : `${gender}_item_matview`;
-
-    const uniqueSeriesIds = Array.from(new Set(series_ids));
-    const seriesArray: Series[] = [];
-
-    for (const seriesId of uniqueSeriesIds) {
-      const items = await prisma.$queryRawUnsafe<SimplifiedItemTable[]>(
-        `SELECT id, clothing_type, color, external_link, gender, image_url, label_string, price, provider, series_id, title
-        FROM ${matViewName} WHERE series_id = $1`,
-        seriesId
-      );
-      if (!items || items.length === 0) {
-        console.log(`No valid items for series ${seriesId}.`);
-        continue;
-      }
-
-      const originalItems = items.filter(item => originalItemIds.includes(item.id));
-      const otherItems = items.filter(item => !originalItemIds.includes(item.id));
-
-      const sortedItems = [
-        ...originalItems.sort((a, b) => originalItemIds.indexOf(a.id) - originalItemIds.indexOf(b.id)),
-        ...otherItems
-      ].map(item => ({
-        ...item,
-        price: item.price ? Number(item.price) : 0,
-      }));
-
-      const series: Series = {
-        items: sortedItems,
-      };
-      seriesArray.push(series);
-    }
-
-    return seriesArray.length > 0 ? seriesArray : null;
-  } catch (error) {
-    console.error("Unexpected error in getSeries for Searching:", error);
-    return null;
-  }
-};
-
 const semanticSearchForRecommendation = async ({
   suggestionId,
   suggestedLabelString,
@@ -154,6 +109,64 @@ const semanticSearchForRecommendation = async ({
     return results;
   } catch (error) {
     console.error("Error in semanticSearchForRecommendation:", error);
+    return null;
+  }
+};
+
+const semanticSearchWithoutLogin = async ({
+  suggestedLabelString,
+  numMaxItem,
+  gender,
+  clothing_type,
+}: {
+  suggestedLabelString: string;
+  numMaxItem: number;
+  gender: Gender;
+  clothing_type: ClothingType;
+}): Promise<Series[] | null> => {
+  try {
+    const similarItems = await vectorSearchForRecommendation(
+      suggestedLabelString,
+      numMaxItem,
+      gender,
+      clothing_type,
+    );
+
+    if (!similarItems) {
+      return null;
+    }
+
+    const itemIds = similarItems.flatMap(series => series.items.map(item => item.id));
+
+    const items: ItemTable[] = await prisma.item.findMany({
+      where: {
+        id: {
+          in: itemIds,
+        },
+      },
+    });
+
+    const simplifiedItems: SimplifiedItemTable[] = items.map(item => ({
+      clothing_type: item.clothing_type,
+      gender: item.gender,
+      id: item.id,
+      color: item.color,
+      external_link: item.external_link,
+      image_url: item.image_url,
+      label_string: item.label_string,
+      price: item.price,
+      provider: item.provider,
+      series_id: item.series_id,
+      title: item.title,
+    }));
+
+    const seriesArray: Series[] = [{
+      items: simplifiedItems,
+    }];
+
+    return seriesArray;
+  } catch (error) {
+    console.error("Error in semanticSearchWithoutLogin:", error);
     return null;
   }
 };
@@ -199,4 +212,4 @@ const semanticSearchForSearching = async ({
   }
 };
 
-export { semanticSearchForRecommendation, semanticSearchForSearching };
+export { semanticSearchForRecommendation, semanticSearchForSearching, semanticSearchWithoutLogin };

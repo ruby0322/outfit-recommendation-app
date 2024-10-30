@@ -1,5 +1,5 @@
 "use server";
-import { SearchResult, UnstoredResult } from "@/type";
+import { SearchResult, UnstoredResult, RecommendationWithoutLogin } from "@/type";
 import { sendImgURLAndPromptToGPT, sendPromptToGPT } from "./utils/chat";
 import {
   insertParam,
@@ -11,6 +11,7 @@ import {
 import {
   semanticSearchForRecommendation,
   semanticSearchForSearching,
+  semanticSearchWithoutLogin
 } from "./utils/matching";
 import {
   constructPromptForImageSearch,
@@ -20,98 +21,6 @@ import {
 import { validateLabelString } from "./utils/validate";
 
 import { ClothingType, Gender } from "@/type";
-
-// const validateForRecommendation = (
-//   recommendations: string,
-//   clothingType: ClothingType
-// ) => {
-//   try {
-//     const recommendationsArray = JSON.parse(
-//       recommendations.replace(/```json\n?|\n?```/g, "").trim()
-//     );
-    
-//     if (!Array.isArray(recommendationsArray))
-//       throw new Error("Invalid recommendation format");
-
-//     return recommendationsArray
-//       .filter((rec) => {
-//         const requiredKeys = [
-//           "顏色",
-//           "服裝類型",
-//           "剪裁版型",
-//           "設計特點",
-//           "材質",
-//           "細節",
-//         ];
-        
-//         const specificKeys = clothingType === "top"
-//           ? ["褲管", "裙擺"]
-//           : ["領子", "袖子"];
-
-//         return [...requiredKeys, ...specificKeys].every(
-//           (key) => key in rec.item
-//         );
-//       })
-//       .map((rec) => {
-//         const specificInfo = clothingType === "top"
-//           ? `褲管: ${rec.item.褲管}, 裙擺: ${rec.item.裙擺}`
-//           : `領子: ${rec.item.領子}, 袖子: ${rec.item.袖子}`;
-
-//         return {
-//           styleName: rec.styleName,
-//           description: rec.description,
-//           labelString: `顏色: ${rec.item.顏色}, 服裝類型: ${rec.item.服裝類型}, 剪裁版型: ${rec.item.剪裁版型}, 設計特點: ${rec.item.設計特點}, 材質: ${rec.item.材質}, 細節: ${rec.item.細節}, ${specificInfo}`,
-//         };
-//       });
-//   } catch (error) {
-//     console.error("Error in validateAndCleanRecommendations", error);
-//     return [];
-//   }
-// };
-
-// const validateForSearching = (
-//   recommendations: string,
-// ) => {
-//   try {
-//     const recommendationsArray = JSON.parse(
-//       recommendations.replace(/```json\n?|\n?```/g, "").trim()
-//     );
-//     if (!Array.isArray(recommendationsArray))
-//       throw new Error("Invalid recommendation format");
-
-//     return recommendationsArray
-//       .filter((rec) => {
-//         const requiredKeys = [
-//           "顏色",
-//           "服裝類型",
-//           "剪裁版型",
-//           "設計特點",
-//           "材質",
-//           "細節",
-//         ];
-
-//         return requiredKeys.every((key) => key in rec.item);
-//       })
-//       .map((rec) => {
-//         const optionalFields = [];
-//         if (rec.item.領子) optionalFields.push(`領子: ${rec.item.領子}`);
-//         if (rec.item.袖子) optionalFields.push(`袖子: ${rec.item.袖子}`);
-//         if (rec.item.褲管) optionalFields.push(`褲管: ${rec.item.褲管}`);
-//         if (rec.item.裙擺) optionalFields.push(`裙擺: ${rec.item.裙擺}`);
-
-//         const optionalInfo = optionalFields.length > 0 ? `, ${optionalFields.join(", ")}` : "";
-
-//         return {
-//           styleName: rec.styleName,
-//           description: rec.description,
-//           labelString: `顏色: ${rec.item.顏色}, 服裝類型: ${rec.item.服裝類型}, 剪裁版型: ${rec.item.剪裁版型}, 設計特點: ${rec.item.設計特點}, 材質: ${rec.item.材質}, 細節: ${rec.item.細節}${optionalInfo}`,
-//         };
-//       });
-//   } catch (error) {
-//     console.error("Error in validateAndCleanLabelString", error);
-//     return [];
-//   }
-// };
 
 const handleRecommendation = async (
   clothingType: ClothingType,
@@ -162,6 +71,67 @@ const handleRecommendation = async (
   }
 };
 
+const handleRecommendationWithoutLogin = async (
+  clothingType: ClothingType,
+  gender: Gender,
+  model: string,
+  numMaxSuggestion: number,
+  numMaxItem: number,
+  imageUrl: string
+): Promise<RecommendationWithoutLogin[] | null> => {
+  try {
+    const prompt = constructPromptForRecommendation({ clothingType, gender, numMaxSuggestion });
+    const rawLabelString: string | null = await sendImgURLAndPromptToGPT({ model, prompt, imageUrl });
+
+    if (rawLabelString) {
+      const cleanedLabels = validateLabelString(rawLabelString, clothingType);
+
+      if (cleanedLabels.length > 0) {
+        const recommendations: RecommendationWithoutLogin[] = [];
+
+        for (const cleanedLabel of cleanedLabels) {
+          const labelString = cleanedLabel.labelString;
+          const description = cleanedLabel.description;
+
+          const results = await semanticSearchWithoutLogin({
+            suggestedLabelString: labelString,
+            numMaxItem,
+            gender,
+            clothing_type: clothingType,
+          });
+
+          if (results) {
+            const recommendation: RecommendationWithoutLogin = {
+              clothing_type: clothingType,
+              gender: gender,
+              model: model,
+              image_url: imageUrl,
+              styles: {
+                default: {
+                  series: results,
+                  description: description,
+                },
+              },
+            };
+            recommendations.push(recommendation);
+          } else {
+            console.error("No results found in semanticSearchWithoutLogin for label:", labelString);
+          }
+        }
+        return recommendations;
+      } else {
+        console.error("No valid labels found after cleaning");
+        return null;
+      }
+    } else {
+      console.error("No label string returned from GPT");
+      return null;
+    }
+  } catch (error) {
+    console.error("Error in handleRecommendationWithoutLogin:", error);
+    return null;
+  }
+};
 
 const handleImageSearch = async (
   gender: Gender,
@@ -250,4 +220,4 @@ const handleTextSearch = async (
   }
 };
 
-export { handleImageSearch, handleRecommendation, handleTextSearch };
+export { handleImageSearch, handleRecommendation, handleTextSearch, handleRecommendationWithoutLogin };

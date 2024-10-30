@@ -56,7 +56,6 @@ const insertResults = async (
   }
 };
 
-// Inserts a suggestion into the database
 const insertSuggestion = async ({
   recommendationId,
   labelString,

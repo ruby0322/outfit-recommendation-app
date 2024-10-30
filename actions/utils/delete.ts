@@ -53,8 +53,6 @@ const bruteForceAction = async (recommendationId: number) => {
       await deleteParamById(paramId);
       await deleteUploadById(uploadId);
     }
-
-    // console.log(`Brute force action completed for recommendation ID: ${recommendationId}`);
     return;
   } catch (error) {
     console.error("Error in bruteForceAction:", error);
