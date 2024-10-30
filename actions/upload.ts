@@ -198,7 +198,7 @@ const handleImageSearch = async (
         rawLabelString,
       );
 
-      console.log("Cleaned labels in image search: ", cleanedLabels);
+      // console.log("Cleaned labels in image search: ", cleanedLabels);
 
       if (cleanedLabels.length > 0) {
         const labelString = cleanedLabels[0].labelString;
