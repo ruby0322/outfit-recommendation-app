@@ -1,5 +1,6 @@
 "use client";
 
+import { RefObject } from "react";
 import FeatureCard from "../feature-card";
 import AssetSelection from "../illustrations/asset-selection";
 import SearchEngine from "../illustrations/search-engine";
@@ -25,14 +26,15 @@ const FEATURES = [
   },
 ];
 
-const OverviewSection = () => {
+const OverviewSection = ({ ref }: { ref?: RefObject<HTMLElement> }) => {
   return (
     <section
+      ref={ref}
       id='overview'
-      className='px-10 flex flex-col gap-12 items-center justify-content bg-indigo-400 py-16'
+      className='px-10 flex flex-col gap-12 items-center justify-content bg-indigo-400 py-14'
     >
       <div className='text-center'>
-        <h2 className='animate-pulse text-3xl font-bold mb-12 text-white'>
+        <h2 className='animate-pulse text-3xl font-bold mb-20 text-white'>
           時尚。簡單。精準。
         </h2>
         <p className='italic text-white max-w-[30rem] '>
