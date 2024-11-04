@@ -4,11 +4,15 @@ import { handleRecommendationWithoutLogin, handleTextSearch } from "@/actions/up
 
 export default async function Playground2() {
   try {
-      const result = handleTextSearch("請給我藍色清爽襯衫", "gpt-4o-mini", "male", 500, 700, ["H&M", "UNIQLO"], "top");
-      console.log(result);
+    // const result = await handleTextSearch("請給我藍色清爽襯衫", "gpt-4o-mini", "male", 1, 500, 700, ["H&M", "UNIQLO"], "top");
+    // console.log(result);
+    
+    // const result2 = await handleTextSearch("請給我藍色清爽襯衫", "gpt-4o-mini", "male", 2, 500, 700, ["H&M", "UNIQLO"], "top");
+    // console.log("##########");
+    // console.log(result2);
 
   } catch (error) {
-      console.error("Error during backend function calls", error);
+    console.error("Error during backend function calls", error);
   }
 
   return (
@@ -18,4 +22,3 @@ export default async function Playground2() {
     </div>
   );
 }
-

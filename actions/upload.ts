@@ -138,6 +138,7 @@ const handleImageSearch = async (
   gender: Gender,
   model: string,
   imageUrl: string,
+  page: number,
   priceLowerBound?: number,
   priceUpperBound?: number,
   providers?: string[],
@@ -166,6 +167,7 @@ const handleImageSearch = async (
           priceUpperBound,
           providers,
           clothingType,
+          page,
         });
         return searchResult;
       } else {
@@ -186,10 +188,11 @@ const handleTextSearch = async (
   query: string,
   model: string,
   gender: Gender,
+  page: number,
   priceLowerBound?: number,
   priceUpperBound?: number,
   providers?: string[],
-  clothingType?: ClothingType
+  clothingType?: ClothingType,
 ): Promise<SearchResult | null> => {
   try {
     const prompt: string = constructPromptForTextSearch({
@@ -218,6 +221,7 @@ const handleTextSearch = async (
             priceUpperBound,
             providers,
             clothingType,
+            page,
           });
         return searchResult;
       } else {

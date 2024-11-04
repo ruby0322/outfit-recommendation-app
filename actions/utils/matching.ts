@@ -43,18 +43,21 @@ const vectorSearchForRecommendation = async (
 
 const vectorSearchForSearching = async (
   suggestedLabelString: string,
-  numMaxItem: number,
+  page: number,
+  pageSize: number = 20,
   gender: Gender,
   priceLowerBound?: number,
   priceUpperBound?: number,
   providers?: string[],
-  clothingType?: ClothingType,
+  clothingType?: "top" | "bottom"
 ): Promise<Series[] | null> => {
   try {
     const suggestedEmbedding = await generateEmbedding(suggestedLabelString);
     const matchThreshold = 0.2;
     let genderString = gender === "neutral" ? "all" : gender;
     const viewName = `${genderString}_item_matview`;
+
+    const offset = (page - 1) * pageSize;
 
     let query = `
       SELECT id, clothing_type, color, external_link, gender, image_url, label_string, price, provider, series_id, title
@@ -88,12 +91,14 @@ const vectorSearchForSearching = async (
 
     query += `
       ORDER BY ${viewName}.embedding <#> $1::vector
-      LIMIT $${paramIndex};
+      LIMIT $${paramIndex++} OFFSET $${paramIndex};
     `;
-    queryParams.push(numMaxItem);
+    queryParams.push(pageSize, offset);
 
     const items: SimplifiedItemTable[] = await prisma.$queryRawUnsafe(query, ...queryParams);
-    console.log("the query is: ", query);
+    
+    const itemIds = items.map(item => item.id);
+    console.log("the item_ids: ", itemIds);
 
     const series: Series[] = items.map(simplifiedItem => ({
       items: [{
@@ -101,7 +106,6 @@ const vectorSearchForSearching = async (
         price: simplifiedItem.price ? Number(simplifiedItem.price) : 0,
       }],
     }));
-    console.log("the vector search series: ", series);
     return series;
   } catch (error) {
     handleDatabaseError(error, "vectorSearchForSearching");
@@ -214,7 +218,8 @@ const semanticSearchForSearching = async ({
   priceLowerBound,
   priceUpperBound,
   providers,
-  clothingType
+  clothingType,
+  page,
 }: {
   suggestedLabelString: string;
   gender: Gender;
@@ -222,10 +227,12 @@ const semanticSearchForSearching = async ({
   priceUpperBound?: number;
   providers?: string[];
   clothingType?: ClothingType;
+  page: number;
 }): Promise<SearchResult | null> => {
   try {
     const similarItems = await vectorSearchForSearching(
       suggestedLabelString,
+      page,
       20,
       gender,
       priceLowerBound,
@@ -258,7 +265,7 @@ const semanticSearchForSearching = async ({
     const searchResult: SearchResult = {
       series: safeSeriesArray,
     };
-    console.log("final search results: ", searchResult);
+    // console.log("final search results: ", searchResult);
     return searchResult;
   } catch (error) {
     handleDatabaseError(error, "semanticSearchForSearching");
