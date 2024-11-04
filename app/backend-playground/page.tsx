@@ -1,11 +1,11 @@
 "use server";
 
-import { handleRecommendationWithoutLogin } from "@/actions/upload";
+import { handleRecommendationWithoutLogin, handleTextSearch } from "@/actions/upload";
 
 export default async function Playground2() {
   try {
-      // const result = handleRecommendationWithoutLogin("top", "female", "gpt-4o-mini", 3, 10, "https://eapzlwxcyrinipmcdoir.supabase.co/storage/v1/object/public/image/image-56522f10-093d-4ddf-b602-8fde70c00e4b");
-      // console.log(result);
+      const result = handleTextSearch("請給我藍色清爽襯衫", "gpt-4o-mini", "male", 500, 700, ["H&M", "UNIQLO"], "top");
+      console.log(result);
 
   } catch (error) {
       console.error("Error during backend function calls", error);

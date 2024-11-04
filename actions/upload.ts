@@ -19,7 +19,7 @@ import {
   constructPromptForTextSearch,
 } from "./utils/prompt";
 import { validateLabelString } from "./utils/validate";
-import { handleDatabaseError } from "./utils/activity";
+import { handleDatabaseError } from "./activity";
 
 import { ClothingType, Gender } from "@/type";
 
@@ -137,7 +137,11 @@ const handleRecommendationWithoutLogin = async (
 const handleImageSearch = async (
   gender: Gender,
   model: string,
-  imageUrl: string
+  imageUrl: string,
+  priceLowerBound?: number,
+  priceUpperBound?: number,
+  providers?: string[],
+  clothingType?: ClothingType
 ): Promise<SearchResult | null> => {
   try {
     const prompt: string = constructPromptForImageSearch({
@@ -151,17 +155,18 @@ const handleImageSearch = async (
     });
 
     if (rawLabelString) {
-      const cleanedLabels = validateLabelString(
-        rawLabelString,
-      );
+      const cleanedLabels = validateLabelString(rawLabelString);
 
       if (cleanedLabels.length > 0) {
         const labelString = cleanedLabels[0].labelString;
-        const searchResult: SearchResult | null =
-          await semanticSearchForSearching({
-            suggestedLabelString: labelString,
-            gender,
-          });
+        const searchResult: SearchResult | null = await semanticSearchForSearching({
+          suggestedLabelString: labelString,
+          gender,
+          priceLowerBound,
+          priceUpperBound,
+          providers,
+          clothingType,
+        });
         return searchResult;
       } else {
         console.error("No valid labels found after cleaning");
@@ -180,7 +185,11 @@ const handleImageSearch = async (
 const handleTextSearch = async (
   query: string,
   model: string,
-  gender: Gender
+  gender: Gender,
+  priceLowerBound?: number,
+  priceUpperBound?: number,
+  providers?: string[],
+  clothingType?: ClothingType
 ): Promise<SearchResult | null> => {
   try {
     const prompt: string = constructPromptForTextSearch({
@@ -204,7 +213,11 @@ const handleTextSearch = async (
         const searchResult: SearchResult | null =
           await semanticSearchForSearching({
             suggestedLabelString: labelString,
-            gender
+            gender,
+            priceLowerBound,
+            priceUpperBound,
+            providers,
+            clothingType,
           });
         return searchResult;
       } else {

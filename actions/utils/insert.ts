@@ -4,7 +4,7 @@ import { UnstoredResult, ClothingType, Gender } from "@/type";
 import { revalidatePath } from "next/cache";
 import { v4 as uuidv4 } from "uuid";
 import prisma from "@/prisma/db";
-import { handleDatabaseError } from "./activity";
+import { handleDatabaseError } from "../activity";
 
 
 const base64ToBlob = (base64: string): Blob => {

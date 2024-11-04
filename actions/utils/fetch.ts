@@ -10,7 +10,7 @@ import {
   Series,
   SimplifiedItemTable
 } from "@/type";
-import { handleDatabaseError } from './activity';
+import { handleDatabaseError } from '../activity';
 
 const getResults = async (suggestionId: number): Promise<ResultTable[] | null> => {
   try {

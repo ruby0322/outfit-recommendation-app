@@ -17,25 +17,27 @@ import {
   getUploadById,
   getSeriesForRecommendation
 } from "./utils/fetch";
-import { handleDatabaseError } from "./utils/activity";
+import { handleDatabaseError } from "./activity";
 
 const getRecommendationRecordById = async (
-  recommendation_id: number
+  recommendation_id: number,
+  user_id: string,
 ): Promise<Recommendation | null> => {
   try {
-    const recommendation = (await getRecommendationById(
-      recommendation_id
-    )) as RecommendationTable;
-    const recommendation_record: Partial<Recommendation> = {};
+    const recommendation = await getRecommendationById(recommendation_id) as RecommendationTable;
+    if (!recommendation || recommendation.user_id !== user_id) return null;
 
-    const param_id = recommendation.param_id as number;
-    const upload_id = recommendation.upload_id as number;
-    const param = (await getParamById(param_id)) as ParamTable;
-    const upload = (await getUploadById(upload_id)) as UploadTable;
+    const param = await getParamById(recommendation.param_id as number) as ParamTable;
+    if (!param) throw new Error("Parameter not found for given param_id");
 
-    recommendation_record.param = param;
-    recommendation_record.upload = upload;
-    recommendation_record.styles = {};
+    const upload = await getUploadById(recommendation.upload_id as number) as UploadTable;
+    if (!upload) throw new Error("Upload not found for given upload_id");
+
+    const recommendation_record: Partial<Recommendation> = {
+      param: param,
+      upload: upload,
+      styles: {},
+    };
 
     const suggestions = (await getSuggestion(
       recommendation_id
@@ -44,15 +46,15 @@ const getRecommendationRecordById = async (
       const styleName = s.style_name as string;
       const description = s.description as string;
       const results = (await getResults(s.id)) as ResultTable[];
-      if (!results) throw new Error("No results found");
+      if (!results.length) throw new Error("No results found");
 
       const item_ids = results.map((r) => r.item_id) as string[];
 
       const series_ids = (await getSeriesIdsByItemIds(item_ids)) as string[];
       if (!series_ids.length) throw new Error("No series IDs found");
 
-      const gender = recommendation_record.param.gender ?? "neutral";
-      const clothingType = recommendation_record.param.clothing_type ?? "top";
+      const gender = recommendation_record.param?.gender ?? "neutral";
+      const clothingType = recommendation_record.param?.clothing_type ?? "top";
       const series = (await getSeriesForRecommendation(series_ids, item_ids, gender, clothingType)) as Series[];
       if (!series) throw new Error("No series found");
 

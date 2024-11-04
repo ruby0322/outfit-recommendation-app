@@ -1,6 +1,6 @@
 "use server";
 import prisma from '@/prisma/db';
-import { handleDatabaseError } from './activity';
+import { handleDatabaseError } from '../activity';
 
 const deleteParamById = async (paramId: number) => {
   try {
