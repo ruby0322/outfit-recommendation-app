@@ -1,3 +1,4 @@
+import TourCard from '@/components/tour-card';
 import { GeistSans } from "geist/font/sans";
 import "./globals.css";
 
@@ -8,6 +9,7 @@ import { cn } from "@/lib/utils";
 
 import Footer from "@/components/footer";
 import { Toaster } from "@/components/ui/toaster";
+import { Onborda, OnbordaProvider, Step } from "onborda";
 const fontSans = FontSans({
   subsets: ["latin"],
   variable: "--font-sans",
@@ -23,6 +25,56 @@ export const metadata = {
   description: "Tin can, can you?",
 };
 
+const steps: Step[] = [
+  // Example steps
+  {
+    icon: <></>,
+    title: "上傳照片",
+    content: <>上傳你想要搭配的上衣或下身單品。</>,
+    selector: "#image-uploader",
+    side: "top",
+    showControls: true,
+    pointerPadding: -1,
+    pointerRadius: 24,
+    nextRoute: '/upload?step=2'
+  },
+  {
+    icon: <></>,
+    title: "選擇參數",
+    content: <>勾選你的需求。</>,
+    selector: "#form-fields",
+    side: "right",
+    showControls: true,
+    pointerPadding: -1,
+    pointerRadius: 24,
+    prevRoute: '/upload?step=1',
+    nextRoute: '/upload?step=3'
+  },
+  {
+    icon: <></>,
+    title: "確認上傳",
+    content: <>確認無誤就可以進行推薦啦！</>,
+    selector: "#overview",
+    side: "right",
+    showControls: true,
+    pointerPadding: -1,
+    pointerRadius: 24,
+    prevRoute: '/upload?step=2',
+    nextRoute: '/upload?step=1'
+  },
+  {
+    icon: <></>,
+    title: "歷史紀錄",
+    content: <>還可以查看之前的推薦結果唷～</>,
+    selector: "#recommendation-tabs-list",
+    side: "bottom",
+    showControls: true,
+    pointerPadding: -1,
+    pointerRadius: 24,
+    prevRoute: '/upload?step=3',
+  },
+];
+
 export default async function RootLayout({
   children,
 }: {
@@ -37,9 +89,20 @@ export default async function RootLayout({
         )}
       >
         <Header />
-        <div className='flex-1 flex justify-center min-h-[93vh] items-center overflow-y-scroll overflow-x-hiddena'>
-          {children}
-        </div>
+        <OnbordaProvider>
+          <Onborda
+            steps={[{ 'tour': 'test', 'steps': steps }]}
+            showOnborda={true}
+            // shadowRgb="55,48,163"
+            shadowOpacity="0.8"
+            cardComponent={TourCard}
+            cardTransition={{ duration: 0.5, type: "tween" }}
+          >
+            <div className='flex-1 flex justify-center min-h-[93vh] items-center overflow-y-scroll overflow-x-hiddena'>
+              {children}
+            </div>
+          </Onborda>
+        </OnbordaProvider>
         <Footer />
         <Toaster />
       </body>

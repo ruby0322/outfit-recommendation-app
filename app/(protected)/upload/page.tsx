@@ -10,10 +10,11 @@ import { createClient } from "@/utils/supabase/client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import imageCompression from 'browser-image-compression';
 import { motion } from "framer-motion";
-import { CheckCircle, ChevronLeft } from "lucide-react";
+import { CheckCircle, ChevronLeft, CircleHelp } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useOnborda } from "onborda";
 import { useCallback, useState } from "react";
 import { FormProvider, useForm, useFormContext } from "react-hook-form";
 import { z } from "zod";
@@ -50,9 +51,15 @@ const ProgressBar = ({
 
 // ImageUpload Component
 const ImageUpload = ({ onImageUpload }: { onImageUpload: () => void }) => {
+  const { startOnborda } = useOnborda();
   return (
-    <div className='w-full flex-1 flex flex-col gap-4 items-center justify-center h-auto'>
-      <h1 className='w-full text-start text-2xl text-gray-600'>➊ 照片上傳</h1>
+    <div id='image-uploader' className='w-full flex-1 flex flex-col gap-4 items-center justify-center h-auto'>
+      <div className="w-full flex text-gray-600 items-center justify-start gap-2">
+        <h1 className='text-start text-2xl'>
+          ➊ 照片上傳
+        </h1>
+        <CircleHelp className="w-4 cursor-pointer" onClick={() => { startOnborda('test') }} />
+      </div>
       <ImageUploader onImageUpload={onImageUpload} />
     </div>
   );
@@ -74,7 +81,7 @@ const FormFields = ({ nextStep }: { nextStep: () => void }) => {
   };
 
   return (
-    <div className='flex-1 flex gap-4 flex-col items-center justify-center h-auto'>
+    <div id='form-fields' className='flex-1 flex gap-4 flex-col items-center justify-center h-auto'>
       <h1 className='w-full text-start text-2xl text-gray-600'>➋ 基本資訊</h1>
       <CustomizationFields />
       <motion.button
@@ -112,11 +119,11 @@ const Overview = ({
   const formData = getValues();
   // console.log(formData.uploadedImage[0]);
   return (
-    <div className='flex-1 flex flex-col items-center justify-center h-auto gap-4'>
+    <div id='overview' className='flex-1 flex flex-col items-center justify-center h-auto gap-4'>
       <h1 className='w-full text-start text-2xl text-gray-600'>➌ 確認上傳</h1>
       <div>
         <Image
-          src={URL.createObjectURL(formData.uploadedImage[0])}
+          src={formData.uploadedImage ? URL.createObjectURL(formData.uploadedImage[0]) : 'https://eapzlwxcyrinipmcdoir.supabase.co/storage/v1/object/public/image/image-018f80af-65bb-48fd-ba2f-43051785c660'}
           alt='Uploaded'
           className='w-80 h-80 object-cover rounded-lg mb-4'
           width={128}
@@ -183,15 +190,21 @@ const ConfirmationAnimation = () => {
 
 // Main Component
 export default function UploadPage() {
+  const searchParams = useSearchParams();
+  const currentStep = parseInt(searchParams.get('step') as string) || 1;
   const router = useRouter();
   const methods = useForm({
     resolver: zodResolver(schema),
   });
   const [loading, setLoading] = useState<boolean>(false);
 
-  const [currentStep, setCurrentStep] = useState<number>(1);
+  // const [currentStep, setCurrentStep] = useState<number>(currentStep ? parseInt(currentStep) : 1);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isConfirmed, setIsConfirmed] = useState<boolean>(false);
+
+  const setCurrentStep = (step: number) => {
+    router.push(`/upload?step=${step}`);
+  }
 
   const nextStep = () => {
     setCurrentStep(currentStep + 1);
@@ -280,14 +293,17 @@ export default function UploadPage() {
   return (
     <div className='relative w-full h-screen flex flex-col items-center justify-center'>
       <div className='w-full flex-1 h-auto flex flex-col items-center justify-center gap-4'>
-        <div className="flex w-[20rem] items-center justify-center bg-gray-200 rounded-md py-2 px-0">
-          <div className="px-10 rounded-sm py-1 bg-gray-100">新的推薦</div>
-          <div className="px-10 rounded-sm py-1 cursor-pointer">
-            <Link href='/history'>
-              歷史紀錄
-            </Link>
+        {
+          currentStep === 1 &&
+          <div id='recommendation-tabs-list' className="flex w-[20rem] items-center justify-center bg-gray-200 rounded-md py-2 px-0">
+            <div className="px-10 rounded-sm py-1 bg-gray-100">新的推薦</div>
+            <div className="px-10 rounded-sm py-1 cursor-pointer">
+              <Link href='/history'>
+                歷史紀錄
+              </Link>
+            </div>
           </div>
-        </div>
+        }
         <FormProvider {...methods}>
           <form onSubmit={methods.handleSubmit(onSubmit)}>
             {currentStep > 1 && (

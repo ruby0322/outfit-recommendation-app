@@ -7,11 +7,10 @@ const ImageSearchSection = () => {
     <Section
       id='image-search-feature'
       title='以服搜服'
-      slogan='簡單一句話，尋找理想單品！'
+      slogan='上傳圖片，精準搜出相似風格！'
       description={
-        `輸入一句簡單的搜尋詞，如衣物的細節、搭配的情境等，
-        系統會根據您的描述推薦合適的單品，讓搜尋更加符合您的需求。
-        邀請您在左側區塊進行試用，探索這項便捷的搜尋體驗！`
+        `上傳任意衣物圖片，我們將即時搜尋同款或相似風格的單品，
+        讓您輕鬆找到滿意的結果。右側的小視窗讓您即刻試用並體驗這項功能效的果！`
       }
       buttonText="探索相似款式！"
       buttonLink="/search"
