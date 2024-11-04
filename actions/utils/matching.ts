@@ -3,6 +3,7 @@ import { SearchResult, Series, SimplifiedItemTable, UnstoredResult, ClothingType
 import { getSeriesByIdsForSearching } from "./fetch";
 import { generateEmbedding } from "./embedding";
 import prisma from "@/prisma/db";
+import { handleDatabaseError } from "./activity";
 
 const vectorSearchForRecommendation = async (
   suggestedLabelString: string,
@@ -11,12 +12,12 @@ const vectorSearchForRecommendation = async (
   clothing_type: ClothingType,
 ): Promise<Series[] | null> => {
   try {
-    clothing_type = clothing_type === "top" ? "bottom" : "top";
+    let clothingTypeString = clothing_type === "top" ? "bottom" : "top";
     let genderString = gender === "neutral" ? "all" : gender;
     const suggestedEmbedding = await generateEmbedding(suggestedLabelString);
     const matchThreshold = 0.2;
 
-    const viewName = `${genderString}_${clothing_type}_item_matview`;
+    const viewName = `${genderString}_${clothingTypeString}_item_matview`;
 
     const items: SimplifiedItemTable[] = await prisma.$queryRawUnsafe(`
       SELECT id, clothing_type, color, external_link, gender, image_url, label_string, price, provider, series_id, title
@@ -35,7 +36,7 @@ const vectorSearchForRecommendation = async (
 
     return series;
   } catch (error) {
-    console.error("Error fetching similar items:", error);
+    handleDatabaseError(error, "vectorSearchForRecommendation");
     return null;
   }
 };
@@ -68,7 +69,7 @@ const vectorSearchForSearching = async (
 
     return series;
   } catch (error) {
-    console.error("Error fetching similar items:", error);
+    handleDatabaseError(error, "vectorSearchForSearching");
     return null;
   }
 };
@@ -108,7 +109,7 @@ const semanticSearchForRecommendation = async ({
 
     return results;
   } catch (error) {
-    console.error("Error in semanticSearchForRecommendation:", error);
+    handleDatabaseError(error, "semanticSearchForRecommendation");
     return null;
   }
 };
@@ -166,7 +167,7 @@ const semanticSearchWithoutLogin = async ({
 
     return seriesArray;
   } catch (error) {
-    console.error("Error in semanticSearchWithoutLogin:", error);
+    handleDatabaseError(error, "semanticSearchWithoutLogin");
     return null;
   }
 };
@@ -207,7 +208,7 @@ const semanticSearchForSearching = async ({
     };
     return searchResult;
   } catch (error) {
-    console.error("Error in semanticSearchForSearching:", error);
+    handleDatabaseError(error, "semanticSearchForSearching");
     return null;
   }
 };

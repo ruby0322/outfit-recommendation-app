@@ -7,7 +7,6 @@ import {
   Series,
   SuggestionTable,
   UploadTable,
-  SimplifiedItemTable
 } from "@/type";
 import {
   getParamById,
@@ -18,6 +17,7 @@ import {
   getUploadById,
   getSeriesForRecommendation
 } from "./utils/fetch";
+import { handleDatabaseError } from "./utils/activity";
 
 const getRecommendationRecordById = async (
   recommendation_id: number
@@ -64,7 +64,7 @@ const getRecommendationRecordById = async (
 
     return recommendation_record as Recommendation;
   } catch (error) {
-    console.error("Unexpected error in getRecommendationById:", error);
+    handleDatabaseError(error, "getRecommendationRecordById");
     return null;
   }
 };

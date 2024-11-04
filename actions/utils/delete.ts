@@ -1,22 +1,29 @@
 "use server";
 import prisma from '@/prisma/db';
+import { handleDatabaseError } from './activity';
 
 const deleteParamById = async (paramId: number) => {
-  await prisma.param.delete({
-    where: {
-      id: paramId,
-    },
-  });
-  return;
+  try {
+    await prisma.param.delete({
+      where: {
+        id: paramId,
+      },
+    });
+  } catch (error) {
+    handleDatabaseError(error, 'deleteParamById');
+  }
 };
 
 const deleteUploadById = async (uploadId: number) => {
-  await prisma.upload.delete({
-    where: {
-      id: uploadId,
-    },
-  });
-  return;
+  try {
+    await prisma.upload.delete({
+      where: {
+        id: uploadId,
+      },
+    });
+  } catch (error) {
+    handleDatabaseError(error, 'deleteUploadById');
+  }
 };
 
 const bruteForceAction = async (recommendationId: number) => {
@@ -44,21 +51,18 @@ const bruteForceAction = async (recommendationId: number) => {
       console.error("Recommendation not found");
       return;
     }
+
     const { param_id: paramId, upload_id: uploadId } = recommendation;
 
     await prisma.recommendation.delete({
       where: { id: recommendationId },
     });
-    if(paramId && uploadId){
-      await deleteParamById(paramId);
-      await deleteUploadById(uploadId);
-    }
-    return;
+
+    if (paramId) await deleteParamById(paramId);
+    if (uploadId) await deleteUploadById(uploadId);
   } catch (error) {
-    console.error("Error in bruteForceAction:", error);
+    handleDatabaseError(error, 'bruteForceAction');
   }
 };
-
-
 
 export { deleteParamById, deleteUploadById, bruteForceAction };

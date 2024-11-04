@@ -10,14 +10,8 @@ import {
   Series,
   SimplifiedItemTable
 } from "@/type";
+import { handleDatabaseError } from './activity';
 
-// Centralized error handling function
-const handleDatabaseError = (error: unknown, functionName: string) => {
-  console.error(`Unexpected error in ${functionName}:`, error);
-  return null; // or handle it as per your application's needs
-};
-
-// Fetches results based on a suggestion ID
 const getResults = async (suggestionId: number): Promise<ResultTable[] | null> => {
   try {
     return await prisma.result.findMany({
@@ -158,7 +152,8 @@ const getSeriesByIdsForSearching = async (
   gender: string,
 ): Promise<Series[] | null> => {
   try {
-    const matViewName = gender === "neutral" ? `Item` : `${gender}_item_matview`;
+    console.time("getSeriesByIdsForSearching");
+    const matViewName = gender === "neutral" ? "all_item_matview" : `${gender}_item_matview`;
 
     const uniqueSeriesIds = Array.from(new Set(series_ids));
     const seriesArray: Series[] = [];
@@ -190,10 +185,10 @@ const getSeriesByIdsForSearching = async (
       };
       seriesArray.push(series);
     }
-
+    console.timeEnd("getSeriesByIdsForSearching");
     return seriesArray.length > 0 ? seriesArray : null;
   } catch (error) {
-    console.error("Unexpected error in getSeries for Searching:", error);
+    handleDatabaseError(error, "getSeriesByIdsForSearching");
     return null;
   }
 };
@@ -206,10 +201,10 @@ const getSeriesForRecommendation = async (
 ): Promise<Series[] | null> => {
   try {
     console.time("getSeriesForRecommendation");
-    clothingType = clothingType === "top" ? "bottom" : "top";
+    let clothingTypeString = clothingType === "top" ? "bottom" : "top";
     let genderString = gender === "neutral" ? "all" : gender;
 
-    const viewName = `${genderString}_${clothingType}_item_matview`;
+    const viewName = `${genderString}_${clothingTypeString}_item_matview`;
   
     const uniqueSeriesIds = Array.from(new Set(series_ids));
     const seriesArray: Series[] = [];
@@ -245,7 +240,7 @@ const getSeriesForRecommendation = async (
     console.timeEnd("getSeriesForRecommendation");
     return seriesArray.length > 0 ? seriesArray : null;
   } catch (error) {
-    console.error("Unexpected error in getSeries for Recommendation:", error);
+    handleDatabaseError(error, "getSeriesForRecommendation");
     return null;
   }
 };

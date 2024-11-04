@@ -19,6 +19,7 @@ import {
   constructPromptForTextSearch,
 } from "./utils/prompt";
 import { validateLabelString } from "./utils/validate";
+import { handleDatabaseError } from "./utils/activity";
 
 import { ClothingType, Gender } from "@/type";
 
@@ -66,7 +67,7 @@ const handleRecommendation = async (
 
     return recommendationId;
   } catch (error) {
-    console.error("Error in handleRecommendation:", error);
+    handleDatabaseError(error, "handleRecommendation");
     return -1;
   }
 };
@@ -128,7 +129,7 @@ const handleRecommendationWithoutLogin = async (
       return null;
     }
   } catch (error) {
-    console.error("Error in handleRecommendationWithoutLogin:", error);
+    handleDatabaseError(error, "handleRecommendationWithoutLogin");
     return null;
   }
 };
@@ -171,7 +172,7 @@ const handleImageSearch = async (
       return null;
     }
   } catch (error) {
-    console.error("Error in handleSearch:", error);
+    handleDatabaseError(error, "handleImageSearch");
     return null;
   }
 };
@@ -215,7 +216,7 @@ const handleTextSearch = async (
       return null;
     }
   } catch (error) {
-    console.error("Error in handleTextSearch:", error);
+    handleDatabaseError(error, "handleTextSearch");
     return null;
   }
 };

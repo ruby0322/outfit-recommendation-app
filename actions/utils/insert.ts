@@ -4,6 +4,7 @@ import { UnstoredResult, ClothingType, Gender } from "@/type";
 import { revalidatePath } from "next/cache";
 import { v4 as uuidv4 } from "uuid";
 import prisma from "@/prisma/db";
+import { handleDatabaseError } from "./activity";
 
 
 const base64ToBlob = (base64: string): Blob => {
@@ -51,7 +52,7 @@ const insertResults = async (
       ? results.map((_, index) => index)
       : [];
   } catch (error) {
-    console.error("Unexpected error in insertResults:", error);
+    handleDatabaseError(error, "insertResults");
     return null;
   }
 };
@@ -78,7 +79,7 @@ const insertSuggestion = async ({
     });
     return suggestion.id;
   } catch (error) {
-    console.error("Unexpected error in insertSuggestion:", error);
+    handleDatabaseError(error, "insertSuggestion");
     return -1;
   }
 };
@@ -103,7 +104,7 @@ const insertRecommendation = async ({
     });
     return recommendation.id;
   } catch (error) {
-    console.error("Unexpected error in insertRecommendation:", error);
+    handleDatabaseError(error, "insertRecommendation");
     return -1;
   }
 };
@@ -123,7 +124,7 @@ const insertParam = async (
     });
     return param.id;
   } catch (error) {
-    console.error("Unexpected error in insertParam:", error);
+    handleDatabaseError(error, "insertParam");
     return -1;
   }
 };
@@ -139,7 +140,7 @@ const insertUpload = async (imageUrl: string, userId: string) => {
     revalidatePath("/upload");
     return upload.id;
   } catch (error) {
-    console.error("Unexpected error in insertUpload:", error);
+    handleDatabaseError(error, "insertUpload");
     return -1;
   }
 };

@@ -61,4 +61,9 @@ const insertActivityItem = async (
   }
 };
 
-export { insertActivityRecommendation, insertActivitySuggestion, insertActivityItem};
+const handleDatabaseError = (error: unknown, functionName: string) => {
+  console.error(`Unexpected error in ${functionName}:`, error);
+  return null;
+};
+
+export { insertActivityRecommendation, insertActivitySuggestion, insertActivityItem, handleDatabaseError };
