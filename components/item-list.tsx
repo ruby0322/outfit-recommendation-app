@@ -3,7 +3,6 @@
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { Series } from "@/type";
-import { ChevronDown, ChevronUp } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import ItemCard from "./item-card";
@@ -38,32 +37,11 @@ const ItemList = ({
     <div
       id={id}
       className={cn(
-        "p-4 flex flex-col gap-6 items-center",
+        "px-4 flex flex-col gap-6 items-center pt-6",
         index !== 0 && "border-t-[1px] border-gray-800/30"
       )}
     >
-      <div className='w-full flex justify-between items-center'>
-        <h3 className='text-xl font-semibold text-primary'>{title}</h3>
-        <Button
-          variant='ghost'
-          size='sm'
-          className={cn("text-primary", series.length === 0 && "hidden")}
-          onClick={toggleExpand}
-          disabled={series.length <= 4}
-          aria-expanded={isExpanded}
-          aria-controls={`item-list-${id}`}
-        >
-          {isExpanded ? (
-            <>
-              收起 <ChevronUp className='ml-2 h-4 w-4' />
-            </>
-          ) : (
-            <>
-              展開 <ChevronDown className='ml-2 h-4 w-4' />
-            </>
-          )}
-        </Button>
-      </div>
+      <h3 className='text-2xl font-semibold text-primary border-b-2 border-indigo-400'>{title}</h3>
       {description && (
         <p className='text-center italic text-gray-600 m-4'>
           {`「${description}」`}
@@ -76,8 +54,14 @@ const ItemList = ({
         })}
       </div>
 
+      
+      {!isExpanded && series.length > 4 && (
+        <Button className='bg-gray-400 hover:bg-gray-300' onClick={toggleExpand}>
+          展開列表
+        </Button>
+      )}
       {isExpanded && series.length > 4 && (
-        <Button className='bg-red-400 hover:bg-red-300' onClick={toggleExpand}>
+        <Button className='bg-gray-400 hover:bg-gray-300' onClick={toggleExpand}>
           收起列表
         </Button>
       )}

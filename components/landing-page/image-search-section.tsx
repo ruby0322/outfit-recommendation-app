@@ -1,31 +1,25 @@
 "use client";
 
+import Section from "./section";
+
 const ImageSearchSection = () => {
   return (
-    <section
+    <Section
       id='image-search-feature'
-      className='px-10 py-16 bg-gray-100 w-full'
+      title='以服搜服'
+      slogan='簡單一句話，尋找理想單品！'
+      description={
+        `輸入一句簡單的搜尋詞，如衣物的細節、搭配的情境等，
+        系統會根據您的描述推薦合適的單品，讓搜尋更加符合您的需求。
+        邀請您在左側區塊進行試用，探索這項便捷的搜尋體驗！`
+      }
+      buttonText="探索相似款式！"
+      buttonLink="/search"
+      reverse={true}
+      darkerBackground={true}
     >
-      <div className='w-full flex md:px-[5rem] md:flex-row flex-col md:items-start items-center justify-center gap-32 mx-auto px-4'>
-        <div className='flex-1 flex flex-col md:flex-row gap-12 items-center justify-center'>
-          內容待生成
-        </div>
-        <div className='text-start'>
-          <h2 className='text-3xl font-bold mb-4'>以服搜服</h2>
-          <p className='w-full text-gray-600'>
-            你是否曾看過路人穿搭超讚，卻不好意思打聽品牌？
-            <br />
-            那一瞬間的遺憾，夢中單品就這樣擦肩而過。
-            <br />
-            別擔心，「以服搜服」正是為你而生！
-            <br />
-            只需一張照片，在全球知名品牌找到相似款式，讓你貨比三家！
-            <br />
-            從此，讓每一次心動的穿搭都不再是遙不可及的夢！
-          </p>
-        </div>
-      </div>
-    </section>
+      內容待生成
+    </Section>
   );
 };
 

@@ -9,7 +9,7 @@ const UserInfoCard = ({
   params: ParamTable;
 }) => {
   return (
-    <div className='rounded-sm max-w-[92vw] p-4 flex flex-col items-center justify-center gap-4 border-0 shadow-none'>
+    <div className='rounded-sm max-w-[92vw] m-0 px-4 flex flex-col items-center justify-center gap-4 border-0 shadow-none'>
       <Image
         src={upload.image_url as string}
         alt='User Photo'

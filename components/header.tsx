@@ -146,7 +146,7 @@ const Header = () => {
           </p>
           {
             !isMobile && <>
-              <p className={cn("font-normal", pathname === '/upload' && 'border-b-2 border-indigo-400')}>
+              <p className={cn("font-normal", (pathname === '/upload' || pathname === '/history') && 'border-b-2 border-indigo-400')}>
                 <Link href='/upload'>
                   穿搭推薦
                 </Link>

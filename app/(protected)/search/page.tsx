@@ -30,6 +30,7 @@ import {
   SelectTrigger,
   SelectValue
 } from "@/components/ui/select";
+import { cn } from "@/lib/utils";
 
 const schema = z.object({
   uploadedImage: (typeof window === "undefined"
@@ -183,7 +184,7 @@ export default function SearchPage() {
 
   return (
     <div className='container mx-auto px-4 py-8'>
-      <div className='max-w-4xl mx-auto'>
+      <div className={cn('max-w-4xl mx-auto')}>
         <div className='flex w-full gap-2'>
           <div className='relative mb-8 w-full'>
             <Input
@@ -242,7 +243,7 @@ export default function SearchPage() {
               <SelectValue placeholder="性別" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="neutral">中性</SelectItem>
+              <SelectItem value="neutral">無限制</SelectItem>
               <SelectItem value="male">男性</SelectItem>
               <SelectItem value="female">女性</SelectItem>
             </SelectContent>

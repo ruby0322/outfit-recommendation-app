@@ -12,6 +12,7 @@ import imageCompression from 'browser-image-compression';
 import { motion } from "framer-motion";
 import { CheckCircle, ChevronLeft } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useState } from "react";
 import { FormProvider, useForm, useFormContext } from "react-hook-form";
@@ -278,7 +279,15 @@ export default function UploadPage() {
 
   return (
     <div className='relative w-full h-screen flex flex-col items-center justify-center'>
-      <div className='w-full flex-1 h-auto flex flex-col items-center justify-center'>
+      <div className='w-full flex-1 h-auto flex flex-col items-center justify-center gap-4'>
+        <div className="flex w-[20rem] items-center justify-center bg-gray-200 rounded-md py-2 px-0">
+          <div className="px-10 rounded-sm py-1 bg-gray-100">新的推薦</div>
+          <div className="px-10 rounded-sm py-1 cursor-pointer">
+            <Link href='/history'>
+              歷史紀錄
+            </Link>
+          </div>
+        </div>
         <FormProvider {...methods}>
           <form onSubmit={methods.handleSubmit(onSubmit)}>
             {currentStep > 1 && (
@@ -290,7 +299,10 @@ export default function UploadPage() {
               </div>
             )}
             {currentStep === 1 && (
-              <ImageUpload onImageUpload={handleImageUpload} />
+              <div className="flex flex-col gap-4">
+                
+                <ImageUpload onImageUpload={handleImageUpload} />
+              </div>
             )}
             {currentStep === 2 && <FormFields nextStep={nextStep} />}
             {currentStep === 3 && (

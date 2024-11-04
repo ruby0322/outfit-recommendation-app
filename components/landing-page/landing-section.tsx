@@ -33,7 +33,7 @@ const HeroSection = () => {
         <motion.div className="flex items-center justify-center w-full" initial={{ scale: 0 }} whileInView={{ scale: 1 }}>
           <Button
             // size='lg'
-            className='shadow-[5px_5px_0px_0px_rgba(109,40,217)] bg-indigo-400 hover:bg-indigo-400/80 text-white animate-fade-in-up animation-delay-600 py-6 px-10'
+            className='bg-indigo-400 hover:bg-indigo-400/80 text-white animate-fade-in-up animation-delay-600 py-6 px-10'
             onClick={handleClick}
           >
             {/* <WandSparkles className='text-indigo-600 mr-2 h-4 w-4' /> */}
