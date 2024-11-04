@@ -16,13 +16,12 @@ const sendImgURLAndPromptToGPT = async ({
   for (let numRetries = 0; numRetries < NUM_MAX_RETRIES; ++numRetries) {
     try {
       const isImageAvailable = await checkImageAvailability(imageUrl);
-      console.log("isImageAvailable: ", isImageAvailable);
+      // console.log("isImageAvailable: ", isImageAvailable);
       if (!isImageAvailable) {
-        console.log("Image not yet available. Waiting...");
-        // Implementing exponential backoff
-        const waitTime = Math.pow(2, numRetries) * 1000; // Wait time doubles with each retry
+        // console.log("Image not yet available. Waiting...");
+        const waitTime = Math.pow(2, numRetries) * 1000;
         await new Promise((resolve) => setTimeout(resolve, waitTime));
-        continue; // Retry checking the image availability
+        continue;
       }
 
       const completion = await openai.chat.completions.create({

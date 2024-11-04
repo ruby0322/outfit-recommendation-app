@@ -7,8 +7,7 @@ export default async function Playground2() {
     // const result = await handleTextSearch("請給我藍色清爽襯衫", "gpt-4o-mini", "male", 1, 500, 700, ["H&M", "UNIQLO"], "top");
     // console.log(result);
     
-    // const result2 = await handleTextSearch("請給我藍色清爽襯衫", "gpt-4o-mini", "male", 2, 500, 700, ["H&M", "UNIQLO"], "top");
-    // console.log("##########");
+    // const result2 = await handleTextSearch("請給我藍色清爽襯衫", "gpt-4o-mini", "male", 2, undefined, 200,["fifty percent", "H&M"], "top");
     // console.log(result2);
 
   } catch (error) {

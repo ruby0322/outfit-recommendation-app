@@ -44,12 +44,12 @@ const vectorSearchForRecommendation = async (
 const vectorSearchForSearching = async (
   suggestedLabelString: string,
   page: number,
-  pageSize: number = 20,
+  pageSize: number,
   gender: Gender,
   priceLowerBound?: number,
   priceUpperBound?: number,
   providers?: string[],
-  clothingType?: "top" | "bottom"
+  clothingType?: ClothingType,
 ): Promise<Series[] | null> => {
   try {
     const suggestedEmbedding = await generateEmbedding(suggestedLabelString);
@@ -96,7 +96,7 @@ const vectorSearchForSearching = async (
     queryParams.push(pageSize, offset);
 
     const items: SimplifiedItemTable[] = await prisma.$queryRawUnsafe(query, ...queryParams);
-    
+
     const itemIds = items.map(item => item.id);
     console.log("the item_ids: ", itemIds);
 
@@ -265,7 +265,6 @@ const semanticSearchForSearching = async ({
     const searchResult: SearchResult = {
       series: safeSeriesArray,
     };
-    // console.log("final search results: ", searchResult);
     return searchResult;
   } catch (error) {
     handleDatabaseError(error, "semanticSearchForSearching");
