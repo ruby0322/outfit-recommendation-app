@@ -202,7 +202,7 @@ export default function SearchPage() {
             <Input
               type='search'
               placeholder='你今天想找什麼樣的服飾呢？'
-              className='w-full pl-10 pr-12'
+              className='w-full pl-10 pr-2'
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
             />
