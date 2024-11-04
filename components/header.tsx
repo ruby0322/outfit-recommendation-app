@@ -153,7 +153,12 @@ const Header = () => {
               </p>
               <p className={cn("font-normal", pathname === '/search' && 'border-b-2 border-indigo-400')}>
                 <Link href='/search'>
-                  文字／圖片搜尋
+                  文字搜尋
+                </Link>
+              </p>
+              <p className={cn("font-normal", pathname === '/image-search' && 'border-b-2 border-indigo-400')}>
+                <Link href='/image-search'>
+                  以服搜服
                 </Link>
               </p>
             </>

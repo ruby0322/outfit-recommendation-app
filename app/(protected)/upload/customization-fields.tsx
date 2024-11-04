@@ -41,7 +41,7 @@ const CustomizationFields = () => {
         </CardDescription>
       </CardHeader>
       <CardContent className='grid gap-6'>
-        <div className='grid gap-2'>
+        {/* <div className='grid gap-2'>
           <Label htmlFor='gender'>推薦模型</Label>
           <Select onValueChange={(val: string) => setValue("model", val)}>
             <SelectTrigger className='w-full'>
@@ -59,9 +59,9 @@ const CustomizationFields = () => {
               </SelectGroup>
             </SelectContent>
           </Select>
-        </div>
+        </div> */}
         <div className='grid gap-2'>
-          <Label htmlFor='gender'>我的生理性別是</Label>
+          <Label htmlFor='gender'>我想搜尋的服飾性別為</Label>
           <div className='flex flex-wrap gap-2'>
             <Label
               htmlFor='gender-male'
