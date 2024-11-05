@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 import { createClient } from "@/utils/supabase/client";
 import { User } from "@supabase/supabase-js";
 import { motion } from "framer-motion";
-import { House, Menu, ScanSearch, Shirt, TextSearch, WandSparkles } from "lucide-react";
+import { Archive, House, Menu, ScanSearch, Shirt, TextSearch, WandSparkles } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -128,6 +128,11 @@ const routes = [
     tabLabel: '以服搜服',
     icon: <ScanSearch className="w-4 h-4" />,
   },
+  {
+    pathnames: ['/closet', ],
+    tabLabel: '我的衣櫃',
+    icon: <Archive className="w-4 h-4" />,
+  },
 ];
 
 const match = (pathname: string, pathnames: string[]) => {
@@ -174,6 +179,7 @@ const Header = () => {
               {
                 routes.map(route => {
                   return <Link
+                    key={route.tabLabel}
                     href={route.pathnames[0]}
                   >
                     <div className={cn("text-gray-400 flex items-center justify-center gap-2 font-normal py-2 px-4", match(pathname, route.pathnames) && 'border-t-2 border-indigo-400 bg-gray-200 text-gray-800')}>
