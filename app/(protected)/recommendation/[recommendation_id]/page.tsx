@@ -55,7 +55,7 @@ const RecommendationPage = async ({
               title={recommendedStyle}
               description={recommendation.styles[recommendedStyle].description}
               series={recommendation.styles[recommendedStyle].series}
-            />
+              expandable={true} />
           );
         })}
       </div>

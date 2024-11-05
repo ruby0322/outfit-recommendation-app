@@ -35,6 +35,7 @@ const schema = z.object({
 });
 
 export default function SearchPage() {
+  const [currentQuery, setCurrentQuery] = useState<string>('');
   const [query, setQuery] = useState<string>("");
   const [gender, setGender] = useState<Gender>('neutral');
   const [loading, setLoading] = useState<boolean>(false);
@@ -299,7 +300,7 @@ export default function SearchPage() {
               onPageChange={async (page: number) => {
                 setPage(page);
                 setLoading(true);
-                const res = await handleTextSearch(searchInput, "gpt-4o-mini", gender, page);
+                const res = await handleTextSearch(query, "gpt-4o-mini", gender, page);
                 setResults([...(res?.series as Series[])] as Series[]);
                 setLoading(false);
               }}
