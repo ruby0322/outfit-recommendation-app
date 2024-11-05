@@ -37,8 +37,9 @@ const ItemList = ({
     <div
       id={id}
       className={cn(
-        "px-4 flex flex-col gap-6 items-center pt-6",
-        index !== 0 && "border-t-[1px] border-gray-800/30"
+        "px-4 flex flex-col gap-6 items-center",
+        index !== 0 && "border-t-[1px] border-gray-800/30",
+        title ? 'pt-6' : 'pt-0'
       )}
     >
       <h3 className='text-2xl font-semibold text-primary border-b-2 border-indigo-400'>{title}</h3>

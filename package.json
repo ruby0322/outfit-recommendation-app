@@ -34,7 +34,6 @@
     "@supabase/supabase-js": "2.24.0",
     "autoprefixer": "10.4.17",
     "browser-image-compression": "^2.0.2",
-    "canvas-confetti": "^1.9.3",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "cmdk": "^0.2.0",

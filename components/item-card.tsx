@@ -2,7 +2,7 @@
 
 import { Card } from "@/components/ui/card";
 import { Series } from "@/type";
-import { Heart, ShoppingCart } from "lucide-react";
+import { Heart } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -99,7 +99,6 @@ const ItemCard = ({ series }: { series: Series }) => {
         <p>NTD {series.items[0].price as number}</p>
         <div className='flex justify-end gap-1'>
           <Heart className='text-rose-300' />
-          <ShoppingCart className='text-sky-300' />
         </div>
       </div>
     </Card>

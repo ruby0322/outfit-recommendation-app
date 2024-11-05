@@ -21,6 +21,7 @@ import {
   SelectTrigger,
   SelectValue
 } from "@/components/ui/select";
+import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 
 const schema = z.object({
@@ -128,7 +129,7 @@ export default function SearchPage() {
               id='search-bar'
               type='search'
               placeholder='你今天想找什麼樣的服飾呢？'
-              className='w-full pl-10 pr-4'
+              className='w-full pl-10 pr-6'
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
             />
@@ -144,19 +145,7 @@ export default function SearchPage() {
           >
             <SlidersHorizontal className="w-5" />
           </Button>
-          <Select onValueChange={(value: Gender) => {
-            setGender(value);
-            console.log(value);
-          }}> 
-            <SelectTrigger className="w-[100px] bg-white">
-              <SelectValue id='gender-select' placeholder="性別" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="neutral">無限制</SelectItem>
-              <SelectItem value="male">男性</SelectItem>
-              <SelectItem value="female">女性</SelectItem>
-            </SelectContent>
-          </Select>
+          
           <LoadingButton
             className='bg-indigo-400 hover:bg-indigo-300'
             onClick={onSubmit}
@@ -169,6 +158,20 @@ export default function SearchPage() {
         {isExpanded && (
           <div className="bg-gray-100 p-2 mb-4 rounded-md">
             <div className="flex gap-2 items-center justify-begin">
+              <Select onValueChange={(value: Gender) => {
+                setGender(value);
+                console.log(value);
+              }}> 
+                <SelectTrigger className="w-[100px] bg-white">
+                  <SelectValue id='gender-select' placeholder="性別" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="neutral">無限制</SelectItem>
+                  <SelectItem value="male">男性</SelectItem>
+                  <SelectItem value="female">女性</SelectItem>
+                </SelectContent>
+              </Select>
+              <Separator className="border-1 h-6 border-gray-800" orientation="vertical" />
               <Select onValueChange={(value: string) => {
                 setSelectedColor(value);
                 setSearchInput(`${value} ${selectedVersion} ${selectedStyle} ${selectedType}`.trim());
@@ -256,7 +259,7 @@ export default function SearchPage() {
           {promptSuggestions.map((suggestion, index) => (
             <Card
               key={index}
-              className='bg-indigo-200/50 cursor-pointer hover:bg-indigo-200/20 transition-colors shadow-[3px_3px_0px_0px_rgba(139,92,246)] border-2 border-indigo-500'
+              className='bg-indigo-200/50 cursor-pointer hover:bg-indigo-200/20 transition-colors shadow-[2px_2px_0px_0px_rgba(99,102,241,0.7)] border-2 border-indigo-500/70'
               onClick={() => handleSuggestionClick(suggestion)}
             >
               <CardContent className='p-4 h-full flex items-center justify-center text-center'>

@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 import { createClient } from "@/utils/supabase/client";
 import { User } from "@supabase/supabase-js";
 import { motion } from "framer-motion";
-import { Menu, ScanSearch, Shirt, TextSearch, WandSparkles } from "lucide-react";
+import { House, Menu, ScanSearch, Shirt, TextSearch, WandSparkles } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -109,7 +109,12 @@ const LandingPageHeader = () => {
 
 const routes = [
   {
-    pathnames: ['/upload', '/history'],
+    pathnames: ['/home'],
+    tabLabel: '首頁',
+    icon: <House className="w-4 h-4" />,
+  },
+  {
+    pathnames: ['/upload', '/history', '/recommendation'],
     tabLabel: '穿搭推薦',
     icon: <Shirt className="w-4 h-4" />,
   },
@@ -124,6 +129,14 @@ const routes = [
     icon: <ScanSearch className="w-4 h-4" />,
   },
 ];
+
+const match = (pathname: string, pathnames: string[]) => {
+  for (const p of pathnames) {
+    if (pathname.includes(p))
+      return true;
+  }
+  return false;
+}
 
 const Header = () => {
   const [user, setUser] = useState<User | null>(null);
@@ -154,14 +167,8 @@ const Header = () => {
 
   return (
     <header>
-      <div className='font-semibold bg-gray-100 border-solid border-t-2 flex p-4 py-2 gap-4 h-[7vh] items-center justify-between shadow-[0px_2px_3px_-1px_rgba(0,0,0,0.1),0px_1px_0px_0px_rgba(25,28,33,0.02),0px_0px_0px_1px_rgba(25,28,33,0.08)]'>
+      <div className='font-semibold bg-gray-100 border-solid border-t-2 flex p-0 pt-2 pb-0 p-4  gap-4 h-[7vh] items-center justify-between'>
         <div className='flex gap-4 items-center justify-center'>
-          <Link href='/'>
-            <WandSparkles className='text-indigo-400' />
-          </Link>
-          {/* <p className='text-lg'>
-            會不會<span className='text-indigo-400'>穿搭</span>啊
-          </p> */}
           {
             !isMobile && <>
               {
@@ -169,11 +176,11 @@ const Header = () => {
                   return <Link
                     href={route.pathnames[0]}
                   >
-                    <div className={cn("text-gray-400 flex items-center justify-center gap-2 font-normal py-2 px-4", route.pathnames.includes(pathname) && 'border-t-2 border-indigo-400 bg-gray-200 text-gray-800')}>
+                    <div className={cn("text-gray-400 flex items-center justify-center gap-2 font-normal py-2 px-4", match(pathname, route.pathnames) && 'border-t-2 border-indigo-400 bg-gray-200 text-gray-800')}>
                       {route.icon}
-                      <p>
+                      {route.tabLabel && <p>
                         {route.tabLabel}
-                      </p>
+                      </p>}
                     </div>
                   </Link>
                 })
@@ -188,19 +195,23 @@ const Header = () => {
                 <Menu className='h-6 w-6' />
               </Button>
             </SheetTrigger>
-            <SheetContent className='w-[40vw] bg-gray-100/80'>
+            <SheetContent className='w-[50vw] bg-gray-100'>
               <nav className='flex flex-col gap-4 mt-8'>
-              {user && <AvatarMenu />}
-                <p className={cn("font-normal", pathname === '/upload' && 'border-t-2 border-indigo-400 bg-gray-200 rounded-t-md')}>
-                  <Link href='/upload'>
-                    穿搭推薦
-                  </Link>
-                </p>
-                <p className={cn("font-normal", pathname === '/search' && 'border-t-2 border-indigo-400 bg-gray-200 rounded-t-md')}>
-                  <Link href='/search'>
-                    文字／圖片搜尋
-                  </Link>
-                </p>
+                {user && <AvatarMenu />}
+                {
+                  routes.map(route => {
+                    return <Link
+                      href={route.pathnames[0]}
+                    >
+                      <div className={cn("text-gray-400 flex items-center justify-center gap-2 font-normal py-2 px-4", match(pathname, route.pathnames) && 'border-t-2 border-indigo-400 bg-gray-200 text-gray-800')}>
+                        {route.icon}
+                        <p>
+                          {route.tabLabel}
+                        </p>
+                      </div>
+                    </Link>
+                  })
+                }
               </nav>
             </SheetContent>
           </Sheet>

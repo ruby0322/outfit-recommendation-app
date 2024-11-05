@@ -17,8 +17,6 @@ export default function ItemListSkeleton({
     >
       <div className='w-full flex justify-between items-center'>
         {title ? <Skeleton className='h-8 w-48' /> : <div></div>}
-
-        <Skeleton className='h-8 w-20' />
       </div>
       <Skeleton className='h-4 w-3/4' />
       <div className='flex gap-4 flex-wrap items-start justify-center'>

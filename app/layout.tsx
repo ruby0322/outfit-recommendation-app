@@ -105,24 +105,13 @@ const SEARCH_STEPS: Step[] = [
   },
   {
     icon: <></>,
-    title: "性別篩選",
-    content: <>
-      篩選服飾適合的性別
-    </>,
-    selector: "#gender-select",
-    side: "left",
-    showControls: true,
-    pointerPadding: 24,
-    pointerRadius: 12,
-  },
-  {
-    icon: <></>,
-    title: "快捷輸入",
+    title: "篩選與快捷輸入",
     content: <>
       展開快捷輸入工具，四種形容詞及數十種選項供你搭配嘗試！
+      此外，搜尋前可以設定服飾性別進行篩選。
     </>,
     selector: "#prompt-constructor-button",
-    side: "left",
+    side: "bottom",
     showControls: true,
     pointerPadding: 24,
     pointerRadius: 12,

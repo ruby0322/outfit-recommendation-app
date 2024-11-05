@@ -96,7 +96,7 @@ export default function ImageSearch() {
               </div>
             </div>
             <div className='flex items-center gap-4 pl-2'>
-              <label htmlFor='gender'>我想搜尋的服飾性別為</label>
+              <label htmlFor='gender'>性別</label>
               <div className='flex gap-2'>
                 <label
                   htmlFor='gender-neutral'
@@ -112,7 +112,7 @@ export default function ImageSearch() {
                     onChange={() => setGender("neutral")}
                     className='hidden'
                   />
-                  中性
+                  無限制
                 </label>
                 <label
                   htmlFor='gender-male'

@@ -3,8 +3,6 @@ import type { CardComponentProps } from "onborda";
 import { useOnborda } from "onborda";
 import React from "react";
 
-import confetti from "canvas-confetti";
-
 // Shadcn
 import { Button } from "@/components/ui/button";
 import {
@@ -26,15 +24,6 @@ const CustomCard: React.FC<CardComponentProps> = ({
 }) => {
   // Onborda hooks
   const { closeOnborda } = useOnborda();
-
-  function handleConfetti() {
-    closeOnborda();
-    confetti({
-      particleCount: 100,
-      spread: 70,
-      origin: { y: 0.6 },
-    });
-  }
 
   return (
     <Card className="border-0 rounded-lg min-w-[20rem] max-w-vw bg-gray-50">
@@ -65,7 +54,7 @@ const CustomCard: React.FC<CardComponentProps> = ({
             </Button>
           )}
           {currentStep + 1 === totalSteps && (
-            <Button onClick={() => handleConfetti()} className="ml-auto">
+            <Button onClick={closeOnborda} className="ml-auto">
               🎉 我瞭解了！
             </Button>
           )}
