@@ -26,7 +26,7 @@ const ItemList = ({
   index: number;
   description: string;
   expandOnMount?: boolean;
-  expandable?: boolean,
+  expandable: boolean,
 }) => {
   const [isExpanded, setIsExpanded] = useState(expandOnMount || false);
 

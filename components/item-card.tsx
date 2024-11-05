@@ -28,7 +28,7 @@ const PROVIDER_CLASSNAME_MAPPING: { [k: string]: string } = {
 const ItemCard = ({ series }: { series: Series }) => {
   
   return (
-    <Card className='w-64 rounded-none flex flex-col justify-between h-fit gap-1 shadow-none border-0'>
+    <Card className='w-40 md:w-64 rounded-none flex flex-col justify-between h-fit gap-1 shadow-none border-0'>
       <div className='relative inline-block w-full h-full'>
         {
           series.items.length > 0 &&
@@ -47,7 +47,7 @@ const ItemCard = ({ series }: { series: Series }) => {
               <CarouselMainContainer className='h-full w-full'>
                 {series.items.map((item, index) => (
                   <SliderMainItem key={item.id} className='bg-transparent'>
-                    <div className='relative w-full h-64'>
+                    <div className='relative w-full h-40 md:h-64'>
                       <Image
                         src={item.image_url as string}
                         className='object-cover'
@@ -73,7 +73,7 @@ const ItemCard = ({ series }: { series: Series }) => {
             </div>
           </Carousel>
         ) : (
-          <div className='relative w-full h-64'>
+          <div className='relative w-full h-40 md:h-64'>
             <Image
               src={series.items[0].image_url as string}
               className='object-cover'

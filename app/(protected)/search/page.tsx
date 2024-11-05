@@ -270,9 +270,12 @@ export default function SearchPage() {
             </Card>
           ))}
         </div>
-        <div className="w-full flex items-end justify-end my-4">
-          <TourButton tourName='search' />
-        </div>
+        {
+          results.length === 0 &&
+            <div className="w-full flex items-end justify-end my-4">
+              <TourButton tourName='search' />
+            </div>
+        }
       </div>
       {loading ? (
         <ItemListSkeleton index={0} />
