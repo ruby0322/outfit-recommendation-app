@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 import { createClient } from "@/utils/supabase/client";
 import { User } from "@supabase/supabase-js";
 import { motion } from "framer-motion";
-import { Menu, WandSparkles } from "lucide-react";
+import { Menu, ScanSearch, Shirt, TextSearch, WandSparkles } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -110,15 +110,18 @@ const LandingPageHeader = () => {
 const routes = [
   {
     pathnames: ['/upload', '/history'],
-    tabLabel: '穿搭推薦'
+    tabLabel: '穿搭推薦',
+    icon: <Shirt className="w-4 h-4" />,
   },
   {
     pathnames: ['/search', ],
-    tabLabel: '文字搜尋'
+    tabLabel: '文字搜尋',
+    icon: <TextSearch className="w-4 h-4" />,
   },
   {
     pathnames: ['/image-search', ],
-    tabLabel: '以服搜服'
+    tabLabel: '以服搜服',
+    icon: <ScanSearch className="w-4 h-4" />,
   },
 ];
 
@@ -156,9 +159,9 @@ const Header = () => {
           <Link href='/'>
             <WandSparkles className='text-indigo-400' />
           </Link>
-          <p className='text-lg'>
+          {/* <p className='text-lg'>
             會不會<span className='text-indigo-400'>穿搭</span>啊
-          </p>
+          </p> */}
           {
             !isMobile && <>
               {
@@ -166,9 +169,12 @@ const Header = () => {
                   return <Link
                     href={route.pathnames[0]}
                   >
-                    <p className={cn("font-normal py-2 px-4", route.pathnames.includes(pathname) && 'border-t-2 border-indigo-400 bg-gray-200')}>
-                      {route.tabLabel}
-                    </p>
+                    <div className={cn("text-gray-400 flex items-center justify-center gap-2 font-normal py-2 px-4", route.pathnames.includes(pathname) && 'border-t-2 border-indigo-400 bg-gray-200 text-gray-800')}>
+                      {route.icon}
+                      <p>
+                        {route.tabLabel}
+                      </p>
+                    </div>
                   </Link>
                 })
               }

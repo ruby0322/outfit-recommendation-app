@@ -117,6 +117,18 @@ const SEARCH_STEPS: Step[] = [
   },
   {
     icon: <></>,
+    title: "快捷輸入",
+    content: <>
+      展開快捷輸入工具，四種形容詞及數十種選項供你搭配嘗試！
+    </>,
+    selector: "#prompt-constructor-button",
+    side: "left",
+    showControls: true,
+    pointerPadding: 24,
+    pointerRadius: 12,
+  },
+  {
+    icon: <></>,
     title: "隨機輸入",
     content: <>
       試試隨機的搜尋輸入，說不定能激發靈感唷！

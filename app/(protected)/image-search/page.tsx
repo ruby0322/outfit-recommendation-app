@@ -1,27 +1,19 @@
 "use client";
 
-import { handleImageSearch, handleTextSearch } from "@/actions/upload";
+import { handleImageSearch } from "@/actions/upload";
 import { storeImageToStorage } from "@/actions/utils/insert";
 import ItemList from "@/components/item-list";
 import ItemListSkeleton from "@/components/item-list-skeleton";
 import { Input } from "@/components/ui/input";
 import { LoadingButton } from "@/components/ui/loading-button";
 import { Gender, Series } from "@/type";
-import { SearchIcon, UploadIcon } from "lucide-react";
-import { useEffect, useState } from "react";
+import { SearchIcon } from "lucide-react";
+import { useState } from "react";
 import { z } from "zod";
 
+import { cn } from "@/lib/utils";
 import imageCompression from 'browser-image-compression';
-import ImageUploader from "../upload/image-uploader";
-import { Label } from "@/components/ui/label";
 
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue
-} from "@/components/ui/select";
 
 const schema = z.object({
   uploadedImage: (typeof window === "undefined"
@@ -103,84 +95,64 @@ export default function ImageSearch() {
                 />
               </div>
             </div>
-            {/* <Select onValueChange={(value: Gender) => {
-            setGender(value);
-            console.log(value);
-          }}> 
-            <SelectTrigger className="w-[100px] bg-white">
-              <SelectValue placeholder="性別" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="neutral">中性</SelectItem>
-              <SelectItem value="male">男性</SelectItem>
-              <SelectItem value="female">女性</SelectItem>
-            </SelectContent>
-          </Select> */}
-          <div className='flex items-center gap-4 pl-2'>
-            <label htmlFor='gender'>我想搜尋的服飾性別為</label>
-            <div className='flex gap-2'>
-              <label
-                htmlFor='gender-neutral'
-                className={`flex items-center gap-2 rounded-md border px-3 py-2 cursor-pointer ${
-                  gender === "neutral" ? "bg-indigo-300" : ""
-                }`}
-              >
-                <input
-                  id='gender-neutral'
-                  type='radio'
-                  value='neutral'
-                  checked={gender === "neutral"}
-                  onChange={() => setGender("neutral")}
-                  className='hidden'
-                />
-                中性
-              </label>
-              <label
-                htmlFor='gender-male'
-                className={`flex items-center gap-2 rounded-md border px-3 py-2 cursor-pointer ${
-                  gender === "male" ? "bg-indigo-300" : ""
-                }`}
-              >
-                <input
-                  id='gender-male'
-                  type='radio'
-                  value='male'
-                  checked={gender === "male"}
-                  onChange={() => setGender("male")}
-                  className='hidden'
-                />
-                男性
-              </label>
-              <label
-                htmlFor='gender-female'
-                className={`flex items-center gap-2 rounded-md border px-3 py-2 cursor-pointer ${
-                  gender === "female" ? "bg-indigo-300" : ""
-                }`}
-              >
-                <input
-                  id='gender-female'
-                  type='radio'
-                  value='female'
-                  checked={gender === "female"}
-                  onChange={() => setGender("female")}
-                  className='hidden'
-                />
-                女性
-              </label>
+            <div className='flex items-center gap-4 pl-2'>
+              <label htmlFor='gender'>我想搜尋的服飾性別為</label>
+              <div className='flex gap-2'>
+                <label
+                  htmlFor='gender-neutral'
+                  className={cn(`flex items-center gap-2 rounded-md border px-3 py-2 cursor-pointer`,
+                    gender === "neutral" ? "bg-gray-200" : ""
+                  )}
+                >
+                  <input
+                    id='gender-neutral'
+                    type='radio'
+                    value='neutral'
+                    checked={gender === "neutral"}
+                    onChange={() => setGender("neutral")}
+                    className='hidden'
+                  />
+                  中性
+                </label>
+                <label
+                  htmlFor='gender-male'
+                  className={cn(`flex items-center gap-2 rounded-md border px-3 py-2 cursor-pointer`,
+                    gender === "male" ? "bg-gray-200" : ""
+                  )}
+                >
+                  <input
+                    id='gender-male'
+                    type='radio'
+                    value='male'
+                    checked={gender === "male"}
+                    onChange={() => setGender("male")}
+                    className='hidden'
+                  />
+                  男性
+                </label>
+                <label
+                  htmlFor='gender-female'
+                  className={cn(`flex items-center gap-2 rounded-md border px-3 py-2 cursor-pointer`,
+                    gender === "female" ? "bg-gray-200" : ""
+                  )}
+                >
+                  <input
+                    id='gender-female'
+                    type='radio'
+                    value='female'
+                    checked={gender === "female"}
+                    onChange={() => setGender("female")}
+                    className='hidden'
+                  />
+                  女性
+                </label>
+              </div>
             </div>
-          </div>
           
           </div>
           <div className="flex py-4">
-          {/* <LoadingButton
-              disabled={imageUploading}
-              loading={imageUploading}
-              onClick={handleImageUpload}
-            >
-              上傳並搜尋
-            </LoadingButton> */}
             <LoadingButton
-              className='bg-indigo-400 hover:bg-indigo-300'
+              className='bg-indigo-400 hover:bg-gray-200'
               disabled={imageUploading}
               loading={loading}
               onClick={handleImageUpload}
