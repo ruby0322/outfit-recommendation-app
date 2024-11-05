@@ -3,7 +3,7 @@
 import { handleRecommendation } from "@/actions/upload";
 import { storeImageToStorage } from "@/actions/utils/insert";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { LoadingButton } from "@/components/ui/loading-button";
 import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
 import { createClient } from "@/utils/supabase/client";
@@ -154,7 +154,7 @@ function ConfirmButton() {
       type='submit'
       className='w-full text-white font-bold rounded-lg bg-indigo-400'
     >
-      <Button
+      <LoadingButton
         className={cn(
           "transition-opacity duration-300 w-full px-8 py-2 rounded-md",
           secondsSpent > 0
@@ -163,19 +163,21 @@ function ConfirmButton() {
         )}
         onClick={() => {
           if (secondsSpent > 0) {
-            console.log("refresh");
             window.location.reload();
+            router.push('/upload?step=1')
           } else {
             setInterval(() => {
               setSecondsSpent((s) => s + 1);
             }, 1000);
           }
         }}
+        loading={secondsSpent > 0}
+        disabled={false}
       >
         {secondsSpent > 0
-          ? `${toHHMMSS(secondsSpent)} 終止並退出`
+          ? `終止並退出`
           : "一鍵成為穿搭達人！"}
-      </Button>
+      </LoadingButton>
     </motion.button>
   );
 }

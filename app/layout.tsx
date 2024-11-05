@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils";
 
 import Footer from "@/components/footer";
 import { Toaster } from "@/components/ui/toaster";
+import Image from 'next/image';
 import { Onborda, OnbordaProvider, Step } from "onborda";
 const fontSans = FontSans({
   subsets: ["latin"],
@@ -30,23 +31,35 @@ const steps: Step[] = [
   {
     icon: <></>,
     title: "上傳照片",
-    content: <>上傳你想要搭配的上衣或下身單品。</>,
+    content: <div className='flex flex-col gap-4'>
+      <p>
+        上傳你想要搭配的上衣或下身單品
+      </p>
+      <Image
+        src={'https://eapzlwxcyrinipmcdoir.supabase.co/storage/v1/object/public/image/Untitled%20design.png'}
+        style={{objectFit:"cover"}}
+        width={256}
+        height={256}
+        alt='Example upload image'
+      />
+      * 照片不可裁切到服飾過多細節，也請確保照明充足
+    </div>,
     selector: "#image-uploader",
-    side: "top",
+    side: "right",
     showControls: true,
-    pointerPadding: -1,
-    pointerRadius: 24,
+    pointerPadding: 24,
+    pointerRadius: 12,
     nextRoute: '/upload?step=2'
   },
   {
     icon: <></>,
     title: "選擇參數",
-    content: <>勾選你的需求。</>,
+    content: <>勾選你的需求</>,
     selector: "#form-fields",
     side: "right",
     showControls: true,
-    pointerPadding: -1,
-    pointerRadius: 24,
+    pointerPadding: 24,
+    pointerRadius: 12,
     prevRoute: '/upload?step=1',
     nextRoute: '/upload?step=3'
   },
@@ -57,8 +70,8 @@ const steps: Step[] = [
     selector: "#overview",
     side: "right",
     showControls: true,
-    pointerPadding: -1,
-    pointerRadius: 24,
+    pointerPadding: 24,
+    pointerRadius: 12,
     prevRoute: '/upload?step=2',
     nextRoute: '/upload?step=1'
   },
@@ -69,8 +82,8 @@ const steps: Step[] = [
     selector: "#recommendation-tabs-list",
     side: "bottom",
     showControls: true,
-    pointerPadding: -1,
-    pointerRadius: 24,
+    pointerPadding: 24,
+    pointerRadius: 12,
     prevRoute: '/upload?step=3',
   },
 ];
