@@ -1,4 +1,5 @@
 "use server";
+import prisma from "@/prisma/db";
 import {
   ParamTable,
   Recommendation,
@@ -8,16 +9,17 @@ import {
   SuggestionTable,
   UploadTable,
 } from "@/type";
+import { handleDatabaseError } from "./activity";
+import { deleteParamById, deleteUploadById } from "./utils/delete";
 import {
   getParamById,
   getRecommendationById,
   getResults,
+  getSeriesForRecommendation,
   getSeriesIdsByItemIds,
   getSuggestion,
-  getUploadById,
-  getSeriesForRecommendation
+  getUploadById
 } from "./utils/fetch";
-import { handleDatabaseError } from "./activity";
 
 const getRecommendationRecordById = async (
   recommendation_id: number,
@@ -71,4 +73,45 @@ const getRecommendationRecordById = async (
   }
 };
 
-export { getRecommendationRecordById };
+const bruteForceAction = async (recommendationId: number) => {
+  try {
+    const suggestions = await prisma.suggestion.findMany({
+      where: { recommendation_id: recommendationId },
+      select: { id: true },
+    });
+    const suggestionIds = suggestions.map((s) => s.id);
+
+    await prisma.result.deleteMany({
+      where: { suggestion_id: { in: suggestionIds } },
+    });
+
+    await prisma.suggestion.deleteMany({
+      where: { id: { in: suggestionIds } },
+    });
+
+    const recommendation = await prisma.recommendation.findUnique({
+      where: { id: recommendationId },
+      select: { param_id: true, upload_id: true },
+    });
+
+    if (!recommendation) {
+      console.error("Recommendation not found");
+      return;
+    }
+
+    const { param_id: paramId, upload_id: uploadId } = recommendation;
+
+    await prisma.recommendation.delete({
+      where: { id: recommendationId },
+    });
+
+    if (paramId) await deleteParamById(paramId);
+    if (uploadId) await deleteUploadById(uploadId);
+  } catch (error) {
+    handleDatabaseError(error, 'bruteForceAction');
+  }
+};
+
+
+export { bruteForceAction, getRecommendationRecordById };
+
