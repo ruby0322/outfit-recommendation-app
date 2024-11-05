@@ -4,26 +4,18 @@ import { handleImageSearch, handleTextSearch } from "@/actions/upload";
 import { storeImageToStorage } from "@/actions/utils/insert";
 import ItemList from "@/components/item-list";
 import ItemListSkeleton from "@/components/item-list-skeleton";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { LoadingButton } from "@/components/ui/loading-button";
 import { Gender, Series } from "@/type";
-import { SearchIcon, UploadIcon } from "lucide-react";
+import { SearchIcon, SlidersHorizontal } from "lucide-react";
 import { useEffect, useState } from "react";
 import { z } from "zod";
 
 import imageCompression from 'browser-image-compression';
 
 import TourButton from "@/components/tour-button";
+import { Button } from "@/components/ui/button";
 import {
   Select,
   SelectContent,
@@ -31,6 +23,7 @@ import {
   SelectTrigger,
   SelectValue
 } from "@/components/ui/select";
+import { cn } from "@/lib/utils";
 
 const schema = z.object({
   uploadedImage: (typeof window === "undefined"
@@ -51,6 +44,11 @@ export default function SearchPage() {
   const [uploadedImageUrl, setUploadedImageUrl] = useState<string>("");
   const [imageUploading, setImageUploading] = useState<boolean>(false);
   const [promptSuggestions, setPromptSuggestions] = useState<string[]>([]);
+  const [selectedColor, setSelectedColor] = useState<string>(""); // 顏色
+  const [selectedVersion, setSelectedVersion] = useState<string>(""); // 版型
+  const [selectedStyle, setSelectedStyle] = useState<string>(""); // 風格
+  const [selectedType, setSelectedType] = useState<string>(""); // 款式
+  const [isExpanded, setIsExpanded] = useState(false);
 
   const searchQueriesDescription = [
     "請給我一件寬鬆、舒適的長褲。",
@@ -182,11 +180,16 @@ export default function SearchPage() {
     
   };
 
+  const handleGenerateText = () => {
+    const generatedText = `${selectedColor || ''} ${selectedVersion || ''} ${selectedStyle || ''} ${selectedType || ''}`;
+    setSearchInput(generatedText.trim());
+  };
+
   return (
     <div className='container mx-auto px-4 py-8'>
       <div className='max-w-4xl mx-auto'>
         <div className='flex w-full gap-2'>
-          <div className='relative mb-8 w-full'>
+          <div className='relative mb-4 w-full'>
             <Input
               id='search-bar'
               type='search'
@@ -197,60 +200,28 @@ export default function SearchPage() {
             />
 
             <SearchIcon className='absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400' />
-            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-              <DialogTrigger asChild>
-                <Button
-                  variant='ghost'
-                  size='icon'
-                  className='absolute right-1 top-1/2 transform -translate-y-1/2'
-                >
-                  <UploadIcon className='h-5 w-5' />
-                  <span className='sr-only'>Upload image</span>
-                </Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>以服搜服</DialogTitle>
-                  <DialogDescription>
-                    看中哪件衣服？上傳照片，立即搜尋購買！
-                  </DialogDescription>
-                </DialogHeader>
-                <div className='grid gap-4 py-4'>
-                  <div className='grid grid-cols-4 items-center gap-4'>
-                    <Input
-                      id='picture'
-                      type='file'
-                      accept='image/*'
-                      className='col-span-4'
-                      onChange={handleFileUpload}
-                    />
-                  </div>
-                </div>
-                <LoadingButton
-                  disabled={imageUploading}
-                  loading={imageUploading}
-                  onClick={handleImageUpload}
-                >
-                  上傳並搜尋
-                </LoadingButton>
-              </DialogContent>
-            </Dialog>
           </div>
-            <Select onValueChange={(value: Gender) => {
-              setGender(value);
-              console.log(value);
-            }}> 
-              <SelectTrigger className="w-[100px] bg-white">
-                <div id='gender-select'>
-                  <SelectValue placeholder="性別" />
-                </div>
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="neutral">無限制</SelectItem>
-                <SelectItem value="male">男性</SelectItem>
-                <SelectItem value="female">女性</SelectItem>
-              </SelectContent>
-            </Select>
+
+          <Button
+            size='icon'
+            onClick={() => setIsExpanded(!isExpanded)}
+            className={cn('mb-2 text-gray-700 hover:bg-gray-200 p-1', isExpanded ? 'bg-gray-200' : 'bg-transparnet')}
+          >
+            <SlidersHorizontal className="w-5" />
+          </Button>
+          <Select onValueChange={(value: Gender) => {
+            setGender(value);
+            console.log(value);
+          }}> 
+            <SelectTrigger className="w-[100px] bg-white">
+              <SelectValue placeholder="性別" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="neutral">無限制</SelectItem>
+              <SelectItem value="male">男性</SelectItem>
+              <SelectItem value="female">女性</SelectItem>
+            </SelectContent>
+          </Select>
           <LoadingButton
             className='bg-indigo-400 hover:bg-indigo-300'
             onClick={onSubmit}
@@ -259,6 +230,92 @@ export default function SearchPage() {
             {!loading && <SearchIcon />}
           </LoadingButton>
         </div>
+
+        {isExpanded && (
+          <div className="bg-gray-100 p-2 mb-4 rounded-md">
+            <div className="flex gap-2 items-center justify-begin">
+              <Select onValueChange={(value: string) => {
+                setSelectedColor(value);
+                setSearchInput(`${value} ${selectedVersion} ${selectedStyle} ${selectedType}`.trim());
+              }}> 
+                <SelectTrigger className="w-[100px] bg-white">
+                  <SelectValue placeholder="顏色" />
+                </SelectTrigger>
+                <SelectContent>
+                <SelectItem value="黑色">黑色</SelectItem>
+                <SelectItem value="白色">白色</SelectItem>
+                <SelectItem value="灰色">灰色</SelectItem>
+                <SelectItem value="紅色">紅色</SelectItem>
+                <SelectItem value="橘色">橘色</SelectItem>
+                <SelectItem value="黃色">黃色</SelectItem>
+                <SelectItem value="綠色">綠色</SelectItem>
+                <SelectItem value="藍色">藍色</SelectItem>
+                <SelectItem value="紫色">紫色</SelectItem>
+                <SelectItem value="粉色">粉色</SelectItem>
+                <SelectItem value="棕色">棕色</SelectItem>
+                  {/* Add more colors as needed */}
+                </SelectContent>
+              </Select>
+
+              <Select onValueChange={(value: string) => {
+                setSelectedVersion(value);
+                setSearchInput(`${selectedColor} ${value} ${selectedStyle} ${selectedType}`.trim());
+              }}> 
+                <SelectTrigger className="w-[100px] bg-white">
+                  <SelectValue placeholder="版型" />
+                </SelectTrigger>
+                <SelectContent>
+                <SelectItem value="短袖">短袖</SelectItem>
+                <SelectItem value="長袖">長袖</SelectItem>
+                <SelectItem value="短褲">短褲</SelectItem>
+                <SelectItem value="長褲">長褲</SelectItem>
+                <SelectItem value="短裙">短裙</SelectItem>
+                <SelectItem value="長裙">長裙</SelectItem>
+                  {/* Add more options as needed */}
+                </SelectContent>
+              </Select>
+
+              <Select onValueChange={(value: string) => {
+                setSelectedStyle(value);
+                setSearchInput(`${selectedColor} ${selectedVersion} ${value} ${selectedType}`.trim());
+              }}> 
+                <SelectTrigger className="w-[100px] bg-white">
+                  <SelectValue placeholder="款式" />
+                </SelectTrigger>
+                <SelectContent>
+                <SelectItem value="T恤">T恤</SelectItem>
+                <SelectItem value="帽T">帽T</SelectItem>
+                <SelectItem value="襯衫">襯衫</SelectItem>
+                <SelectItem value="針織衫">針織衫</SelectItem>
+                <SelectItem value="毛衣">毛衣</SelectItem>
+                <SelectItem value="牛仔">牛仔</SelectItem>
+                  {/* Add more styles as needed */}
+                </SelectContent>
+              </Select>
+
+              <Select onValueChange={(value: string) => {
+                setSelectedType(value);
+                setSearchInput(`${selectedColor} ${selectedVersion} ${selectedStyle} ${value}`.trim());
+              }}> 
+                <SelectTrigger className="w-[100px] bg-white">
+                  <SelectValue placeholder="風格" />
+                </SelectTrigger>
+                <SelectContent>
+                <SelectItem value="極簡">極簡</SelectItem>
+                <SelectItem value="街頭">街頭</SelectItem>
+                <SelectItem value="復古">復古</SelectItem>
+                <SelectItem value="工裝">工裝</SelectItem>
+                <SelectItem value="優雅">優雅</SelectItem>
+                <SelectItem value="日系">日系</SelectItem>
+                <SelectItem value="韓系">韓系</SelectItem>
+                <SelectItem value="美式">美式</SelectItem>
+                <SelectItem value="法式">法式</SelectItem>
+                  {/* Add more types as needed */}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        )}
 
         <div id='prompt-suggestions' className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4'>
           {promptSuggestions.map((suggestion, index) => (
