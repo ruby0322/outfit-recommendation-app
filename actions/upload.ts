@@ -169,6 +169,7 @@ const handleImageSearch = async (
           clothingType,
           page,
         });
+        console.log("searchResult: ", searchResult);
         return searchResult;
       } else {
         console.error("No valid labels found after cleaning");
