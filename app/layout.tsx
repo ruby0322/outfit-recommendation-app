@@ -26,7 +26,7 @@ export const metadata = {
   description: "Tin can, can you?",
 };
 
-const steps: Step[] = [
+const RECOMMENDATION_STEPS: Step[] = [
   // Example steps
   {
     icon: <></>,
@@ -88,6 +88,47 @@ const steps: Step[] = [
   },
 ];
 
+const SEARCH_STEPS: Step[] = [
+  {
+    icon: <></>,
+    title: "白話搜尋",
+    content: <>
+      不知道怎麼提取關鍵字嗎？沒關係！
+      <br />
+      在這裡想說什麼就說什麼，白話一樣行！
+    </>,
+    selector: "#search-bar",
+    side: "bottom",
+    showControls: true,
+    pointerPadding: 24,
+    pointerRadius: 12,
+  },
+  {
+    icon: <></>,
+    title: "性別篩選",
+    content: <>
+      篩選服飾適合的性別
+    </>,
+    selector: "#gender-select",
+    side: "left",
+    showControls: true,
+    pointerPadding: 24,
+    pointerRadius: 12,
+  },
+  {
+    icon: <></>,
+    title: "隨機輸入",
+    content: <>
+      試試隨機的搜尋輸入，說不定能激發靈感唷！
+    </>,
+    selector: "#prompt-suggestions",
+    side: "bottom",
+    showControls: true,
+    pointerPadding: 24,
+    pointerRadius: 12,
+  },
+];
+
 export default async function RootLayout({
   children,
 }: {
@@ -104,7 +145,7 @@ export default async function RootLayout({
         <Header />
         <OnbordaProvider>
           <Onborda
-            steps={[{ 'tour': 'test', 'steps': steps }]}
+            steps={[{ 'tour': 'recommendation', 'steps': RECOMMENDATION_STEPS }, { 'tour': 'search', 'steps': SEARCH_STEPS }]}
             showOnborda={true}
             // shadowRgb="55,48,163"
             shadowOpacity="0.8"

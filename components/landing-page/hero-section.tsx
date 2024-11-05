@@ -1,11 +1,11 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import { WandSparkles } from "lucide-react";
 import { useRouter } from "next/navigation";
 import AnimatedTextCharacter from "../animated-text-character";
 import People from "../illustrations/people";
+import { Button } from "../ui/button";
 
 const HeroSection = () => {
   const router = useRouter();

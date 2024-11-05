@@ -1,7 +1,7 @@
 "use client";
 
+import HeroSection from "@/components/landing-page/hero-section";
 import ImageSearchSection from "@/components/landing-page/image-search-section";
-import HeroSection from "@/components/landing-page/landing-section";
 import OverviewSection from "@/components/landing-page/overview-section";
 import RecommendationSection from "@/components/landing-page/recommendation-section";
 import TestimonialSection from "@/components/landing-page/testimonial-section";

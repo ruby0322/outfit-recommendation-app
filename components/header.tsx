@@ -107,6 +107,21 @@ const LandingPageHeader = () => {
   );
 };
 
+const routes = [
+  {
+    pathnames: ['/upload', '/history'],
+    tabLabel: '穿搭推薦'
+  },
+  {
+    pathnames: ['/search', ],
+    tabLabel: '文字搜尋'
+  },
+  {
+    pathnames: ['/image-search', ],
+    tabLabel: '以服搜服'
+  },
+];
+
 const Header = () => {
   const [user, setUser] = useState<User | null>(null);
   const [isMobile, setIsMobile] = useState<boolean>(false);
@@ -136,7 +151,7 @@ const Header = () => {
 
   return (
     <header>
-      <div className='font-semibold bg-gray-100 border-solid border-b-2 flex p-4 py-2 gap-4 h-[7vh] items-center justify-between shadow-[0px_2px_3px_-1px_rgba(0,0,0,0.1),0px_1px_0px_0px_rgba(25,28,33,0.02),0px_0px_0px_1px_rgba(25,28,33,0.08)]'>
+      <div className='font-semibold bg-gray-100 border-solid border-t-2 flex p-4 py-2 gap-4 h-[7vh] items-center justify-between shadow-[0px_2px_3px_-1px_rgba(0,0,0,0.1),0px_1px_0px_0px_rgba(25,28,33,0.02),0px_0px_0px_1px_rgba(25,28,33,0.08)]'>
         <div className='flex gap-4 items-center justify-center'>
           <Link href='/'>
             <WandSparkles className='text-indigo-400' />
@@ -146,21 +161,17 @@ const Header = () => {
           </p>
           {
             !isMobile && <>
-              <p className={cn("font-normal", (pathname === '/upload' || pathname === '/history') && 'border-b-2 border-indigo-400')}>
-                <Link href='/upload'>
-                  穿搭推薦
-                </Link>
-              </p>
-              <p className={cn("font-normal", pathname === '/search' && 'border-b-2 border-indigo-400')}>
-                <Link href='/search'>
-                  文字搜尋
-                </Link>
-              </p>
-              <p className={cn("font-normal", pathname === '/image-search' && 'border-b-2 border-indigo-400')}>
-                <Link href='/image-search'>
-                  以服搜服
-                </Link>
-              </p>
+              {
+                routes.map(route => {
+                  return <Link
+                    href={route.pathnames[0]}
+                  >
+                    <p className={cn("font-normal py-2 px-4", route.pathnames.includes(pathname) && 'border-t-2 border-indigo-400 bg-gray-200')}>
+                      {route.tabLabel}
+                    </p>
+                  </Link>
+                })
+              }
             </>
           }
         </div>
@@ -174,12 +185,12 @@ const Header = () => {
             <SheetContent className='w-[40vw] bg-gray-100/80'>
               <nav className='flex flex-col gap-4 mt-8'>
               {user && <AvatarMenu />}
-                <p className={cn("font-normal", pathname === '/upload' && 'border-b-2 border-indigo-400')}>
+                <p className={cn("font-normal", pathname === '/upload' && 'border-t-2 border-indigo-400 bg-gray-200 rounded-t-md')}>
                   <Link href='/upload'>
                     穿搭推薦
                   </Link>
                 </p>
-                <p className={cn("font-normal", pathname === '/search' && 'border-b-2 border-indigo-400')}>
+                <p className={cn("font-normal", pathname === '/search' && 'border-t-2 border-indigo-400 bg-gray-200 rounded-t-md')}>
                   <Link href='/search'>
                     文字／圖片搜尋
                   </Link>

@@ -2,6 +2,7 @@
 
 import { handleRecommendation } from "@/actions/upload";
 import { storeImageToStorage } from "@/actions/utils/insert";
+import TourButton from '@/components/tour-button';
 import { Badge } from "@/components/ui/badge";
 import { LoadingButton } from "@/components/ui/loading-button";
 import { Progress } from "@/components/ui/progress";
@@ -10,11 +11,10 @@ import { createClient } from "@/utils/supabase/client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import imageCompression from 'browser-image-compression';
 import { motion } from "framer-motion";
-import { CheckCircle, ChevronLeft, CircleHelp } from "lucide-react";
+import { CheckCircle, ChevronLeft } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useOnborda } from "onborda";
 import { useCallback, useState } from "react";
 import { FormProvider, useForm, useFormContext } from "react-hook-form";
 import { z } from "zod";
@@ -51,14 +51,14 @@ const ProgressBar = ({
 
 // ImageUpload Component
 const ImageUpload = ({ onImageUpload }: { onImageUpload: () => void }) => {
-  const { startOnborda } = useOnborda();
+  
   return (
     <div id='image-uploader' className='w-full flex-1 flex flex-col gap-4 items-center justify-center h-auto'>
       <div className="w-full flex text-gray-600 items-center justify-start gap-2">
         <h1 className='text-start text-2xl'>
           ➊ 照片上傳
         </h1>
-        <CircleHelp className="w-4 cursor-pointer" onClick={() => { startOnborda('test') }} />
+        <TourButton tourName='recommendation' />
       </div>
       <ImageUploader onImageUpload={onImageUpload} />
     </div>
