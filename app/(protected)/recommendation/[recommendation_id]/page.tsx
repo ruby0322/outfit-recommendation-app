@@ -14,7 +14,7 @@ const RecommendationPage = async ({
   searchParams?: { [key: string]: string | undefined };
 }) => {
   const recommendation: Recommendation = (await getRecommendationRecordById(
-    params.recommendation_id
+    params.recommendation_id, 'dawdaw'
   )) as Recommendation;
   // console.log(recommendation);
   return (
