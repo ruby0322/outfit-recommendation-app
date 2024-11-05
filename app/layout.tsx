@@ -148,9 +148,8 @@ export default async function RootLayout({
           <Onborda
             steps={[{ 'tour': 'recommendation', 'steps': RECOMMENDATION_STEPS }, { 'tour': 'search', 'steps': SEARCH_STEPS }]}
             showOnborda={true}
-            shadowOpacity="0.8"
+            shadowOpacity="0.7"
             cardComponent={TourCard}
-            cardTransition={{ duration: 0.5, type: "tween" }}
           >
             <div className='flex-1 flex justify-center min-h-[93vh] items-center overflow-y-scroll overflow-x-hiddena'>
               {children}
