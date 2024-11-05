@@ -35,7 +35,7 @@ const schema = z.object({
 });
 
 export default function SearchPage() {
-  const [currentQuery, setCurrentQuery] = useState<string>('');
+  const [totalPages, setTotalPages] = useState<number>(0);
   const [query, setQuery] = useState<string>("");
   const [gender, setGender] = useState<Gender>('neutral');
   const [loading, setLoading] = useState<boolean>(false);
@@ -117,6 +117,8 @@ export default function SearchPage() {
     setLoading(true);
     const res = await handleTextSearch(searchInput, "gpt-4o-mini", gender, page);
     setResults([...(res?.series as Series[])] as Series[]);
+    setTotalPages(res?.totalPages as number);
+    setPage(1);
     setQuery(searchInput);
     setSearchInput("");
     // console.log(res?.series);
@@ -296,7 +298,7 @@ export default function SearchPage() {
         <div className="mt-8 w-full flex items-center justify-center">
           <PaginationBar
             currentPage={page}
-            totalPages={100}
+            totalPages={totalPages}
               onPageChange={async (page: number) => {
                 setPage(page);
                 setLoading(true);
