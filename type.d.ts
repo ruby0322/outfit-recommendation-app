@@ -1,6 +1,5 @@
-import { Item, Param, Recommendation, Upload, Result, Profile, Suggestion } from "@prisma/client";
+import { Item, Param, Profile, Recommendation, Result, Suggestion, Upload } from "@prisma/client";
 
-import prisma from "./prisma/db";
 
 export type ItemTable = Item;
 export type ParamTable = Param;

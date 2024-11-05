@@ -27,7 +27,7 @@ const ResultWindowSkeleton = () => {
         ))}
       </nav>
       <motion.div
-        className='w-full h-64 bg-gray-200 rounded-md'
+        className='w-full h-48 bg-gray-200 rounded-md'
         animate={{
           opacity: [0.5, 1, 0.5],
         }}

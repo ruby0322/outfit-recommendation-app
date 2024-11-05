@@ -6,6 +6,7 @@ import { Upload } from "lucide-react";
 import Image from "next/image";
 import { useRef, useState } from "react";
 import ResultWindow from "./result-window";
+import Section from "./section";
 
 const images = [
   "https://eapzlwxcyrinipmcdoir.supabase.co/storage/v1/object/public/image/image-750cc231-23d4-436a-a085-7286e0fdeed3?t=2024-09-25T17%3A20%3A26.729Z",
@@ -140,46 +141,33 @@ const RecommendationSection = () => {
     }, 1200);
   };
   return (
-    <section id='recommendation-feature' className='px-10 py-16 bg-gray-50'>
-      <div className='w-full flex md:px-[5rem] md:flex-row flex-col md:items-start items-center justify-center gap-32 mx-auto px-4'>
-        <div className='text-start w-fit'>
-          <h2 className='text-3xl font-bold mb-4'>穿搭建議</h2>
-          <span className='w-full text-gray-600'>
-            受夠買衣服一直問店員、跑試衣間了嗎？
-            <br />
-            沒關係，交給「穿搭推薦」來幫你搞定！
-            <br />
-            依場合需求，為你量身打造最讚穿搭。
-            <br />
-            無論是休閒、正式，還是潮流穿搭，
-            <br />
-            我們都能推薦最適合的風格與單品，
-            <br />
-            從此穿搭不再煩惱，每天都有新靈感！
-          </span>
-        </div>
-        <div className='flex-1 flex flex-col md:flex-row gap-12 items-center justify-center'>
-          {!loaded && (
-            <DragAndDropImageUploaderMock
-              droppedImage={droppedImage}
-              handleImageDrop={handleImageDrop}
-            />
-          )}
-
-          {loaded && (
-            <ResultWindow
-              close={() => {
-                setDroppedImage(null);
-                setLoaded(false);
-              }}
-              index={
-                droppedImage ? (images.indexOf(droppedImage) as 0 | 1 | 2) : 0
-              }
-            />
-          )}
-        </div>
-      </div>
-    </section>
+    <Section
+      id='recommendation-feature'
+      title='推薦功能'
+      slogan='上傳搭配，輕鬆找到專屬穿搭靈感！'
+      description={
+        `上傳您的上半身或下半身穿搭圖片，
+        系統會自動推薦三種搭配的建議！
+        這個功能特別適合已經購買了一件衣服但不確定如何搭配的使用者，
+        試試看把衣服拖曳進右側的視窗來找找推薦的搭配吧。`
+      }
+      buttonText="感受專屬的穿搭推薦！"
+      buttonLink='/upload'
+    >
+      {!loaded && (
+        <DragAndDropImageUploaderMock
+          droppedImage={droppedImage}
+          handleImageDrop={handleImageDrop} />
+      )}
+      {loaded && (
+        <ResultWindow
+          close={() => {
+            setDroppedImage(null);
+            setLoaded(false);
+          } }
+          index={droppedImage ? (images.indexOf(droppedImage) as 0 | 1 | 2) : 0} />
+      )}
+    </Section>
   );
 };
 

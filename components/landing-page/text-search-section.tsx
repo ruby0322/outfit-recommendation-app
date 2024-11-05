@@ -1,28 +1,23 @@
 "use client";
 
+import Section from "./section";
+
 const TextSearchSection = () => {
   return (
-    <section id='text-search-feature' className='px-10 py-16 bg-gray-50 w-full'>
-      <div className='w-full flex md:px-[5rem] md:flex-row flex-col md:items-start items-center justify-center gap-32 mx-auto px-4'>
-        <div className='text-start'>
-          <h2 className='text-3xl font-bold mb-4'>白話搜尋</h2>
-          <p className='w-full text-gray-600'>
-            你是否曾想找心中完美的服飾，找遍各服飾店卻以失敗告終？
-            <br />
-            那種苦尋無果的挫折感，想必你一定懂。
-            <br />
-            有了「白話搜尋」，這些困擾再也不是問題！
-            <br />
-            只要輸入一句白話的描述，不需要琢磨用詞，
-            <br />
-            我們都能找到最符合的商品，讓找衣服變得輕鬆又高效！
-          </p>
-        </div>
-        <div className='flex-1 flex flex-col md:flex-row gap-12 items-center justify-center'>
-          內容待生成
-        </div>
-      </div>
-    </section>
+    <Section
+      id='text-search-feature'
+      title='白話搜尋'
+      slogan='簡單一句話，尋找理想單品！'
+      description={
+        `輸入一句簡單的搜尋詞，如衣物的細節、搭配的情境等，
+        系統會根據您的描述推薦合適的單品，讓搜尋更加符合您的需求。
+        邀請您在左側區塊進行試用，探索這項便捷的搜尋體驗！`
+      }
+      buttonText="快速找到理想的單品！"
+      buttonLink="/search"
+    >
+      內容待生成
+    </Section>
   );
 };
 
