@@ -50,55 +50,63 @@ const vectorSearchForSearching = async (
   priceUpperBound?: number,
   providers?: string[],
   clothingType?: ClothingType,
-): Promise<Series[] | null> => {
+): Promise<{ series: Series[]; totalItems: number } | null> => {
   try {
+    //setting the mat view
     const suggestedEmbedding = await generateEmbedding(suggestedLabelString);
-    const matchThreshold = 0.2;
+    const matchThreshold = -0.9;
     let genderString = gender === "neutral" ? "all" : gender;
     const viewName = `${genderString}_item_matview`;
-
     const offset = (page - 1) * pageSize;
 
-    let query = `
-      SELECT id, clothing_type, color, external_link, gender, image_url, label_string, price, provider, series_id, title
-      FROM ${viewName}
-      WHERE ${viewName}.embedding <#> $1::vector < $2
-    `;
-
+    //setting the filters
+    let filterConditions = `${viewName}.embedding <#> $1::vector > $2`;
     const queryParams: any[] = [suggestedEmbedding, matchThreshold];
     let paramIndex = 3;
 
     if (priceLowerBound !== undefined) {
-      query += ` AND price >= $${paramIndex++}`;
+      filterConditions += ` AND price >= $${paramIndex++}`;
       queryParams.push(priceLowerBound);
     }
     if (priceUpperBound !== undefined) {
-      query += ` AND price <= $${paramIndex++}`;
+      filterConditions += ` AND price <= $${paramIndex++}`;
       queryParams.push(priceUpperBound);
     }
-
     if (providers && providers.length > 0) {
       const providerPlaceholders = providers.map((_, index) => `$${paramIndex + index}`).join(", ");
-      query += ` AND provider IN (${providerPlaceholders})`;
+      filterConditions += ` AND provider IN (${providerPlaceholders})`;
       queryParams.push(...providers);
       paramIndex += providers.length;
     }
-
     if (clothingType) {
-      query += ` AND clothing_type = $${paramIndex++}`;
+      filterConditions += ` AND clothing_type = $${paramIndex++}`;
       queryParams.push(clothingType);
     }
 
-    query += `
-      ORDER BY ${viewName}.embedding <#> $1::vector
+    const countQuery = `
+      SELECT COUNT(*) AS total_count
+      FROM ${viewName}
+      WHERE ${filterConditions}
+      GROUP BY embedding
+      ORDER BY ${viewName}.embedding <#> $1::vector ASC
+    `;
+
+    const totalItemsResult = await prisma.$queryRawUnsafe<{ total_count: bigint }[]>(countQuery, ...queryParams);
+    // console.log("Similarity results: ", totalItemsResult);
+
+    const totalItems = totalItemsResult.reduce((sum, item) => sum + Number(item.total_count), 0);
+    // console.log("query total count: ", totalItems);
+
+    const mainQuery = `
+      SELECT id, clothing_type, color, external_link, gender, image_url, label_string, price, provider, series_id, title
+      FROM ${viewName}
+      WHERE ${filterConditions}
+      ORDER BY ${viewName}.embedding <#> $1::vector ASC
       LIMIT $${paramIndex++} OFFSET $${paramIndex};
     `;
-    queryParams.push(pageSize, offset);
+    const mainQueryParams = [...queryParams, pageSize, offset];
 
-    const items: SimplifiedItemTable[] = await prisma.$queryRawUnsafe(query, ...queryParams);
-
-    const itemIds = items.map(item => item.id);
-    console.log("the item_ids: ", itemIds);
+    const items: SimplifiedItemTable[] = await prisma.$queryRawUnsafe(mainQuery, ...mainQueryParams);
 
     const series: Series[] = items.map(simplifiedItem => ({
       items: [{
@@ -106,13 +114,13 @@ const vectorSearchForSearching = async (
         price: simplifiedItem.price ? Number(simplifiedItem.price) : 0,
       }],
     }));
-    return series;
+
+    return { series, totalItems };
   } catch (error) {
     handleDatabaseError(error, "vectorSearchForSearching");
     return null;
   }
 };
-
 
 const semanticSearchForRecommendation = async ({
   suggestionId,
@@ -230,7 +238,7 @@ const semanticSearchForSearching = async ({
   page: number;
 }): Promise<SearchResult | null> => {
   try {
-    const similarItems = await vectorSearchForSearching(
+    const searchResultData = await vectorSearchForSearching(
       suggestedLabelString,
       page,
       20,
@@ -241,15 +249,18 @@ const semanticSearchForSearching = async ({
       clothingType
     );
 
-    if (!similarItems || similarItems.length === 0) {
+    if (!searchResultData || searchResultData.series.length === 0) {
       return null;
     }
+
+    const { series, totalItems } = searchResultData;
+    const totalPage = Math.ceil(totalItems / 20);
 
     const uniqueSeriesIds: string[] = [];
     const seenSeriesIds = new Set<string>();
 
-    for (const series of similarItems) {
-      for (const item of series.items) {
+    for (const seriesItem of series) {
+      for (const item of seriesItem.items) {
         const seriesId = item.series_id;
         if (seriesId && !seenSeriesIds.has(seriesId)) {
           uniqueSeriesIds.push(seriesId);
@@ -257,13 +268,14 @@ const semanticSearchForSearching = async ({
         }
       }
     }
-    const similarItemIds = similarItems.flatMap(series => series.items.map(item => item.id));
+    const similarItemIds = series.flatMap(seriesItem => seriesItem.items.map(item => item.id));
 
     const seriesArray = await getSeriesByIdsForSearching(uniqueSeriesIds, similarItemIds, gender);
     const safeSeriesArray: Series[] = seriesArray || [];
 
     const searchResult: SearchResult = {
       series: safeSeriesArray,
+      totalPage,
     };
     return searchResult;
   } catch (error) {
