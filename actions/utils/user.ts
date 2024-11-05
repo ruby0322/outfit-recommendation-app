@@ -3,6 +3,7 @@ import { ProfileTable, RecommendationPreview } from "@/type";
 import { createClient } from "@/utils/supabase/server";
 import { revalidatePath } from "next/cache";
 import prisma from "@/prisma/db";
+import { handleDatabaseError } from "../activity";
 
 const createProfile = async (user_id: string): Promise<boolean> => {
   const supabase = createClient();
@@ -50,7 +51,7 @@ const getProfileByUserId = async (user_id: string): Promise<ProfileTable> => {
 
     return profile;
   } catch (error) {
-    console.error("Error fetching user profile:", error);
+    handleDatabaseError(error, "getProfileByUserId");
     throw new Error("Failed to get profile");
   }
 };

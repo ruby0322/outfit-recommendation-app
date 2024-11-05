@@ -1,144 +1,23 @@
 "use server";
 
-import prisma from "@/prisma/db";
-import { handleRecommendation, handleImageSearch, handleTextSearch } from "@/actions/upload";
-import supabase from "@/lib/supabaseClient";
-import { createClient } from "@/utils/supabase/client";
-import { storeImageToStorage } from "@/actions/utils/insert";
-import { cookies } from "next/headers";
-import { getRecommendationRecordById } from "@/actions/recommendation";
-import Image from "next/image"; // Import Next.js Image component
+import { handleRecommendationWithoutLogin, handleTextSearch } from "@/actions/upload";
 
-export default async function Playground(){
+export default async function Playground2() {
+  try {
+    // const result = await handleTextSearch("請給我藍色清爽襯衫", "gpt-4o-mini", "male", 1, 500, 700, ["H&M", "UNIQLO"], "top");
+    // console.log(result);
+    
+    // const result2 = await handleTextSearch("請給我藍色清爽襯衫", "gpt-4o-mini", "male", 2, undefined, 200,["fifty percent", "H&M"], "top");
+    // console.log(result2);
 
-  const testConnection = async () => {
-    try {
-      await prisma.$connect();
-      console.log('connected!');
-    } catch (e) {
-      console.log(e);
-    }
+  } catch (error) {
+    console.error("Error during backend function calls", error);
   }
-  testConnection();
-
-  const textSearchResult = await handleTextSearch (
-    '我想要找一件黑色牛仔長褲，可以用來搭配我的白色 T-shirt',
-    'gpt-4o-mini',
-    'female',
-  )
-
-  const imgSearchResult = await handleImageSearch (
-    'female',
-    'gpt-4o-mini',
-    'https://eapzlwxcyrinipmcdoir.supabase.co/storage/v1/object/public/image/image-018f80af-65bb-48fd-ba2f-43051785c660',
-  )
 
   return (
-    <div style={{ padding: "20px" }}>
-      <h1>Playground</h1>
-
-      {/* Image Search Results */}
-      <h2>Image Search Results</h2>
-      {imgSearchResult && imgSearchResult.series && imgSearchResult.series.length > 0 ? (
-        imgSearchResult.series.map((series, seriesIndex) => (
-          <div key={`img-series-${seriesIndex}`} style={{ marginBottom: "40px" }}>
-            <h3>Series {seriesIndex + 1}</h3>
-            <div style={{ display: "flex", flexWrap: "wrap" }}>
-              {series.items.map((item, itemIndex) => (
-                <div
-                  key={`img-item-${itemIndex}`}
-                  style={{
-                    margin: "10px",
-                    textAlign: "center",
-                    border: "1px solid #ddd",
-                    padding: "10px",
-                    borderRadius: "8px",
-                  }}
-                >
-                  {item.image_url ? (
-                    <Image
-                      src={item.image_url}
-                      alt={item.title || `Item ${itemIndex + 1}`}
-                      width={200}
-                      height={300}
-                      style={{ borderRadius: "8px" }}
-                    />
-                  ) : (
-                    <div
-                      style={{
-                        width: "200px",
-                        height: "300px",
-                        backgroundColor: "#ccc",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        borderRadius: "8px",
-                      }}
-                    >
-                      <p>No Image Available</p>
-                    </div>
-                  )}
-                  <p>{item.title}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        ))
-      ) : (
-        <p>No image search results found.</p>
-      )}
-
-      {/* Text Search Results */}
-      <h2>Text Search Results</h2>
-      {textSearchResult && textSearchResult.series && textSearchResult.series.length > 0 ? (
-        textSearchResult.series.map((series, seriesIndex) => (
-          <div key={`text-series-${seriesIndex}`} style={{ marginBottom: "40px" }}>
-            <h3>Series {seriesIndex + 1}</h3>
-            <div style={{ display: "flex", flexWrap: "wrap" }}>
-              {series.items.map((item, itemIndex) => (
-                <div
-                  key={`text-item-${itemIndex}`}
-                  style={{
-                    margin: "10px",
-                    textAlign: "center",
-                    border: "1px solid #ddd",
-                    padding: "10px",
-                    borderRadius: "8px",
-                  }}
-                >
-                  {item.image_url ? (
-                    <Image
-                      src={item.image_url}
-                      alt={item.title || `Item ${itemIndex + 1}`}
-                      width={200}
-                      height={300}
-                      style={{ borderRadius: "8px" }}
-                    />
-                  ) : (
-                    <div
-                      style={{
-                        width: "200px",
-                        height: "300px",
-                        backgroundColor: "#ccc",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        borderRadius: "8px",
-                      }}
-                    >
-                      <p>No Image Available</p>
-                    </div>
-                  )}
-                  <p>{item.title}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        ))
-      ) : (
-        <p>No text search results found.</p>
-      )}
+    <div>
+      <h1>Playground2</h1>
+      <p>Check console for output</p>
     </div>
   );
 }
-

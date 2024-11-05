@@ -38,7 +38,8 @@ export default function ImageSearch() {
     const res = await handleImageSearch(
       gender,
       "gpt-4o-mini",
-      uploadedImageUrl
+      uploadedImageUrl,
+      1
     );
     setResults([...(res?.series ?? [])] as Series[]);
     setLoading(false);
@@ -168,13 +169,12 @@ export default function ImageSearch() {
         <ItemListSkeleton index={0} />
       ) : (
         <ItemList
-          title=''
-          description={""}
-          series={results}
-          id={""}
-          index={0}
-          expandOnMount={true}
-        />
+            title=''
+            description={""}
+            series={results}
+            id={""}
+            index={0}
+            expandOnMount={true} expandable={false}        />
       )}
     </div>
   );

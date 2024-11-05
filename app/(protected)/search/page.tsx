@@ -12,6 +12,7 @@ import { useEffect, useState } from "react";
 import { z } from "zod";
 
 
+import PaginationBar from "@/components/pagination-bar";
 import TourButton from "@/components/tour-button";
 import { Button } from "@/components/ui/button";
 import {
@@ -45,6 +46,7 @@ export default function SearchPage() {
   const [selectedStyle, setSelectedStyle] = useState<string>(""); // 風格
   const [selectedType, setSelectedType] = useState<string>(""); // 款式
   const [isExpanded, setIsExpanded] = useState(false);
+  const [page, setPage] = useState<number>(1);
 
   const searchQueriesDescription = [
     "請給我一件寬鬆、舒適的長褲。",
@@ -112,7 +114,7 @@ export default function SearchPage() {
   const onSubmit = async () => {
     if (!searchInput) return;
     setLoading(true);
-    const res = await handleTextSearch(searchInput, "gpt-4o-mini", gender);
+    const res = await handleTextSearch(searchInput, "gpt-4o-mini", gender, page);
     setResults([...(res?.series as Series[])] as Series[]);
     setQuery(searchInput);
     setSearchInput("");
@@ -150,7 +152,7 @@ export default function SearchPage() {
             className='bg-indigo-400 hover:bg-indigo-300'
             onClick={onSubmit}
             loading={loading}
-            >
+          >
             {!loading && <SearchIcon />}
           </LoadingButton>
         </div>
@@ -161,7 +163,7 @@ export default function SearchPage() {
               <Select onValueChange={(value: Gender) => {
                 setGender(value);
                 console.log(value);
-              }}> 
+              }}>
                 <SelectTrigger className="w-[100px] bg-white">
                   <SelectValue id='gender-select' placeholder="性別" />
                 </SelectTrigger>
@@ -175,22 +177,22 @@ export default function SearchPage() {
               <Select onValueChange={(value: string) => {
                 setSelectedColor(value);
                 setSearchInput(`${value} ${selectedVersion} ${selectedStyle} ${selectedType}`.trim());
-              }}> 
+              }}>
                 <SelectTrigger className="w-[100px] bg-white">
                   <SelectValue placeholder="顏色" />
                 </SelectTrigger>
                 <SelectContent>
-                <SelectItem value="黑色">黑色</SelectItem>
-                <SelectItem value="白色">白色</SelectItem>
-                <SelectItem value="灰色">灰色</SelectItem>
-                <SelectItem value="紅色">紅色</SelectItem>
-                <SelectItem value="橘色">橘色</SelectItem>
-                <SelectItem value="黃色">黃色</SelectItem>
-                <SelectItem value="綠色">綠色</SelectItem>
-                <SelectItem value="藍色">藍色</SelectItem>
-                <SelectItem value="紫色">紫色</SelectItem>
-                <SelectItem value="粉色">粉色</SelectItem>
-                <SelectItem value="棕色">棕色</SelectItem>
+                  <SelectItem value="黑色">黑色</SelectItem>
+                  <SelectItem value="白色">白色</SelectItem>
+                  <SelectItem value="灰色">灰色</SelectItem>
+                  <SelectItem value="紅色">紅色</SelectItem>
+                  <SelectItem value="橘色">橘色</SelectItem>
+                  <SelectItem value="黃色">黃色</SelectItem>
+                  <SelectItem value="綠色">綠色</SelectItem>
+                  <SelectItem value="藍色">藍色</SelectItem>
+                  <SelectItem value="紫色">紫色</SelectItem>
+                  <SelectItem value="粉色">粉色</SelectItem>
+                  <SelectItem value="棕色">棕色</SelectItem>
                   {/* Add more colors as needed */}
                 </SelectContent>
               </Select>
@@ -198,17 +200,17 @@ export default function SearchPage() {
               <Select onValueChange={(value: string) => {
                 setSelectedVersion(value);
                 setSearchInput(`${selectedColor} ${value} ${selectedStyle} ${selectedType}`.trim());
-              }}> 
+              }}>
                 <SelectTrigger className="w-[100px] bg-white">
                   <SelectValue placeholder="版型" />
                 </SelectTrigger>
                 <SelectContent>
-                <SelectItem value="短袖">短袖</SelectItem>
-                <SelectItem value="長袖">長袖</SelectItem>
-                <SelectItem value="短褲">短褲</SelectItem>
-                <SelectItem value="長褲">長褲</SelectItem>
-                <SelectItem value="短裙">短裙</SelectItem>
-                <SelectItem value="長裙">長裙</SelectItem>
+                  <SelectItem value="短袖">短袖</SelectItem>
+                  <SelectItem value="長袖">長袖</SelectItem>
+                  <SelectItem value="短褲">短褲</SelectItem>
+                  <SelectItem value="長褲">長褲</SelectItem>
+                  <SelectItem value="短裙">短裙</SelectItem>
+                  <SelectItem value="長裙">長裙</SelectItem>
                   {/* Add more options as needed */}
                 </SelectContent>
               </Select>
@@ -216,17 +218,17 @@ export default function SearchPage() {
               <Select onValueChange={(value: string) => {
                 setSelectedStyle(value);
                 setSearchInput(`${selectedColor} ${selectedVersion} ${value} ${selectedType}`.trim());
-              }}> 
+              }}>
                 <SelectTrigger className="w-[100px] bg-white">
                   <SelectValue placeholder="款式" />
                 </SelectTrigger>
                 <SelectContent>
-                <SelectItem value="T恤">T恤</SelectItem>
-                <SelectItem value="帽T">帽T</SelectItem>
-                <SelectItem value="襯衫">襯衫</SelectItem>
-                <SelectItem value="針織衫">針織衫</SelectItem>
-                <SelectItem value="毛衣">毛衣</SelectItem>
-                <SelectItem value="牛仔">牛仔</SelectItem>
+                  <SelectItem value="T恤">T恤</SelectItem>
+                  <SelectItem value="帽T">帽T</SelectItem>
+                  <SelectItem value="襯衫">襯衫</SelectItem>
+                  <SelectItem value="針織衫">針織衫</SelectItem>
+                  <SelectItem value="毛衣">毛衣</SelectItem>
+                  <SelectItem value="牛仔">牛仔</SelectItem>
                   {/* Add more styles as needed */}
                 </SelectContent>
               </Select>
@@ -234,20 +236,20 @@ export default function SearchPage() {
               <Select onValueChange={(value: string) => {
                 setSelectedType(value);
                 setSearchInput(`${selectedColor} ${selectedVersion} ${selectedStyle} ${value}`.trim());
-              }}> 
+              }}>
                 <SelectTrigger className="w-[100px] bg-white">
                   <SelectValue placeholder="風格" />
                 </SelectTrigger>
                 <SelectContent>
-                <SelectItem value="極簡">極簡</SelectItem>
-                <SelectItem value="街頭">街頭</SelectItem>
-                <SelectItem value="復古">復古</SelectItem>
-                <SelectItem value="工裝">工裝</SelectItem>
-                <SelectItem value="優雅">優雅</SelectItem>
-                <SelectItem value="日系">日系</SelectItem>
-                <SelectItem value="韓系">韓系</SelectItem>
-                <SelectItem value="美式">美式</SelectItem>
-                <SelectItem value="法式">法式</SelectItem>
+                  <SelectItem value="極簡">極簡</SelectItem>
+                  <SelectItem value="街頭">街頭</SelectItem>
+                  <SelectItem value="復古">復古</SelectItem>
+                  <SelectItem value="工裝">工裝</SelectItem>
+                  <SelectItem value="優雅">優雅</SelectItem>
+                  <SelectItem value="日系">日系</SelectItem>
+                  <SelectItem value="韓系">韓系</SelectItem>
+                  <SelectItem value="美式">美式</SelectItem>
+                  <SelectItem value="法式">法式</SelectItem>
                   {/* Add more types as needed */}
                 </SelectContent>
               </Select>
@@ -282,8 +284,25 @@ export default function SearchPage() {
           id={""}
           index={0}
           expandOnMount={true}
+          expandable={false}
         />
       )}
+      {
+        results.length > 0 &&
+        <div className="mt-8 w-full flex items-center justify-center">
+          <PaginationBar
+            currentPage={page}
+            totalPages={100}
+              onPageChange={async (page: number) => {
+                setPage(page);
+                setLoading(true);
+                const res = await handleTextSearch(searchInput, "gpt-4o-mini", gender, page);
+                setResults([...(res?.series as Series[])] as Series[]);
+                setLoading(false);
+              }}
+          />
+        </div>
+      }
     </div>
   );
 }

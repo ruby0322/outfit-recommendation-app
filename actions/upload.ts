@@ -1,5 +1,6 @@
 "use server";
-import { SearchResult, UnstoredResult } from "@/type";
+import { RecommendationWithoutLogin, SearchResult, UnstoredResult } from "@/type";
+import { handleDatabaseError } from "./activity";
 import { sendImgURLAndPromptToGPT, sendPromptToGPT } from "./utils/chat";
 import {
   insertParam,
@@ -11,155 +12,16 @@ import {
 import {
   semanticSearchForRecommendation,
   semanticSearchForSearching,
+  semanticSearchWithoutLogin
 } from "./utils/matching";
 import {
   constructPromptForImageSearch,
   constructPromptForRecommendation,
   constructPromptForTextSearch,
 } from "./utils/prompt";
+import { validateLabelString } from "./utils/validate";
 
 import { ClothingType, Gender } from "@/type";
-
-const validateForRecommendation = (
-  recommendations: string,
-  clothingType: ClothingType
-) => {
-  try {
-    const recommendationsArray = JSON.parse(
-      recommendations.replace(/```json\n?|\n?```/g, "").trim()
-    );
-    
-    if (!Array.isArray(recommendationsArray))
-      throw new Error("Invalid recommendation format");
-
-    return recommendationsArray
-      .filter((rec) => {
-        const requiredKeys = [
-          "顏色",
-          "服裝類型",
-          "剪裁版型",
-          "設計特點",
-          "材質",
-          "細節",
-        ];
-        
-        const specificKeys = clothingType === "top"
-          ? ["褲管", "裙擺"]
-          : ["領子", "袖子"];
-
-        return [...requiredKeys, ...specificKeys].every(
-          (key) => key in rec.item
-        );
-      })
-      .map((rec) => {
-        const specificInfo = clothingType === "top"
-          ? `褲管: ${rec.item.褲管}, 裙擺: ${rec.item.裙擺}`
-          : `領子: ${rec.item.領子}, 袖子: ${rec.item.袖子}`;
-
-        return {
-          styleName: rec.styleName,
-          description: rec.description,
-          labelString: `顏色: ${rec.item.顏色}, 服裝類型: ${rec.item.服裝類型}, 剪裁版型: ${rec.item.剪裁版型}, 設計特點: ${rec.item.設計特點}, 材質: ${rec.item.材質}, 細節: ${rec.item.細節}, ${specificInfo}`,
-        };
-      });
-  } catch (error) {
-    console.error("Error in validateAndCleanRecommendations", error);
-    return [];
-  }
-};
-
-
-const validateForSearching = (
-  recommendations: string,
-) => {
-  try {
-    const recommendationsArray = JSON.parse(
-      recommendations.replace(/```json\n?|\n?```/g, "").trim()
-    );
-    if (!Array.isArray(recommendationsArray))
-      throw new Error("Invalid recommendation format");
-
-    return recommendationsArray
-      .filter((rec) => {
-        const requiredKeys = [
-          "顏色",
-          "服裝類型",
-          "剪裁版型",
-          "設計特點",
-          "材質",
-          "細節",
-        ];
-
-        return requiredKeys.every((key) => key in rec.item);
-      })
-      .map((rec) => {
-        const optionalFields = [];
-        if (rec.item.領子) optionalFields.push(`領子: ${rec.item.領子}`);
-        if (rec.item.袖子) optionalFields.push(`袖子: ${rec.item.袖子}`);
-        if (rec.item.褲管) optionalFields.push(`褲管: ${rec.item.褲管}`);
-        if (rec.item.裙擺) optionalFields.push(`裙擺: ${rec.item.裙擺}`);
-
-        const optionalInfo = optionalFields.length > 0 ? `, ${optionalFields.join(", ")}` : "";
-
-        return {
-          styleName: rec.styleName,
-          description: rec.description,
-          labelString: `顏色: ${rec.item.顏色}, 服裝類型: ${rec.item.服裝類型}, 剪裁版型: ${rec.item.剪裁版型}, 設計特點: ${rec.item.設計特點}, 材質: ${rec.item.材質}, 細節: ${rec.item.細節}${optionalInfo}`,
-        };
-      });
-  } catch (error) {
-    console.error("Error in validateAndCleanLabelString", error);
-    return [];
-  }
-};
-
-const validateAndCleanLabelStringForSearching = (
-  recommendations: string,
-  isSimilar: boolean
-) => {
-  try {
-    const recommendationsArray = JSON.parse(
-      recommendations.replace(/```json\n?|\n?```/g, "").trim()
-    );
-    if (!Array.isArray(recommendationsArray))
-      throw new Error("Invalid recommendation format");
-
-    return recommendationsArray
-      .filter((rec) => {
-        const requiredKeys = [
-          "顏色",
-          "服裝類型",
-          "剪裁版型",
-          "設計特點",
-          "材質",
-          "細節",
-        ];
-
-        // 檢查每個必需的 key 是否存在於 rec.item 中
-        return requiredKeys.every((key) => key in rec.item);
-      })
-      .map((rec) => {
-        // 構建選填的字段部分，僅當字段存在時才加入
-        const optionalFields = [];
-        if (rec.item.領子) optionalFields.push(`領子: ${rec.item.領子}`);
-        if (rec.item.袖子) optionalFields.push(`袖子: ${rec.item.袖子}`);
-        if (rec.item.褲管) optionalFields.push(`褲管: ${rec.item.褲管}`);
-        if (rec.item.裙擺) optionalFields.push(`裙擺: ${rec.item.裙擺}`);
-
-        const optionalInfo = optionalFields.length > 0 ? `, ${optionalFields.join(", ")}` : "";
-
-        return {
-          styleName: rec.styleName,
-          description: rec.description,
-          labelString: `顏色: ${rec.item.顏色}, 服裝類型: ${rec.item.服裝類型}, 剪裁版型: ${rec.item.剪裁版型}, 設計特點: ${rec.item.設計特點}, 材質: ${rec.item.材質}, 細節: ${rec.item.細節}${optionalInfo}`,
-        };
-      });
-  } catch (error) {
-    console.error("Error in validateAndCleanLabelString", error);
-    return [];
-  }
-};
-
 
 const handleRecommendation = async (
   clothingType: ClothingType,
@@ -171,64 +33,116 @@ const handleRecommendation = async (
   imageUrl: string
 ): Promise<number> => {
   try {
-    const prompt: string = constructPromptForRecommendation({
-      clothingType,
-      gender,
-      numMaxSuggestion,
-    });
+    const prompt = constructPromptForRecommendation({ clothingType, gender, numMaxSuggestion });
+    const recommendations = await sendImgURLAndPromptToGPT({ model, prompt, imageUrl });
 
-    const recommendations: string | null = await sendImgURLAndPromptToGPT({
-      model,
-      prompt,
-      imageUrl,
-    });
+    if (!recommendations) return -1;
 
-    if (recommendations) {
-      const cleanedRecommendations = validateForRecommendation(
-        recommendations,
-        clothingType,
-      );
-
-      const uploadId: number = await insertUpload(imageUrl, userId);
-      const paramId: number = await insertParam(gender, clothingType, model);
-      const recommendationId: number = await insertRecommendation({
+    const cleanedRecommendations = validateLabelString(recommendations, clothingType);
+    const uploadId: number = await insertUpload(imageUrl, userId);
+    const paramId: number = await insertParam(gender, clothingType, model);
+    const recommendationId: number = await insertRecommendation({
         paramId,
         uploadId,
         userId,
       });
 
-      for (const rec of cleanedRecommendations) {
-        const suggestionId: number = await insertSuggestion({
-          recommendationId,
-          labelString: rec.labelString,
-          styleName: rec.styleName,
-          description: rec.description,
-        });
+    await Promise.all(cleanedRecommendations.map(async (rec) => {
+      const suggestionId = await insertSuggestion({
+        recommendationId,
+        labelString: rec.labelString,
+        styleName: rec.styleName,
+        description: rec.description,
+      });
+      
+      const results = await semanticSearchForRecommendation({
+        suggestionId,
+        suggestedLabelString: rec.labelString,
+        numMaxItem,
+        gender,
+        clothing_type: clothingType,
+      });
+      await insertResults(results as UnstoredResult[]);
+    }));
 
-        const results: UnstoredResult[] =
-          (await semanticSearchForRecommendation({
-            suggestionId,
-            suggestedLabelString: rec.labelString,
+    return recommendationId;
+  } catch (error) {
+    handleDatabaseError(error, "handleRecommendation");
+    return -1;
+  }
+};
+
+const handleRecommendationWithoutLogin = async (
+  clothingType: ClothingType,
+  gender: Gender,
+  model: string,
+  numMaxSuggestion: number,
+  numMaxItem: number,
+  imageUrl: string
+): Promise<RecommendationWithoutLogin[] | null> => {
+  try {
+    const prompt = constructPromptForRecommendation({ clothingType, gender, numMaxSuggestion });
+    const rawLabelString: string | null = await sendImgURLAndPromptToGPT({ model, prompt, imageUrl });
+
+    if (rawLabelString) {
+      const cleanedLabels = validateLabelString(rawLabelString, clothingType);
+
+      if (cleanedLabels.length > 0) {
+        const recommendations: RecommendationWithoutLogin[] = [];
+
+        for (const cleanedLabel of cleanedLabels) {
+          const labelString = cleanedLabel.labelString;
+          const description = cleanedLabel.description;
+
+          const results = await semanticSearchWithoutLogin({
+            suggestedLabelString: labelString,
             numMaxItem,
             gender,
             clothing_type: clothingType,
-          })) as UnstoredResult[];
-        await insertResults(results);
+          });
+
+          if (results) {
+            const recommendation: RecommendationWithoutLogin = {
+              clothing_type: clothingType,
+              gender: gender,
+              model: model,
+              image_url: imageUrl,
+              styles: {
+                default: {
+                  series: results,
+                  description: description,
+                },
+              },
+            };
+            recommendations.push(recommendation);
+          } else {
+            console.error("No results found in semanticSearchWithoutLogin for label:", labelString);
+          }
+        }
+        return recommendations;
+      } else {
+        console.error("No valid labels found after cleaning");
+        return null;
       }
-      return recommendationId;
     } else {
-      return -1;
+      console.error("No label string returned from GPT");
+      return null;
     }
   } catch (error) {
-    console.error("Error in handleRecommendation:", error);
-    return -1;
+    handleDatabaseError(error, "handleRecommendationWithoutLogin");
+    return null;
   }
 };
 
 const handleImageSearch = async (
   gender: Gender,
   model: string,
-  imageUrl: string
+  imageUrl: string,
+  page: number,
+  priceLowerBound?: number,
+  priceUpperBound?: number,
+  providers?: string[],
+  clothingType?: ClothingType
 ): Promise<SearchResult | null> => {
   try {
     const prompt: string = constructPromptForImageSearch({
@@ -241,23 +155,20 @@ const handleImageSearch = async (
       imageUrl,
     });
 
-    
     if (rawLabelString) {
-      const cleanedLabels = validateForSearching(
-        rawLabelString,
-      );
-      
-      
-
-      console.log("Cleaned labels in image search: ", cleanedLabels);
+      const cleanedLabels = validateLabelString(rawLabelString);
 
       if (cleanedLabels.length > 0) {
         const labelString = cleanedLabels[0].labelString;
-        const searchResult: SearchResult | null =
-          await semanticSearchForSearching({
-            suggestedLabelString: labelString,
-            gender,
-          });
+        const searchResult: SearchResult | null = await semanticSearchForSearching({
+          suggestedLabelString: labelString,
+          gender,
+          priceLowerBound,
+          priceUpperBound,
+          providers,
+          clothingType,
+          page,
+        });
         return searchResult;
       } else {
         console.error("No valid labels found after cleaning");
@@ -268,7 +179,7 @@ const handleImageSearch = async (
       return null;
     }
   } catch (error) {
-    console.error("Error in handleSearch:", error);
+    handleDatabaseError(error, "handleImageSearch");
     return null;
   }
 };
@@ -276,7 +187,12 @@ const handleImageSearch = async (
 const handleTextSearch = async (
   query: string,
   model: string,
-  gender: Gender
+  gender: Gender,
+  page: number,
+  priceLowerBound?: number,
+  priceUpperBound?: number,
+  providers?: string[],
+  clothingType?: ClothingType,
 ): Promise<SearchResult | null> => {
   try {
     const prompt: string = constructPromptForTextSearch({
@@ -290,11 +206,9 @@ const handleTextSearch = async (
     });
 
     if (rawLabelString) {
-      const cleanedLabels = validateForSearching(
+      const cleanedLabels = validateLabelString(
         rawLabelString,
       );
-
-      console.log("Cleaned labels in text search: ", cleanedLabels);
 
       if (cleanedLabels.length > 0) {
         const labelString = cleanedLabels[0].labelString;
@@ -302,7 +216,12 @@ const handleTextSearch = async (
         const searchResult: SearchResult | null =
           await semanticSearchForSearching({
             suggestedLabelString: labelString,
-            gender
+            gender,
+            priceLowerBound,
+            priceUpperBound,
+            providers,
+            clothingType,
+            page,
           });
         return searchResult;
       } else {
@@ -314,9 +233,10 @@ const handleTextSearch = async (
       return null;
     }
   } catch (error) {
-    console.error("Error in handleTextSearch:", error);
+    handleDatabaseError(error, "handleTextSearch");
     return null;
   }
 };
 
-export { handleImageSearch, handleRecommendation, handleTextSearch };
+export { handleImageSearch, handleRecommendation, handleRecommendationWithoutLogin, handleTextSearch };
+

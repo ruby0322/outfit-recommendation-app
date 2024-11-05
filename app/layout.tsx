@@ -148,7 +148,6 @@ export default async function RootLayout({
           <Onborda
             steps={[{ 'tour': 'recommendation', 'steps': RECOMMENDATION_STEPS }, { 'tour': 'search', 'steps': SEARCH_STEPS }]}
             showOnborda={true}
-            // shadowRgb="55,48,163"
             shadowOpacity="0.8"
             cardComponent={TourCard}
             cardTransition={{ duration: 0.5, type: "tween" }}

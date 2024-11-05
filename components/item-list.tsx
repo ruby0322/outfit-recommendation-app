@@ -17,7 +17,8 @@ const ItemList = ({
   series,
   index,
   description,
-  expandOnMount,
+  expandOnMount=false,
+  expandable=true,
 }: {
   title: string;
   id: string;
@@ -25,6 +26,7 @@ const ItemList = ({
   index: number;
   description: string;
   expandOnMount?: boolean;
+  expandable?: boolean,
 }) => {
   const [isExpanded, setIsExpanded] = useState(expandOnMount || false);
 
@@ -55,13 +57,12 @@ const ItemList = ({
         })}
       </div>
 
-      
-      {!isExpanded && series.length > 4 && (
+      {expandable && !isExpanded && series.length > 4 && (
         <Button className='bg-gray-400 hover:bg-gray-300' onClick={toggleExpand}>
           展開列表
         </Button>
       )}
-      {isExpanded && series.length > 4 && (
+      {expandable && isExpanded && series.length > 4 && (
         <Button className='bg-gray-400 hover:bg-gray-300' onClick={toggleExpand}>
           收起列表
         </Button>

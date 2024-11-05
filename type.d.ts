@@ -10,12 +10,21 @@ export type ResultTable = Result;
 export type ProfileTable = Profile;
 
 export type SimplifiedItemTable = Omit<Item, 'embedding'>;
-
 export type Series = { items: SimplifiedItemTable[] };
 
 export interface Recommendation {
   param: ParamTable;
   upload: UploadTable;
+  styles: {
+    [styleName: string]: { series: Series[], description: string };
+  };
+}
+
+export interface RecommendationWithoutLogin {
+  clothing_type: String;
+  gender: String;
+  model: String;
+  image_url: String;
   styles: {
     [styleName: string]: { series: Series[], description: string };
   };

@@ -39,9 +39,6 @@ const generateEmbedding = async (text: string): Promise<number[] | null> => {
     });
 
     return response.data[0].embedding;
-    // const vectorString = `[${response.data[0].embedding.join(',')}]`;
-
-  // return vectorString;
   } catch (error) {
     console.error("Error generating embedding:", error);
     return null;
@@ -89,8 +86,6 @@ const handler = async (): Promise<void> => {
     console.error("Error generating embeddings:", error);
   }
 };
-
-
 
 const calculateDistance = (
   embedding1: number[] | string,

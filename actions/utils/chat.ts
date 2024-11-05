@@ -2,7 +2,6 @@
 import openai from "@/utils/openai";
 import { ImageURL } from "openai/resources/beta/threads/messages";
 
-//send requests to the OpenAI API with both text and image inputs
 const sendImgURLAndPromptToGPT = async ({
   model,
   prompt,
@@ -13,8 +12,18 @@ const sendImgURLAndPromptToGPT = async ({
   imageUrl: string;
 }): Promise<string | null> => {
   const NUM_MAX_RETRIES = 5;
+
   for (let numRetries = 0; numRetries < NUM_MAX_RETRIES; ++numRetries) {
     try {
+      const isImageAvailable = await checkImageAvailability(imageUrl);
+      // console.log("isImageAvailable: ", isImageAvailable);
+      if (!isImageAvailable) {
+        // console.log("Image not yet available. Waiting...");
+        const waitTime = Math.pow(2, numRetries) * 1000;
+        await new Promise((resolve) => setTimeout(resolve, waitTime));
+        continue;
+      }
+
       const completion = await openai.chat.completions.create({
         model: model,
         messages: [
@@ -35,7 +44,7 @@ const sendImgURLAndPromptToGPT = async ({
     } catch (e) {
       console.log("Failed to get response from GPT API.");
       console.log(e);
-      if (numRetries < NUM_MAX_RETRIES) {
+      if (numRetries < NUM_MAX_RETRIES - 1) {
         console.log("Retrying...");
       }
     }
@@ -43,7 +52,6 @@ const sendImgURLAndPromptToGPT = async ({
   return null;
 };
 
-//send requests to the OpenAI API with both text and image inputs
 const sendPromptToGPT = async ({
   model,
   prompt,
@@ -78,19 +86,12 @@ const sendPromptToGPT = async ({
   return null;
 };
 
-//check if the response is ok and content type is an image
-const isImageUrlValid = async (url: string): Promise<boolean> => {
+const checkImageAvailability = async (imageUrl: string): Promise<boolean> => {
   try {
-    const response = await fetch(url, { method: "HEAD" });
-    if (response.ok) {
-      return true;
-    }
-    return false;
-  } catch (error) {
-    console.error("Error checking image URL:", error);
+    const response = await fetch(imageUrl, { method: "HEAD" });
+    return response.ok;
+  } catch {
     return false;
   }
 };
-
-
-export { sendImgURLAndPromptToGPT, isImageUrlValid, sendPromptToGPT };
+export { sendImgURLAndPromptToGPT, checkImageAvailability, sendPromptToGPT };
