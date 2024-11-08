@@ -254,7 +254,7 @@ const semanticSearchForSearching = async ({
     }
 
     const { series, totalItems } = searchResultData;
-    const totalPage = Math.ceil(totalItems / 20);
+    const totalPages = Math.ceil(totalItems / 20);
 
     const uniqueSeriesIds: string[] = [];
     const seenSeriesIds = new Set<string>();
@@ -275,7 +275,7 @@ const semanticSearchForSearching = async ({
 
     const searchResult: SearchResult = {
       series: safeSeriesArray,
-      totalPage,
+      totalPages,
     };
     return searchResult;
   } catch (error) {

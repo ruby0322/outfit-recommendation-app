@@ -169,12 +169,14 @@ export default function ImageSearch() {
         <ItemListSkeleton index={0} />
       ) : (
         <ItemList
-            title=''
-            description={""}
-            series={results}
-            id={""}
-            index={0}
-            expandOnMount={true} expandable={false}        />
+          title=''
+          description={""}
+          series={results}
+          id={""}
+          index={0}
+          expandOnMount={true}
+          expandable={false}
+        />
       )}
     </div>
   );
