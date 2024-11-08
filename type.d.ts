@@ -32,7 +32,7 @@ export interface RecommendationWithoutLogin {
 
 export interface SearchResult {
   series: Series[];
-  totalPage: number;
+  totalPages: number;
 }
 
 export type RecommendationPreview = Recommendation & {
