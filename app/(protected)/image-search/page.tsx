@@ -32,7 +32,7 @@ const schema = z.object({
   // clothingType: z.enum(["top", "bottom"], {
   //   message: "請選擇服飾類型",
   // }),
-  gender: z.enum(["male", "female"], { message: "請選擇性別" }),
+  gender: z.enum(["male", "female", "neutral"], { message: "請選擇性別" }),
   // model: z.string().default("gpt-4o"),
   uploadedImage: (typeof window === "undefined"
     ? z.any()
@@ -61,9 +61,9 @@ const ImageUpload = ({ onImageUpload }: { onImageUpload: () => void }) => {
   return (
     <div id='image-uploader' className='w-full flex-1 flex flex-col gap-4 items-center justify-center h-auto'>
       <div className="w-full flex text-gray-600 items-center justify-start gap-2">
-        <h1 className='text-start text-2xl'>
-          ➊ 照片上傳
-        </h1>
+        {/* <h1 className='text-start text-2xl'>
+          以服搜服
+        </h1> */}
         {/* <TourButton tourName='recommendation' /> */}
       </div>
       <ImageUploader onImageUpload={onImageUpload} />
@@ -72,7 +72,7 @@ const ImageUpload = ({ onImageUpload }: { onImageUpload: () => void }) => {
 };
 
 // FormFields Component
-const FormFields = ({ nextStep }: { nextStep: () => void }) => {
+const FormFields = () => {
   const [errorMessage, setErrorMessage] = useState<string>("");
   const { getValues } = useFormContext();
 
@@ -80,7 +80,7 @@ const FormFields = ({ nextStep }: { nextStep: () => void }) => {
     e.preventDefault();
     const values = getValues();
     if (Object.keys(values).every((key) => values[key])) {
-      nextStep();
+      // nextStep();
     } else {
       setErrorMessage("請輸入必要欄位");
     }
@@ -88,16 +88,7 @@ const FormFields = ({ nextStep }: { nextStep: () => void }) => {
 
   return (
     <div id='form-fields' className='flex-1 flex gap-4 flex-col items-center justify-center h-auto'>
-      <h1 className='w-full text-start text-2xl text-gray-600'>➋ 基本資訊</h1>
       <CustomizationFields />
-      <motion.button
-        className='bg-indigo-400 hover:bg-indigo-300 font-bold w-full text-white py-2 rounded-md'
-        whileTap={{ scale: 0.95 }}
-        onClick={onClick}
-      >
-        下一步
-      </motion.button>
-      <p className='text-red-400 text-sm'>{errorMessage}</p>
     </div>
   );
 };
@@ -125,7 +116,6 @@ const Overview = ({
 }) => {
   const { getValues } = useFormContext();
   const formData = getValues();
-  // console.log(formData.uploadedImage[0]);
   return (
     <div id='overview' className='flex-1 flex flex-col items-center justify-center h-auto gap-4'>
       <h1 className='w-full text-start text-2xl text-gray-600'>➌ 確認上傳</h1>
@@ -142,61 +132,22 @@ const Overview = ({
             <Badge className='bg-indigo-300 hover:bg-indigo-300'>性別</Badge>
             <p>{formData.gender === "male" ? "男性 🙋‍♂️" : "女性 🙋‍♀️"}</p>
           </div>
-          {/* <div className='flex flex-row w-full items-center gap-4'>
-            <Badge className='bg-indigo-300 hover:bg-indigo-300'>類別</Badge>
-            <p>{formData.clothingType === "top" ? "上衣 👕" : "下身 👖"}</p>
-          </div> */}
         </div>
       </div>
-      <ConfirmButton isConfirmed={isConfirmed}/>
+      <ConfirmButton isConfirmed={isConfirmed} disabled={false}/>
     </div>
   );
 };
 
-// function ConfirmButton() {
-//   const router = useRouter();
-//   const [secondsSpent, setSecondsSpent] = useState<number>(0);
-//   return (
-//     <motion.button
-//       whileTap={{ scale: 0.95 }}
-//       type='submit'
-//       className='w-full text-white font-bold rounded-lg bg-indigo-400'
-//     >
-//       <LoadingButton
-//         className={cn(
-//           "transition-opacity duration-300 w-full px-8 py-2 rounded-md",
-//           secondsSpent > 0
-//             ? "bg-red-400 hover:bg-red-300"
-//             : "bg-indigo-400 hover:bg-indigo-300"
-//         )}
-//         // onClick={() => {
-//         //   if (secondsSpent > 0) {
-//         //     window.location.reload();
-//         //     router.push('/image-search?step=1')
-//         //   } else {
-//         //     setInterval(() => {
-//         //       setSecondsSpent((s) => s + 1);
-//         //     }, 1000);
-//         //   }
-//         // }}
-//         loading={secondsSpent > 0}
-//         disabled={false}
-//       >
-//         {secondsSpent > 0
-//           ? `終止並退出`
-//           : "一鍵尋找類似的服飾！"}
-//       </LoadingButton>
-//     </motion.button>
-//   );
-// }
-function ConfirmButton({ isConfirmed }: { isConfirmed: boolean }) {
-  const router = useRouter();
-  const [secondsSpent, setSecondsSpent] = useState<number>(0);
-  console.log('isConfirmed', isConfirmed);
+function ConfirmButton({ isConfirmed, disabled }: { isConfirmed: boolean, disabled: boolean }) {
   return (
     <motion.div
       whileTap={{ scale: 0.95 }}
-      className='w-full text-white font-bold rounded-lg bg-indigo-400'
+      className={cn('w-full text-white font-bold rounded-lg',
+        isConfirmed
+          ? "bg-red-400 hover:bg-red-300"
+          : "bg-indigo-400 hover:bg-indigo-300")
+      }
     >
       <LoadingButton
         className={cn(
@@ -205,20 +156,11 @@ function ConfirmButton({ isConfirmed }: { isConfirmed: boolean }) {
           ? "bg-red-400 hover:bg-red-300"
           : "bg-indigo-400 hover:bg-indigo-300"
         )}
-        {...{ type: isConfirmed ? 'button' : 'submit'}}
-        onClick={async () => {
-          if (secondsSpent > 0) {
-            router.push('/image-search?step=1');
-          } else {
-            setInterval(() => {
-              setSecondsSpent((s) => s + 1);
-            }, 1000);
-          }
-        }}
-        loading={secondsSpent > 0}
-        disabled={false}
+        type='submit'
+        loading={isConfirmed}
+        disabled={disabled}
       >
-        {secondsSpent > 0
+        {isConfirmed
           ? `終止並退出`
           : "一鍵尋找類似的服飾！"}
       </LoadingButton>
@@ -234,9 +176,9 @@ export default function UploadPage() {
   const methods = useForm({
     resolver: zodResolver(schema),
   });
+  const { getValues } = methods;
   const [loading, setLoading] = useState<boolean>(false);
 
-  // const [currentStep, setCurrentStep] = useState<number>(currentStep ? parseInt(currentStep) : 1);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isConfirmed, setIsConfirmed] = useState<boolean>(false);
 
@@ -254,31 +196,6 @@ export default function UploadPage() {
     }
   }, []);
 
-  const setCurrentStep = (step: number) => {
-    router.push(`/image-search?step=${step}`);
-  }
-
-  const nextStep = () => {
-    setCurrentStep(currentStep + 1);
-  };
-  const prevStep = () => {
-    setCurrentStep(currentStep - 1);
-  };
-
-  const handleImageUpload = useCallback(() => {
-    setIsLoading(true);
-    setCurrentStep(2);
-    setTimeout(() => {
-      setIsLoading(false);
-    }, 1000);
-  }, []);
-
-  const handleFormSubmission = async () => {
-    setCurrentStep(3);
-    setTimeout(() => {
-      setIsLoading(false);
-    }, 1000);
-  };
 
   const onSubmit = async (data: any) => {
     setLoading(true);
@@ -303,7 +220,7 @@ export default function UploadPage() {
             data.gender,
             1
           );
-          setCurrentStep(4);
+          setIsConfirmed(false);
           setResults([...(res?.series ?? [])] as Series[]);
           setTotalPages(res?.totalPages as number);
           setLoading(false)
@@ -334,30 +251,17 @@ export default function UploadPage() {
     return <Skeleton />;
   }
 
-  if(currentStep <= 3){
+  if(results.length === 0) {
     return (
       <div className='relative w-full h-screen flex flex-col items-center justify-center'>
         <div className='w-full flex-1 h-auto flex flex-col items-center justify-center gap-4'>
         <FormProvider {...methods}>
             <form onSubmit={methods.handleSubmit(onSubmit)}>
-              {currentStep > 1 && (
-                <div
-                  onClick={prevStep}
-                  className='text-sm font-bold mb-2 flex items-center text-gray-600 cursor-pointer'
-                >
-                  <ChevronLeft className='w-4 h-4' /> 上一步
-                </div>
-              )}
-              {currentStep === 1 && (
-                <div className="flex flex-col gap-4">
-                  
-                  <ImageUpload onImageUpload={handleImageUpload} />
-                </div>
-              )}
-              {currentStep === 2 && <FormFields nextStep={nextStep} />}
-              {currentStep === 3 && (
-                <Overview loading={loading} isConfirmed={isConfirmed}/>
-              )}
+              <div className="flex flex-col gap-4">
+                <ImageUpload onImageUpload={() => {}} />
+                <FormFields />
+                <ConfirmButton isConfirmed={isConfirmed} disabled={!getValues()['uploadedImage'] || getValues()['uploadedImage'].length === 0 || !gender}/>
+              </div>
             </form>
           </FormProvider>
         </div>
@@ -365,20 +269,17 @@ export default function UploadPage() {
     )
   }else {
     return (
-      <div className='w-full flex flex-col items-center justify-center'>
-        <div className='w-full h-full flex flex-col items-center justify-center'>
-          <h2 className='text-lg text-muted-foreground'>
-            您上傳的服飾
-          </h2>
-          <div className='rounded-sm max-w-[92vw] m-0 px-4 flex flex-col items-center justify-center gap-4 border-0 shadow-none py-4'>
-            <Image
-              src={image}
-              alt="上傳的照片"
-              className="w-60 h-60 object-cover rounded-lg"
-              width={256}
-              height={256}
-            />
-          </div>
+    <div className='relative w-full h-screen flex flex-col items-center justify-start'>
+        <div className='w-full flex-1 h-auto flex flex-col items-center justify-start gap-4'>
+        <FormProvider {...methods}>
+            <form onSubmit={methods.handleSubmit(onSubmit)}>
+              <div className="flex flex-col gap-4">
+                <ImageUpload onImageUpload={() => {}} />
+                <FormFields />
+                <ConfirmButton isConfirmed={isConfirmed} disabled={!getValues()['uploadedImage'] || getValues()['uploadedImage'].length === 0 || !gender}/>
+              </div>
+            </form>
+          </FormProvider>
         </div>
         <div className='flex flex-col gap-4 justify-center items-center md:max-w-[80vw]'>
         {loading ? (
@@ -414,7 +315,6 @@ export default function UploadPage() {
           )}
         </div>
       </div>
-      
     )
   }
 }
