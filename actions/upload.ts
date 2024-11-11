@@ -177,33 +177,6 @@ const getLabelStringForImageSearch = async (
   }
 };
 
-const handleImageSearch = async (
-  labelString: string,
-  gender: Gender,
-  page: number,
-  priceLowerBound?: number,
-  priceUpperBound?: number,
-  providers?: string[],
-  clothingType?: ClothingType,
-): Promise<SearchResult | null> => {
-  try {
-    const searchResult: SearchResult | null = await semanticSearchForSearching({
-      suggestedLabelString: labelString,
-      gender,
-      priceLowerBound,
-      priceUpperBound,
-      providers,
-      clothingType,
-      page,
-    });
-    console.log("searchResult: ", searchResult);
-    return searchResult;
-  } catch (error) {
-    handleDatabaseError(error, "handleImageSearch");
-    return null;
-  }
-};
-
 const getLabelStringForTextSearch = async (
   gender: Gender,
   model: string,
@@ -241,7 +214,7 @@ const getLabelStringForTextSearch = async (
   }
 };
 
-const handleTextSearch = async (
+const handleSearch = async (
   labelString: string,
   gender: Gender,
   page: number,
@@ -268,5 +241,5 @@ const handleTextSearch = async (
   }
 };
 
-export { handleImageSearch, handleRecommendation, handleRecommendationWithoutLogin, handleTextSearch, getLabelStringForImageSearch, getLabelStringForTextSearch };
+export { getLabelStringForImageSearch, getLabelStringForTextSearch, handleRecommendation, handleRecommendationWithoutLogin, handleSearch };
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { handleTextSearch } from "@/actions/upload";
+import { getLabelStringForTextSearch, handleSearch } from "@/actions/upload";
 import ItemList from "@/components/item-list";
 import ItemListSkeleton from "@/components/item-list-skeleton";
 import { Card, CardContent } from "@/components/ui/card";
@@ -36,6 +36,7 @@ const schema = z.object({
 
 export default function SearchPage() {
   const [totalPages, setTotalPages] = useState<number>(0);
+  const [labelString, setLabelString] = useState<string>('');
   const [query, setQuery] = useState<string>("");
   const [gender, setGender] = useState<Gender>('neutral');
   const [loading, setLoading] = useState<boolean>(false);
@@ -114,7 +115,9 @@ export default function SearchPage() {
   const onSubmit = async () => {
     if (!searchInput) return;
     setLoading(true);
-    const res = await handleTextSearch(searchInput, "gpt-4o-mini", gender, page);
+    const label = await getLabelStringForTextSearch(gender, "gpt-4o-mini",searchInput);
+    setLabelString(label);
+    const res = await handleSearch(label, gender, page);
     setResults([...(res?.series as Series[])] as Series[]);
     setTotalPages(res?.totalPages as number);
     setPage(1);
@@ -301,7 +304,9 @@ export default function SearchPage() {
               onPageChange={async (page: number) => {
                 setPage(page);
                 setLoading(true);
-                const res = await handleTextSearch(query, "gpt-4o-mini", gender, page);
+                console.log(labelString)
+                const res = await handleSearch(labelString, gender, page);
+                console.log(res);
                 setResults([...(res?.series as Series[])] as Series[]);
                 setLoading(false);
               }}
