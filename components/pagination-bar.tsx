@@ -70,7 +70,7 @@ export default function PaginationBar({ currentPage = 1, totalPages = 10, onPage
         pageNumbers.push(
           <>
             {isEditing ? (
-              <form onSubmit={handleEditablePageSubmit} className="inline-flex">
+              <form key={i} onSubmit={handleEditablePageSubmit} className="inline-flex">
                 <Input
                   type="text"
                   value={editablePageNumber}
@@ -82,6 +82,7 @@ export default function PaginationBar({ currentPage = 1, totalPages = 10, onPage
               </form>
             ) : (
               <Button
+                key={i}
                 variant="outline"
                 onClick={() => setIsEditing(true)}
                 className="w-16 h-10 p-0"
