@@ -1,9 +1,8 @@
 "use client";
 
-import { handleImageSearch } from "@/actions/upload";
 import { storeImageToStorage } from "@/actions/utils/insert";
-import ItemList from "@/components/item-list";
-import ItemListSkeleton from "@/components/item-list-skeleton";
+import ItemList from "@/components/item/item-list";
+import ItemListSkeleton from "@/components/item/item-list-skeleton";
 import { Input } from "@/components/ui/input";
 import { LoadingButton } from "@/components/ui/loading-button";
 import { Gender, Series } from "@/type";
@@ -35,13 +34,13 @@ export default function ImageSearch() {
   const handleImageUpload = async () => {
     if (!uploadedImageUrl) return;
     setLoading(true);
-    const res = await handleImageSearch(
-      gender,
-      "gpt-4o-mini",
-      uploadedImageUrl,
-      1
-    );
-    setResults([...(res?.series ?? [])] as Series[]);
+    // const res = await handleSearch(
+    //   gender,
+    //   "gpt-4o-mini",
+    //   uploadedImageUrl,
+    //   1
+    // );
+    // setResults([...(res?.series ?? [])] as Series[]);
     setLoading(false);
   };
 

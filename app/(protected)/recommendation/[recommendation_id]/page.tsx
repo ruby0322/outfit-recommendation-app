@@ -1,7 +1,7 @@
 "use server";
 
 import { getRecommendationRecordById } from "@/actions/recommendation";
-import ItemList from "@/components/item-list";
+import ItemList from "@/components/item/item-list";
 import { Button } from "@/components/ui/button";
 import { Recommendation } from "@/type";
 import { createClient } from "@/utils/supabase/server";

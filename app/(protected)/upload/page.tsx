@@ -152,7 +152,7 @@ function ConfirmButton({ isConfirmed }: { isConfirmed: boolean }) {
       <LoadingButton
         className={cn(
           "transition-opacity duration-300 w-full px-8 py-2 rounded-md",
-          secondsSpent > 0
+          isConfirmed
           ? "bg-red-400 hover:bg-red-300"
           : "bg-indigo-400 hover:bg-indigo-300"
         )}
