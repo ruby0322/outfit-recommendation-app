@@ -1,11 +1,12 @@
 "use server";
 
-import { handleRecommendationWithoutLogin, handleTextSearch } from "@/actions/upload";
+import { handleRecommendationWithoutLogin, handleTextSearch, handleImageSearch, getLabelStringForTextSearch, getLabelStringForImageSearch } from "@/actions/upload";
 
 export default async function Playground2() {
   try {
-    const result = await handleTextSearch("請給我藍色清爽襯衫", "gpt-4o-mini", "male", 1, 500, 700, ["H&M", "UNIQLO"], "top");
-    console.log(result);
+    // const labelString = await getLabelStringForImageSearch("male", "gpt-4o-mini", "https://eapzlwxcyrinipmcdoir.supabase.co/storage/v1/object/public/image/image-00ee47f4-8768-42d9-b68b-29a0702243ea");
+    // const result = await handleImageSearch(labelString, "female", 1, 500, 700, ["H&M", "UNIQLO"], "top");
+    // console.log(result);
     
 
   } catch (error) {

@@ -39,6 +39,11 @@ export type RecommendationPreview = Recommendation & {
   upload: UploadTable;
 };
 
+type ValidatedRecommendation = {
+  styleName: string;
+  description: string;
+  labelString: string;
+};
 export interface UnstoredResult {
   distance: number;
   item_id: string;
