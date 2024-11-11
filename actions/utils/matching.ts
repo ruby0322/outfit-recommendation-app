@@ -1,10 +1,9 @@
 "use server";
-import { SearchResult, Series, SimplifiedItemTable, UnstoredResult, ClothingType, Gender, ItemTable } from "@/type";
-import { getSeriesByIdsForSearching } from "./fetch";
-import { generateEmbedding } from "./embedding";
 import prisma from "@/prisma/db";
+import { ClothingType, Gender, ItemTable, SearchResult, Series, SimplifiedItemTable, UnstoredResult } from "@/type";
 import { handleDatabaseError } from "../activity";
-import { isFavorite } from "../favorite";
+import { generateEmbedding } from "./embedding";
+import { getSeriesByIdsForSearching } from "./fetch";
 
 const vectorSearchForRecommendation = async (
   suggestedLabelString: string,
@@ -154,22 +153,11 @@ const semanticSearchForRecommendation = async ({
       return null;
     }
 
-    const results: UnstoredResult[] = await Promise.all(
-      similarItems.map(async (series: Series, index: number) => {
-        let isFavoriteStatus = false;
-
-        if (user_id) {
-          isFavoriteStatus = await isFavorite(user_id, series.items[0].series_id);
-        }
-
-        return {
-          distance: index,
-          item_id: series.items[0].id,
-          suggestion_id: suggestionId,
-          isFavorite: isFavoriteStatus,
-        };
-      })
-    );
+    const results: UnstoredResult[] = similarItems.map((series: Series, index: number) => ({
+      distance: index,
+      item_id: series.items[0].id,
+      suggestion_id: suggestionId,
+    }));
 
     return results;
   } catch (error) {

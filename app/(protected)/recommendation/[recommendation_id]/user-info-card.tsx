@@ -1,17 +1,17 @@
-import { ParamTable, UploadTable } from "@/type";
+import { Gender } from "@/type";
 import Image from "next/image";
 
 const UserInfoCard = ({
-  upload,
-  params,
+  imageUrl,
+  gender,
 }: {
-  upload: UploadTable;
-  params: ParamTable;
+    imageUrl: string;
+    gender: Gender;
 }) => {
   return (
     <div className='rounded-sm max-w-[92vw] m-0 px-4 flex flex-col items-center justify-center gap-4 border-0 shadow-none'>
       <Image
-        src={upload.image_url as string}
+        src={imageUrl}
         alt='User Photo'
         width={256}
         height={256}
@@ -21,7 +21,7 @@ const UserInfoCard = ({
         <div className='flex items-center justify-center gap-2'>
           <div className='text-sm font-medium text-muted-foreground'>性別</div>
           <div className='text-md'>
-            {params?.gender === "male" ? "男性" : "女性"}
+            {gender === "male" ? "男性" : "女性"}
           </div>
         </div>
       </div>

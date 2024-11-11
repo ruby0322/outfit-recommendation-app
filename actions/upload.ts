@@ -2,7 +2,7 @@
 import prisma from "@/prisma/db";
 import { Recommendation, UnstoredResult, ValidatedRecommendation } from "@/type";
 import { handleDatabaseError } from "./activity";
-import { sendImgURLAndPromptToGPT, sendPromptToGPT } from "./utils/chat";
+import { sendImgURLAndPromptToGPT } from "./utils/chat";
 import {
   insertParam,
   insertRecommendation,
@@ -69,6 +69,7 @@ const handleRecommendation = async (
         user_id: userId,
       });
       await insertResults(results as UnstoredResult[]);
+      return 0;
     }));
 
     return recommendationId;

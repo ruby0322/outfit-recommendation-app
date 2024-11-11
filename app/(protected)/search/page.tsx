@@ -1,6 +1,6 @@
 "use client";
 
-import { getLabelStringForTextSearch, handleSearch } from "@/actions/upload";
+import { getLabelStringForTextSearch, handleSearch } from "@/actions/search";
 import ItemList from "@/components/item/item-list";
 import ItemListSkeleton from "@/components/item/item-list-skeleton";
 import { Card, CardContent } from "@/components/ui/card";
