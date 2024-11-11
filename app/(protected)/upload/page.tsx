@@ -11,7 +11,7 @@ import { createClient } from "@/utils/supabase/client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import imageCompression from 'browser-image-compression';
 import { motion } from "framer-motion";
-import { CheckCircle, ChevronLeft } from "lucide-react";
+import { ChevronLeft } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -36,7 +36,6 @@ const schema = z.object({
   ).refine((files) => files.length > 0, "請上傳圖片"),
 });
 
-// ProgressBar Component
 const ProgressBar = ({
   currentStep,
   totalSteps,
@@ -49,7 +48,6 @@ const ProgressBar = ({
   return <Progress value={progress} className='w-full rounded-none h-4' />;
 };
 
-// ImageUpload Component
 const ImageUpload = ({ onImageUpload }: { onImageUpload: () => void }) => {
   
   return (
@@ -109,15 +107,12 @@ const toHHMMSS = (secs: number) => {
 
 // Overview Component
 const Overview = ({
-  onConfirm,
-  loading,
+  isConfirmed,
 }: {
-  onConfirm: () => void;
-  loading: boolean;
+  isConfirmed: boolean;
 }) => {
   const { getValues } = useFormContext();
   const formData = getValues();
-  // console.log(formData.uploadedImage[0]);
   return (
     <div id='overview' className='flex-1 flex flex-col items-center justify-center h-auto gap-4'>
       <h1 className='w-full text-start text-2xl text-gray-600'>➌ 確認上傳</h1>
@@ -140,31 +135,31 @@ const Overview = ({
           </div>
         </div>
       </div>
-      <ConfirmButton />
+      <ConfirmButton isConfirmed={isConfirmed} />
     </div>
   );
 };
 
-function ConfirmButton() {
+function ConfirmButton({ isConfirmed }: { isConfirmed: boolean }) {
   const router = useRouter();
   const [secondsSpent, setSecondsSpent] = useState<number>(0);
+  console.log('isConfirmed', isConfirmed);
   return (
-    <motion.button
+    <motion.div
       whileTap={{ scale: 0.95 }}
-      type='submit'
       className='w-full text-white font-bold rounded-lg bg-indigo-400'
     >
       <LoadingButton
         className={cn(
           "transition-opacity duration-300 w-full px-8 py-2 rounded-md",
           secondsSpent > 0
-            ? "bg-red-400 hover:bg-red-300"
-            : "bg-indigo-400 hover:bg-indigo-300"
+          ? "bg-red-400 hover:bg-red-300"
+          : "bg-indigo-400 hover:bg-indigo-300"
         )}
-        onClick={() => {
+        {...{ type: isConfirmed ? 'button' : 'submit'}}
+        onClick={async () => {
           if (secondsSpent > 0) {
-            window.location.reload();
-            router.push('/upload?step=1')
+            router.push('/upload?step=1');
           } else {
             setInterval(() => {
               setSecondsSpent((s) => s + 1);
@@ -178,17 +173,9 @@ function ConfirmButton() {
           ? `終止並退出`
           : "一鍵成為穿搭達人！"}
       </LoadingButton>
-    </motion.button>
+    </motion.div>
   );
 }
-// ConfirmationAnimation Component
-const ConfirmationAnimation = () => {
-  return (
-    <div className='fixed top-0 left-0 h-screen w-screen flex items-center justify-center'>
-      <CheckCircle size={64} className='text-green-500 animate-bounce' />
-    </div>
-  );
-};
 
 // Main Component
 export default function UploadPage() {
@@ -200,9 +187,9 @@ export default function UploadPage() {
   });
   const [loading, setLoading] = useState<boolean>(false);
 
-  // const [currentStep, setCurrentStep] = useState<number>(currentStep ? parseInt(currentStep) : 1);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isConfirmed, setIsConfirmed] = useState<boolean>(false);
+  const [recommendationId, setRecommendationId] = useState<number | null>(null); 
 
   const setCurrentStep = (step: number) => {
     router.push(`/upload?step=${step}`);
@@ -217,29 +204,15 @@ export default function UploadPage() {
 
   const handleImageUpload = useCallback(() => {
     setIsLoading(true);
+    setCurrentStep(2);
     setTimeout(() => {
-      setCurrentStep(2);
-      setIsLoading(false);
-    }, 1000);
-  }, []);
-
-  const handleFormSubmission = async () => {
-    setTimeout(() => {
-      setCurrentStep(3);
-      setIsLoading(false);
-    }, 1000);
-  };
-
-  const handleConfirm = useCallback(() => {
-    setIsLoading(true);
-    setTimeout(() => {
-      setIsConfirmed(true);
       setIsLoading(false);
     }, 1000);
   }, []);
 
   const onSubmit = async (data: any) => {
     setLoading(true);
+    setIsConfirmed(true);
     console.log(">> submit");
     const reader = new FileReader();
     reader.onloadend = async () => {
@@ -260,6 +233,7 @@ export default function UploadPage() {
             NUM_MAX_ITEM,
             imageUrl
           );
+
           router.push(`/recommendation/${recommendationId}`);
         } catch (error) {
           console.error("Error in onSubmit:", error);
@@ -283,10 +257,6 @@ export default function UploadPage() {
     const NUM_MAX_SUGGESTION: number = 3;
     const NUM_MAX_ITEM: number = 10;
   };
-
-  if (isConfirmed) {
-    return <ConfirmationAnimation />;
-  }
 
   if (isLoading) {
     return <Skeleton />;
@@ -324,7 +294,7 @@ export default function UploadPage() {
             )}
             {currentStep === 2 && <FormFields nextStep={nextStep} />}
             {currentStep === 3 && (
-              <Overview loading={loading} onConfirm={handleConfirm} />
+              <Overview isConfirmed={isConfirmed} />
             )}
           </form>
         </FormProvider>
