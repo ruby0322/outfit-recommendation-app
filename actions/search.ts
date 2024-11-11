@@ -30,11 +30,11 @@ const getLabelStringForImageSearch = async (
         prompt,
         imageUrl,
       });
-
+      // console.log("the raw label = ", rawLabelString);
       if (rawLabelString) {
         cleanedLabels = validateLabelString(rawLabelString);
       }
-      console.log("GPT recommendation: ", cleanedLabels);
+      console.log("Image Search recommendation: ", cleanedLabels);
 
       if (!rawLabelString || cleanedLabels.length === 0) {
         console.warn("Retrying sendImgURLAndPromptToGPT due to invalid results...");
@@ -96,11 +96,11 @@ const getLabelStringForTextSearch = async (
         model,
         prompt,
       });
-
+      // console.log("the raw label = ", rawLabelString);
       if (rawLabelString) {
         cleanedLabels = validateLabelString(rawLabelString);
       }
-      console.log("GPT recommendation: ", cleanedLabels);
+      console.log("Text Search recommendation: ", cleanedLabels);
 
       if (!rawLabelString || cleanedLabels.length === 0) {
         console.warn("Retrying sendPromptToGPT due to invalid results...");

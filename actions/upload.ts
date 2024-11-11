@@ -38,11 +38,12 @@ const handleRecommendation = async (
     while (!recommendations || cleanedRecommendations.length === 0) {
       const prompt = constructPromptForRecommendation({ clothingType, gender, numMaxSuggestion });
       recommendations = await sendImgURLAndPromptToGPT({ model, prompt, imageUrl });
-      console.log("GPT recommendations= ", recommendations);
 
       if (!recommendations) continue;
 
       cleanedRecommendations = validateLabelString(recommendations, clothingType);
+      console.log("得到的 clothing_type = ", clothingType);
+      console.log("GPT recommendations= ", cleanedRecommendations);
     }
     const uploadId: number = await insertUpload(imageUrl, userId);
     const paramId: number = await insertParam(gender, clothingType, model);
