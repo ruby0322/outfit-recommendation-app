@@ -1,5 +1,4 @@
-import { Item, Param, Profile, Recommendation, Result, Suggestion, Upload } from "@prisma/client";
-
+import { Item, Param, Profile, Recommendation, Result, Suggestion, Upload, Favorite } from "@prisma/client";
 
 export type ItemTable = Item;
 export type ParamTable = Param;
@@ -8,10 +7,10 @@ export type SuggestionTable = Suggestion;
 export type UploadTable = Upload;
 export type ResultTable = Result;
 export type ProfileTable = Profile;
+export type FavoriteTable = Favorite;
 
 export type SimplifiedItemTable = Omit<Item, 'embedding'>;
-export type Series = { items: SimplifiedItemTable[] };
-
+export type Series = { items: SimplifiedItemTable[], isFavorite: boolean };
 export interface Recommendation {
   param: ParamTable;
   upload: UploadTable;
@@ -21,15 +20,14 @@ export interface Recommendation {
 }
 
 export interface RecommendationWithoutLogin {
-  clothing_type: String;
+  clothingType: String;
   gender: String;
   model: String;
-  image_url: String;
+  imageUrl: String;
   styles: {
     [styleName: string]: { series: Series[], description: string };
   };
 }
-
 export interface SearchResult {
   series: Series[];
   totalPages: number;

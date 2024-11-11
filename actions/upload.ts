@@ -67,6 +67,7 @@ const handleRecommendation = async (
         numMaxItem,
         gender,
         clothing_type: clothingType,
+        user_id: userId,
       });
       await insertResults(results as UnstoredResult[]);
     }));
@@ -118,10 +119,10 @@ const handleRecommendationWithoutLogin = async (
 
       if (results) {
         const recommendation: RecommendationWithoutLogin = {
-          clothing_type: clothingType,
+          clothingType: clothingType,
           gender: gender,
           model: model,
-          image_url: imageUrl,
+          imageUrl: imageUrl,
           styles: {
             default: {
               series: results,
@@ -177,7 +178,7 @@ const getLabelStringForImageSearch = async (
   }
 };
 
-const handleImageSearch = async (
+const handleSearch = async (
   labelString: string,
   gender: Gender,
   page: number,
@@ -185,6 +186,7 @@ const handleImageSearch = async (
   priceUpperBound?: number,
   providers?: string[],
   clothingType?: ClothingType,
+  user_id?: string,
 ): Promise<SearchResult | null> => {
   try {
     const searchResult: SearchResult | null = await semanticSearchForSearching({
@@ -195,6 +197,7 @@ const handleImageSearch = async (
       providers,
       clothingType,
       page,
+      user_id,
     });
     console.log("searchResult: ", searchResult);
     return searchResult;
@@ -241,32 +244,5 @@ const getLabelStringForTextSearch = async (
   }
 };
 
-const handleTextSearch = async (
-  labelString: string,
-  gender: Gender,
-  page: number,
-  priceLowerBound?: number,
-  priceUpperBound?: number,
-  providers?: string[],
-  clothingType?: ClothingType,
-): Promise<SearchResult | null> => {
-  try {
-    const searchResult: SearchResult | null = await semanticSearchForSearching({
-      suggestedLabelString: labelString,
-      gender,
-      priceLowerBound,
-      priceUpperBound,
-      providers,
-      clothingType,
-      page,
-    });
-
-    return searchResult;
-  } catch (error) {
-    handleDatabaseError(error, "getSearchResultForTextSearch");
-    return null;
-  }
-};
-
-export { handleImageSearch, handleRecommendation, handleRecommendationWithoutLogin, handleTextSearch, getLabelStringForImageSearch, getLabelStringForTextSearch };
+export { handleRecommendation, handleRecommendationWithoutLogin, handleSearch, getLabelStringForImageSearch, getLabelStringForTextSearch };
 
