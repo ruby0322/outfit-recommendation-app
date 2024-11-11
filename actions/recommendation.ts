@@ -1,5 +1,4 @@
 "use server";
-import prisma from "@/prisma/db";
 import {
   ParamTable,
   Recommendation,
@@ -10,7 +9,6 @@ import {
   UploadTable,
 } from "@/type";
 import { handleDatabaseError } from "./activity";
-import { deleteParamById, deleteUploadById } from "./utils/delete";
 import {
   getParamById,
   getRecommendationById,
@@ -36,9 +34,11 @@ const getRecommendationRecordById = async (
     if (!upload) throw new Error("Upload not found for given upload_id");
 
     const recommendation_record: Partial<Recommendation> = {
-      param: param,
-      upload: upload,
-      styles: {},
+      clothingType: param.clothing_type,
+      gender: param.gender,
+      model: param.model ?? undefined,
+      imageUrl: upload.image_url ?? undefined,
+      styles: {}
     };
 
     const suggestions = (await getSuggestion(
@@ -55,8 +55,8 @@ const getRecommendationRecordById = async (
       const series_ids = (await getSeriesIdsByItemIds(item_ids)) as string[];
       if (!series_ids.length) throw new Error("No series IDs found");
 
-      const gender = recommendation_record.param?.gender ?? "neutral";
-      const clothingType = recommendation_record.param?.clothing_type ?? "top";
+      const gender = recommendation_record.gender ?? "neutral";
+      const clothingType = recommendation_record.clothingType ?? "top";
       const series = (await getSeriesForRecommendation(series_ids, item_ids, gender, clothingType, user_id)) as Series[];
       if (!series) throw new Error("No series found");
 
@@ -73,45 +73,6 @@ const getRecommendationRecordById = async (
   }
 };
 
-const bruteForceAction = async (recommendationId: number) => {
-  try {
-    const suggestions = await prisma.suggestion.findMany({
-      where: { recommendation_id: recommendationId },
-      select: { id: true },
-    });
-    const suggestionIds = suggestions.map((s) => s.id);
 
-    await prisma.result.deleteMany({
-      where: { suggestion_id: { in: suggestionIds } },
-    });
-
-    await prisma.suggestion.deleteMany({
-      where: { id: { in: suggestionIds } },
-    });
-
-    const recommendation = await prisma.recommendation.findUnique({
-      where: { id: recommendationId },
-      select: { param_id: true, upload_id: true },
-    });
-
-    if (!recommendation) {
-      console.error("Recommendation not found");
-      return;
-    }
-
-    const { param_id: paramId, upload_id: uploadId } = recommendation;
-
-    await prisma.recommendation.delete({
-      where: { id: recommendationId },
-    });
-
-    if (paramId) await deleteParamById(paramId);
-    if (uploadId) await deleteUploadById(uploadId);
-  } catch (error) {
-    handleDatabaseError(error, 'bruteForceAction');
-  }
-};
-
-
-export { bruteForceAction, getRecommendationRecordById };
+export { getRecommendationRecordById };
 

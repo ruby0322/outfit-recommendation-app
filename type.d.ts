@@ -11,19 +11,19 @@ export type FavoriteTable = Favorite;
 
 export type SimplifiedItemTable = Omit<Item, 'embedding'>;
 export type Series = { items: SimplifiedItemTable[], isFavorite: boolean };
-export interface Recommendation {
-  param: ParamTable;
-  upload: UploadTable;
-  styles: {
-    [styleName: string]: { series: Series[], description: string };
-  };
-}
+// export interface Recommendation {
+//   param: ParamTable;
+//   upload: UploadTable;
+//   styles: {
+//     [styleName: string]: { series: Series[], description: string };
+//   };
+// }
 
-export interface RecommendationWithoutLogin {
-  clothingType: String;
-  gender: String;
-  model: String;
-  imageUrl: String;
+export interface Recommendation {
+  clothingType: ClothingType;
+  gender: Gender;
+  model: string;
+  imageUrl: string;
   styles: {
     [styleName: string]: { series: Series[], description: string };
   };
