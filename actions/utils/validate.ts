@@ -6,6 +6,8 @@ const validateLabelString = (
   clothingType?: ClothingType
 ): ValidatedRecommendation[] => {
   try {
+    if (typeof recommendations !== "string" || !recommendations.trim().startsWith("["))
+      return [];
     const recommendationsArray = JSON.parse(
       recommendations.replace(/```json\n?|\n?```/g, "").trim()
     );
