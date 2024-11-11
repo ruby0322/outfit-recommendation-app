@@ -207,9 +207,12 @@ const Header = () => {
                 {
                   routes.map(route => {
                     return <Link
+                      key={route.pathnames[0]}
                       href={route.pathnames[0]}
                     >
-                      <div className={cn("text-gray-400 flex items-center justify-center gap-2 font-normal py-2 px-4", match(pathname, route.pathnames) && 'border-t-2 border-indigo-400 bg-gray-200 text-gray-800')}>
+                      <div
+                        className={cn("text-gray-400 flex items-center justify-center gap-2 font-normal py-2 px-4", match(pathname, route.pathnames) && 'border-t-2 border-indigo-400 bg-gray-200 text-gray-800')}
+                      >
                         {route.icon}
                         <p>
                           {route.tabLabel}
