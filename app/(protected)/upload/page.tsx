@@ -147,12 +147,16 @@ function ConfirmButton({ isConfirmed }: { isConfirmed: boolean }) {
   return (
     <motion.div
       whileTap={{ scale: 0.95 }}
-      className='w-full text-white font-bold rounded-lg bg-indigo-400'
+      className={cn('w-full text-white font-bold rounded-lg',
+        isConfirmed
+          ? "bg-red-400 hover:bg-red-300"
+          : "bg-indigo-400 hover:bg-indigo-300"
+      )}
     >
       <LoadingButton
         className={cn(
           "transition-opacity duration-300 w-full px-8 py-2 rounded-md",
-          secondsSpent > 0
+          isConfirmed
           ? "bg-red-400 hover:bg-red-300"
           : "bg-indigo-400 hover:bg-indigo-300"
         )}
@@ -189,7 +193,6 @@ export default function UploadPage() {
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isConfirmed, setIsConfirmed] = useState<boolean>(false);
-  const [recommendationId, setRecommendationId] = useState<number | null>(null); 
 
   const setCurrentStep = (step: number) => {
     router.push(`/upload?step=${step}`);

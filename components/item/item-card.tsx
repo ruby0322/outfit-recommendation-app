@@ -17,7 +17,7 @@ import {
   SliderMainItem,
 } from "@/components/ui/extension/carousel";
 import { cn } from "@/lib/utils";
-import { Badge } from "./ui/badge";
+import { Badge } from "../ui/badge";
 
 const PROVIDER_CLASSNAME_MAPPING: { [k: string]: string } = {
   'UNIQLO': 'bg-blue-100 hover:bg-blue-100 text-gray-800',

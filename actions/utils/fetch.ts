@@ -11,6 +11,7 @@ import {
   SimplifiedItemTable
 } from "@/type";
 import { handleDatabaseError } from '../activity';
+import { isFavorite } from '../favorite';
 
 const getResults = async (suggestionId: number): Promise<ResultTable[] | null> => {
   try {
@@ -150,27 +151,44 @@ const getSeriesByIdsForSearching = async (
   series_ids: string[],
   originalItemIds: string[],
   gender: string,
+  user_id?: string,
 ): Promise<Series[] | null> => {
   try {
     console.time("getSeriesByIdsForSearching");
-    const matViewName = gender === "neutral" ? "all_item_matview" : `${gender}_item_matview`;
 
+    const matViewName = gender === "neutral" ? "all_item_matview" : `${gender}_item_matview`;
     const uniqueSeriesIds = Array.from(new Set(series_ids));
     const seriesArray: Series[] = [];
 
+    const items = await prisma.$queryRawUnsafe<SimplifiedItemTable[]>(
+      `SELECT id, clothing_type, color, external_link, gender, image_url, label_string, price, provider, series_id, title
+      FROM ${matViewName}
+      WHERE series_id IN (${uniqueSeriesIds.map((_, index) => `$${index + 1}`).join(", ")})`,
+      ...uniqueSeriesIds
+    );
+
+    let favoriteStatus: Record<string, boolean> = {};
+    if (user_id !== undefined) {
+      favoriteStatus = await Promise.all(
+        uniqueSeriesIds.map(async (seriesId) => {
+          const isFav = await isFavorite(user_id, seriesId);
+          return { [seriesId]: isFav };
+        })
+      ).then(results => results.reduce((acc, curr) => ({ ...acc, ...curr }), {}));
+    }
+
     for (const seriesId of uniqueSeriesIds) {
-      const items = await prisma.$queryRawUnsafe<SimplifiedItemTable[]>(
-        `SELECT id, clothing_type, color, external_link, gender, image_url, label_string, price, provider, series_id, title
-        FROM ${matViewName} WHERE series_id = $1`,
-        seriesId
-      );
-      if (!items || items.length === 0) {
+      const seriesItems = items.filter(item => item.series_id === seriesId);
+
+      if (seriesItems.length === 0) {
         console.log(`No valid items for series ${seriesId}.`);
         continue;
       }
 
-      const originalItems = items.filter(item => originalItemIds.includes(item.id));
-      const otherItems = items.filter(item => !originalItemIds.includes(item.id));
+      const isFavoriteStatus = favoriteStatus[seriesId] || false;
+
+      const originalItems = seriesItems.filter(item => originalItemIds.includes(item.id));
+      const otherItems = seriesItems.filter(item => !originalItemIds.includes(item.id));
 
       const sortedItems = [
         ...originalItems.sort((a, b) => originalItemIds.indexOf(a.id) - originalItemIds.indexOf(b.id)),
@@ -182,9 +200,11 @@ const getSeriesByIdsForSearching = async (
 
       const series: Series = {
         items: sortedItems,
+        isFavorite: isFavoriteStatus,
       };
       seriesArray.push(series);
     }
+
     console.timeEnd("getSeriesByIdsForSearching");
     return seriesArray.length > 0 ? seriesArray : null;
   } catch (error) {
@@ -193,11 +213,13 @@ const getSeriesByIdsForSearching = async (
   }
 };
 
+
 const getSeriesForRecommendation = async (
   series_ids: string[],
   originalItemIds: string[],
   gender: string,
-  clothingType: string
+  clothingType: string,
+  user_id: string
 ): Promise<Series[] | null> => {
   try {
     console.time("getSeriesForRecommendation");
@@ -219,6 +241,12 @@ const getSeriesForRecommendation = async (
         console.log(`No valid items for series ${seriesId}.`);
         continue;
       }
+      const isFavorite = await prisma.favorite.findFirst({
+        where: {
+          user_id: user_id,
+          series_id: seriesId,
+        },
+      }) !== null;
 
       const originalItems = data.filter(item => originalItemIds.includes(item.id));
       const otherItems = data.filter(item => !originalItemIds.includes(item.id));
@@ -233,6 +261,7 @@ const getSeriesForRecommendation = async (
 
       const series: Series = {
         items: sortedItems,
+        isFavorite: isFavorite,
       };
       seriesArray.push(series);
     }

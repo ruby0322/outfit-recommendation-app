@@ -1,9 +1,9 @@
 "use server";
-import { SearchResult, Series, SimplifiedItemTable, UnstoredResult, ClothingType, Gender, ItemTable } from "@/type";
-import { getSeriesByIdsForSearching } from "./fetch";
-import { generateEmbedding } from "./embedding";
 import prisma from "@/prisma/db";
+import { ClothingType, Gender, ItemTable, SearchResult, Series, SimplifiedItemTable, UnstoredResult } from "@/type";
 import { handleDatabaseError } from "../activity";
+import { generateEmbedding } from "./embedding";
+import { getSeriesByIdsForSearching } from "./fetch";
 
 const vectorSearchForRecommendation = async (
   suggestedLabelString: string,
@@ -32,6 +32,7 @@ const vectorSearchForRecommendation = async (
         ...simplifiedItem,
         price: simplifiedItem.price ? Number(simplifiedItem.price) : 0,
       }],
+      isFavorite: false,
     }));
 
     return series;
@@ -58,7 +59,7 @@ const vectorSearchForSearching = async (
     let genderString = gender === "neutral" ? "all" : gender;
     const viewName = `${genderString}_item_matview`;
     const offset = (page - 1) * pageSize;
-    console.log("mat view name: ", viewName);
+    // console.log("mat view name: ", viewName);
 
     //setting the filters
     let filterConditions = `${viewName}.embedding <#> $1::vector < $2`;
@@ -91,13 +92,13 @@ const vectorSearchForSearching = async (
       GROUP BY embedding
       ORDER BY embedding <#> $1::vector
     `;
-    console.log("countQuery: ", countQuery);
+    // console.log("countQuery: ", countQuery);
 
     const totalItemsResult = await prisma.$queryRawUnsafe<{ total_count: bigint }[]>(countQuery, ...queryParams);
-    console.log("Similarity results: ", totalItemsResult);
+    // console.log("Similarity results: ", totalItemsResult);
 
     const totalItems = totalItemsResult.reduce((sum, item) => sum + Number(item.total_count), 0);
-    console.log("query total count: ", totalItems);
+    // console.log("query total count: ", totalItems);
 
     const mainQuery = `
       SELECT id, clothing_type, color, external_link, gender, image_url, label_string, price, provider, series_id, title
@@ -115,6 +116,7 @@ const vectorSearchForSearching = async (
         ...simplifiedItem,
         price: simplifiedItem.price ? Number(simplifiedItem.price) : 0,
       }],
+      isFavorite: false,
     }));
 
     return { series, totalItems };
@@ -130,12 +132,14 @@ const semanticSearchForRecommendation = async ({
   numMaxItem,
   gender,
   clothing_type,
+  user_id,
 }: {
   suggestionId: number;
   suggestedLabelString: string;
   numMaxItem: number;
   gender: Gender;
   clothing_type: ClothingType;
+  user_id?: string;
 }): Promise<UnstoredResult[] | null> => {
   try {
     const similarItems = await vectorSearchForRecommendation(
@@ -149,13 +153,11 @@ const semanticSearchForRecommendation = async ({
       return null;
     }
 
-    const results: UnstoredResult[] = similarItems.map(
-      (series: Series, index: number) => ({
-        distance: index,
-        item_id: series.items[0].id,
-        suggestion_id: suggestionId,
-      })
-    );
+    const results: UnstoredResult[] = similarItems.map((series: Series, index: number) => ({
+      distance: index,
+      item_id: series.items[0].id,
+      suggestion_id: suggestionId,
+    }));
 
     return results;
   } catch (error) {
@@ -213,6 +215,7 @@ const semanticSearchWithoutLogin = async ({
 
     const seriesArray: Series[] = [{
       items: simplifiedItems,
+      isFavorite: false,
     }];
 
     return seriesArray;
@@ -230,6 +233,7 @@ const semanticSearchForSearching = async ({
   providers,
   clothingType,
   page,
+  user_id,
 }: {
   suggestedLabelString: string;
   gender: Gender;
@@ -238,6 +242,7 @@ const semanticSearchForSearching = async ({
   providers?: string[];
   clothingType?: ClothingType;
   page: number;
+  user_id?: string;
 }): Promise<SearchResult | null> => {
   try {
     const searchResultData = await vectorSearchForSearching(
@@ -272,14 +277,12 @@ const semanticSearchForSearching = async ({
     }
     const similarItemIds = series.flatMap(seriesItem => seriesItem.items.map(item => item.id));
 
-    const seriesArray = await getSeriesByIdsForSearching(uniqueSeriesIds, similarItemIds, gender);
-    const safeSeriesArray: Series[] = seriesArray || [];
+    let seriesArray: Series[] = await getSeriesByIdsForSearching(uniqueSeriesIds, similarItemIds, gender, user_id) || [];
+    return {
+      series: seriesArray as Series[],
+      totalPages
+    } as SearchResult;
 
-    const searchResult: SearchResult = {
-      series: safeSeriesArray,
-      totalPages,
-    };
-    return searchResult;
   } catch (error) {
     handleDatabaseError(error, "semanticSearchForSearching");
     return null;

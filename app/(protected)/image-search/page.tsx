@@ -1,7 +1,10 @@
 "use client";
 
-import { handleSearch } from "@/actions/upload";
+import { handleSearch, getLabelStringForImageSearch } from "@/actions/search";
 import { storeImageToStorage } from "@/actions/utils/insert";
+import ItemList from "@/components/item/item-list";
+import ItemListSkeleton from "@/components/item/item-list-skeleton";
+import { Input } from "@/components/ui/input";
 import TourButton from '@/components/tour-button';
 import { Badge } from "@/components/ui/badge";
 import { LoadingButton } from "@/components/ui/loading-button";
@@ -22,10 +25,7 @@ import CustomizationFields from "./customization-fields";
 import ImageUploader from "./image-uploader";
 import Skeleton from "./skeleton";
 import { Gender, Series } from "@/type";
-import ItemListSkeleton from "@/components/item-list-skeleton";
-import ItemList from "@/components/item-list";
 import PaginationBar from "@/components/pagination-bar";
-import { getLabelStringForImageSearch } from "@/actions/upload";
 
 
 const schema = z.object({

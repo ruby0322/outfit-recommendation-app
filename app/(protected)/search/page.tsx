@@ -1,8 +1,8 @@
 "use client";
 
-import { getLabelStringForTextSearch, handleSearch } from "@/actions/upload";
-import ItemList from "@/components/item-list";
-import ItemListSkeleton from "@/components/item-list-skeleton";
+import { getLabelStringForTextSearch, handleSearch } from "@/actions/search";
+import ItemList from "@/components/item/item-list";
+import ItemListSkeleton from "@/components/item/item-list-skeleton";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { LoadingButton } from "@/components/ui/loading-button";
@@ -216,7 +216,6 @@ export default function SearchPage() {
                   <SelectItem value="長褲">長褲</SelectItem>
                   <SelectItem value="短裙">短裙</SelectItem>
                   <SelectItem value="長裙">長裙</SelectItem>
-                  {/* Add more options as needed */}
                 </SelectContent>
               </Select>
 
@@ -234,7 +233,6 @@ export default function SearchPage() {
                   <SelectItem value="針織衫">針織衫</SelectItem>
                   <SelectItem value="毛衣">毛衣</SelectItem>
                   <SelectItem value="牛仔">牛仔</SelectItem>
-                  {/* Add more styles as needed */}
                 </SelectContent>
               </Select>
 
@@ -255,7 +253,6 @@ export default function SearchPage() {
                   <SelectItem value="韓系">韓系</SelectItem>
                   <SelectItem value="美式">美式</SelectItem>
                   <SelectItem value="法式">法式</SelectItem>
-                  {/* Add more types as needed */}
                 </SelectContent>
               </Select>
             </div>

@@ -1,7 +1,7 @@
 "use server";
 
 import { getRecommendationRecordById } from "@/actions/recommendation";
-import ItemList from "@/components/item-list";
+import ItemList from "@/components/item/item-list";
 import { Button } from "@/components/ui/button";
 import { Recommendation } from "@/type";
 import { createClient } from "@/utils/supabase/server";
@@ -21,8 +21,9 @@ const RecommendationPage = async ({
     data: { user },
     error,
   } = await supabase.auth.getUser();
+  const { recommendation_id } = await params; 
   const recommendation: Recommendation = (await getRecommendationRecordById(
-      params.recommendation_id, user?.id as string
+    recommendation_id, user?.id as string
   )) as Recommendation;
   if (!recommendation) return <div className="w-full h-full flex flex-col gap-8 items-center justify-center">
     <p className="text-red-400 font-bold">
@@ -41,8 +42,8 @@ const RecommendationPage = async ({
           您上傳的衣服
         </h2>
         <UserInfoCard
-          upload={recommendation.upload}
-          params={recommendation.param}
+          imageUrl={recommendation.imageUrl}
+          gender={recommendation.gender}
         />
       </div>
       <div className='flex flex-col gap-4 justify-center items-center md:max-w-[80vw]'>
