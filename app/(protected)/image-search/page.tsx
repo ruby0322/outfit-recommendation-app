@@ -24,14 +24,15 @@ import Skeleton from "./skeleton";
 import { Gender, Series } from "@/type";
 import ItemListSkeleton from "@/components/item-list-skeleton";
 import ItemList from "@/components/item-list";
+import PaginationBar from "@/components/pagination-bar";
 
 
 const schema = z.object({
-  clothingType: z.enum(["top", "bottom"], {
-    message: "請選擇服飾類型",
-  }),
+  // clothingType: z.enum(["top", "bottom"], {
+  //   message: "請選擇服飾類型",
+  // }),
   gender: z.enum(["male", "female"], { message: "請選擇性別" }),
-  model: z.string().default("gpt-4o"),
+  // model: z.string().default("gpt-4o"),
   uploadedImage: (typeof window === "undefined"
     ? z.any()
     : z.instanceof(FileList, {
@@ -115,9 +116,11 @@ const toHHMMSS = (secs: number) => {
 const Overview = ({
   onConfirm,
   loading,
+  isConfirmed
 }: {
-  onConfirm: () => void;
+  onConfirm?: () => void;
   loading: boolean;
+  isConfirmed: boolean;
 }) => {
   const { getValues } = useFormContext();
   const formData = getValues();
@@ -144,31 +147,67 @@ const Overview = ({
           </div> */}
         </div>
       </div>
-      <ConfirmButton />
+      <ConfirmButton isConfirmed={isConfirmed}/>
     </div>
   );
 };
 
-function ConfirmButton() {
+// function ConfirmButton() {
+//   const router = useRouter();
+//   const [secondsSpent, setSecondsSpent] = useState<number>(0);
+//   return (
+//     <motion.button
+//       whileTap={{ scale: 0.95 }}
+//       type='submit'
+//       className='w-full text-white font-bold rounded-lg bg-indigo-400'
+//     >
+//       <LoadingButton
+//         className={cn(
+//           "transition-opacity duration-300 w-full px-8 py-2 rounded-md",
+//           secondsSpent > 0
+//             ? "bg-red-400 hover:bg-red-300"
+//             : "bg-indigo-400 hover:bg-indigo-300"
+//         )}
+//         // onClick={() => {
+//         //   if (secondsSpent > 0) {
+//         //     window.location.reload();
+//         //     router.push('/image-search?step=1')
+//         //   } else {
+//         //     setInterval(() => {
+//         //       setSecondsSpent((s) => s + 1);
+//         //     }, 1000);
+//         //   }
+//         // }}
+//         loading={secondsSpent > 0}
+//         disabled={false}
+//       >
+//         {secondsSpent > 0
+//           ? `終止並退出`
+//           : "一鍵尋找類似的服飾！"}
+//       </LoadingButton>
+//     </motion.button>
+//   );
+// }
+function ConfirmButton({ isConfirmed }: { isConfirmed: boolean }) {
   const router = useRouter();
   const [secondsSpent, setSecondsSpent] = useState<number>(0);
+  console.log('isConfirmed', isConfirmed);
   return (
-    <motion.button
+    <motion.div
       whileTap={{ scale: 0.95 }}
-      type='submit'
       className='w-full text-white font-bold rounded-lg bg-indigo-400'
     >
       <LoadingButton
         className={cn(
           "transition-opacity duration-300 w-full px-8 py-2 rounded-md",
-          secondsSpent > 0
-            ? "bg-red-400 hover:bg-red-300"
-            : "bg-indigo-400 hover:bg-indigo-300"
+          isConfirmed
+          ? "bg-red-400 hover:bg-red-300"
+          : "bg-indigo-400 hover:bg-indigo-300"
         )}
-        onClick={() => {
+        {...{ type: isConfirmed ? 'button' : 'submit'}}
+        onClick={async () => {
           if (secondsSpent > 0) {
-            window.location.reload();
-            router.push('/image-search?step=1')
+            router.push('/image-search?step=1');
           } else {
             setInterval(() => {
               setSecondsSpent((s) => s + 1);
@@ -182,9 +221,11 @@ function ConfirmButton() {
           ? `終止並退出`
           : "一鍵尋找類似的服飾！"}
       </LoadingButton>
-    </motion.button>
+    </motion.div>
   );
 }
+
+
 // ConfirmationAnimation Component
 const ConfirmationAnimation = () => {
   return (
@@ -211,6 +252,9 @@ export default function UploadPage() {
 
   const [results, setResults] = useState<Series[]>([]);
   const [image, setImage] = useState<string>("");
+  const [gender, setGender] = useState<string>("neutral");
+  const [page, setPage] = useState<number>(1);
+  const [totalPages, setTotalPages] = useState<number>(0);
 
   useEffect(() => {
     if (!image) {
@@ -231,15 +275,15 @@ export default function UploadPage() {
 
   const handleImageUpload = useCallback(() => {
     setIsLoading(true);
+    setCurrentStep(2);
     setTimeout(() => {
-      setCurrentStep(2);
       setIsLoading(false);
     }, 1000);
   }, []);
 
   const handleFormSubmission = async () => {
+    setCurrentStep(3);
     setTimeout(() => {
-      setCurrentStep(3);
       setIsLoading(false);
     }, 1000);
   };
@@ -263,6 +307,7 @@ export default function UploadPage() {
         try {
           const imageUrl = await storeImageToStorage(base64);
           setImage(imageUrl);
+          setGender(data.gender)
           const {
             data: { user },
           } = await supabase.auth.getUser();
@@ -274,6 +319,7 @@ export default function UploadPage() {
           );
           setCurrentStep(4);
           setResults([...(res?.series ?? [])] as Series[]);
+          setTotalPages(res?.totalPages as number);
           setLoading(false)
         } catch (error) {
           console.error("Error in onSubmit:", error);
@@ -328,7 +374,7 @@ export default function UploadPage() {
               )}
               {currentStep === 2 && <FormFields nextStep={nextStep} />}
               {currentStep === 3 && (
-                <Overview loading={loading} onConfirm={handleConfirm} />
+                <Overview loading={loading} isConfirmed={isConfirmed}/>
               )}
             </form>
           </FormProvider>

@@ -217,15 +217,15 @@ export default function UploadPage() {
 
   const handleImageUpload = useCallback(() => {
     setIsLoading(true);
+    setCurrentStep(2);
     setTimeout(() => {
-      setCurrentStep(2);
       setIsLoading(false);
     }, 1000);
   }, []);
 
   const handleFormSubmission = async () => {
+    setCurrentStep(3);
     setTimeout(() => {
-      setCurrentStep(3);
       setIsLoading(false);
     }, 1000);
   };
