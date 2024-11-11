@@ -12,10 +12,9 @@ const Section = ({ children, title, slogan, description, buttonText, buttonLink,
           <span className='w-full text-gray-600 text-lg'>
             {
               description?.split('\n').map(line => {
-                return <>
+                return <p key={`line-${line}`}>
                   {line}
-                  <br />
-                </>;
+                </p>;
               })
             }
           </span>

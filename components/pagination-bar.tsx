@@ -56,22 +56,14 @@ export default function PaginationBar({ currentPage = 1, totalPages = 10, onPage
 
     for (let i = currentPage-2; i <= currentPage+2; i++) {
       if (i !== currentPage && isMobile) continue;
-      if (i < 1 || i > totalPages) {
-        pageNumbers.push(<Button
-          key={i}
-          variant="outline"
-          disabled={true}
-          className="w-10 h-10 p-0 border-0 bg-transparent underline"
-        >
-        </Button>);
-        continue;
-      }
+      if (i < 1 || i > totalPages) continue;
       if (i === currentPage) {
         pageNumbers.push(
-          <>
+          <div key={i}>
             {isEditing ? (
               <form onSubmit={handleEditablePageSubmit} className="inline-flex">
                 <Input
+                  
                   type="text"
                   value={editablePageNumber}
                   onChange={handleEditablePageChange}
@@ -89,7 +81,7 @@ export default function PaginationBar({ currentPage = 1, totalPages = 10, onPage
                 {currentPage}
               </Button>
             )}
-          </>
+          </div>
         );
         continue;
       }

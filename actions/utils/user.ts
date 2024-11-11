@@ -1,8 +1,8 @@
 "use server";
+import prisma from "@/prisma/db";
 import { ProfileTable, RecommendationPreview } from "@/type";
 import { createClient } from "@/utils/supabase/server";
 import { revalidatePath } from "next/cache";
-import prisma from "@/prisma/db";
 import { handleDatabaseError } from "../activity";
 
 const createProfile = async (user_id: string): Promise<boolean> => {
@@ -134,5 +134,5 @@ export {
   getPreviewsByUserId,
   getProfileByUserId,
   signOut,
-  updateUserProfile,
+  updateUserProfile
 };

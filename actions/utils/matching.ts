@@ -58,9 +58,10 @@ const vectorSearchForSearching = async (
     let genderString = gender === "neutral" ? "all" : gender;
     const viewName = `${genderString}_item_matview`;
     const offset = (page - 1) * pageSize;
+    console.log("mat view name: ", viewName);
 
     //setting the filters
-    let filterConditions = `${viewName}.embedding <#> $1::vector > $2`;
+    let filterConditions = `${viewName}.embedding <#> $1::vector < $2`;
     const queryParams: any[] = [suggestedEmbedding, matchThreshold];
     let paramIndex = 3;
 
@@ -88,20 +89,21 @@ const vectorSearchForSearching = async (
       FROM ${viewName}
       WHERE ${filterConditions}
       GROUP BY embedding
-      ORDER BY ${viewName}.embedding <#> $1::vector ASC
+      ORDER BY embedding <#> $1::vector
     `;
+    console.log("countQuery: ", countQuery);
 
     const totalItemsResult = await prisma.$queryRawUnsafe<{ total_count: bigint }[]>(countQuery, ...queryParams);
-    // console.log("Similarity results: ", totalItemsResult);
+    console.log("Similarity results: ", totalItemsResult);
 
     const totalItems = totalItemsResult.reduce((sum, item) => sum + Number(item.total_count), 0);
-    // console.log("query total count: ", totalItems);
+    console.log("query total count: ", totalItems);
 
     const mainQuery = `
       SELECT id, clothing_type, color, external_link, gender, image_url, label_string, price, provider, series_id, title
       FROM ${viewName}
       WHERE ${filterConditions}
-      ORDER BY ${viewName}.embedding <#> $1::vector ASC
+      ORDER BY embedding <#> $1::vector
       LIMIT $${paramIndex++} OFFSET $${paramIndex};
     `;
     const mainQueryParams = [...queryParams, pageSize, offset];
@@ -254,7 +256,7 @@ const semanticSearchForSearching = async ({
     }
 
     const { series, totalItems } = searchResultData;
-    const totalPage = Math.ceil(totalItems / 20);
+    const totalPages = Math.ceil(totalItems / 20);
 
     const uniqueSeriesIds: string[] = [];
     const seenSeriesIds = new Set<string>();
@@ -275,7 +277,7 @@ const semanticSearchForSearching = async ({
 
     const searchResult: SearchResult = {
       series: safeSeriesArray,
-      totalPage,
+      totalPages,
     };
     return searchResult;
   } catch (error) {

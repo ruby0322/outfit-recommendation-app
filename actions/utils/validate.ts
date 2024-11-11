@@ -1,10 +1,10 @@
 "use server";
-import { ClothingType } from "@/type";
+import { ClothingType, ValidatedRecommendation } from "@/type";
 
 const validateLabelString = (
   recommendations: string,
   clothingType?: ClothingType
-) => {
+): ValidatedRecommendation[] => {
   try {
     const recommendationsArray = JSON.parse(
       recommendations.replace(/```json\n?|\n?```/g, "").trim()
@@ -16,12 +16,14 @@ const validateLabelString = (
     const specificKeys = clothingType === "top" ? ["褲管", "裙擺"] : ["領子", "袖子"];
 
     return recommendationsArray
-      .filter((rec) => [...requiredKeys, ...specificKeys].every((key) => key in rec.item))
-      .map((rec) => ({
-        styleName: rec.styleName,
-        description: rec.description,
-        labelString: generateLabelString(rec, clothingType),
-      }));
+    .filter((rec) =>
+      [...requiredKeys, ...specificKeys].every((key) => key in rec.item)
+    )
+    .map((rec) => ({
+      styleName: rec.styleName,
+      description: rec.description,
+      labelString: generateLabelString(rec, clothingType),
+    }));
   } catch (error) {
     console.error("Error in validateRecommendation:", error);
     return [];
