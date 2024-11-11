@@ -1,6 +1,8 @@
 "use server";
+import { Series } from "@/type";
 import { handleDatabaseError } from "./activity";
 import prisma from "@/prisma/db";
+import { getSeriesById } from "./utils/fetch";
 
 //insert and delete using the same function
 const handleFavorite = async (
@@ -65,6 +67,45 @@ const isFavorite = async (
   }
 };
 
+const getFavoriteByUserId = async (
+  user_id: string,
+): Promise<Series[]> => {
+  try {
+    const favoriteSeries = await prisma.favorite.findMany({
+      where: {
+        user_id: user_id,
+      },
+      select: {
+        series_id: true,
+      },
+    });
+
+    if (favoriteSeries.length === 0) {
+      return [];
+    }
+
+    const seriesIds = favoriteSeries.map(fav => fav.series_id);
+
+    const favoriteItems = await Promise.all(
+      seriesIds.map(seriesId => getSeriesById(seriesId))
+    );
+
+    const series: Series[] = favoriteItems
+      .filter(items => items !== null)
+      .map(items => ({
+        items: items.map(item => ({
+          ...item, 
+          price: item.price ? Number(item.price) : 0,
+        })),
+        isFavorite: true,
+      }));
+
+    return series;
+  } catch (error) {
+    handleDatabaseError(error, "getFavoriteByUserId");
+    return [];
+  }
+};
 
 
-export { handleFavorite, isFavorite };
+export { handleFavorite, isFavorite, getFavoriteByUserId };
