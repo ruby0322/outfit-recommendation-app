@@ -26,7 +26,7 @@ const schema = z.object({
   clothingType: z.enum(["top", "bottom"], {
     message: "請選擇服飾類型",
   }),
-  gender: z.enum(["male", "female"], { message: "請選擇性別" }),
+  gender: z.enum(["male", "female, neutral"], { message: "請選擇性別" }),
   model: z.string().default("gpt-4o"),
   uploadedImage: (typeof window === "undefined"
     ? z.any()
