@@ -1,6 +1,6 @@
 "use client";
 
-import { handleImageSearch } from "@/actions/upload";
+import { handleSearch } from "@/actions/upload";
 import { storeImageToStorage } from "@/actions/utils/insert";
 import TourButton from '@/components/tour-button';
 import { Badge } from "@/components/ui/badge";
@@ -25,6 +25,7 @@ import { Gender, Series } from "@/type";
 import ItemListSkeleton from "@/components/item-list-skeleton";
 import ItemList from "@/components/item-list";
 import PaginationBar from "@/components/pagination-bar";
+import { getLabelStringForImageSearch } from "@/actions/upload";
 
 
 const schema = z.object({
@@ -225,16 +226,6 @@ function ConfirmButton({ isConfirmed }: { isConfirmed: boolean }) {
   );
 }
 
-
-// ConfirmationAnimation Component
-const ConfirmationAnimation = () => {
-  return (
-    <div className='fixed top-0 left-0 h-screen w-screen flex items-center justify-center'>
-      <CheckCircle size={64} className='text-green-500 animate-bounce' />
-    </div>
-  );
-};
-
 // Main Component
 export default function UploadPage() {
   const searchParams = useSearchParams();
@@ -255,6 +246,7 @@ export default function UploadPage() {
   const [gender, setGender] = useState<string>("neutral");
   const [page, setPage] = useState<number>(1);
   const [totalPages, setTotalPages] = useState<number>(0);
+  const [labelString, setLabelString] = useState<string>("");
 
   useEffect(() => {
     if (!image) {
@@ -288,17 +280,10 @@ export default function UploadPage() {
     }, 1000);
   };
 
-  const handleConfirm = useCallback(() => {
-    setIsLoading(true);
-    setTimeout(() => {
-      setIsConfirmed(true);
-      setIsLoading(false);
-    }, 1000);
-  }, []);
-
   const onSubmit = async (data: any) => {
     setLoading(true);
     console.log(">> submit");
+    setIsConfirmed(true);
     const reader = new FileReader();
     reader.onloadend = async () => {
       const supabase = createClient();
@@ -307,14 +292,15 @@ export default function UploadPage() {
         try {
           const imageUrl = await storeImageToStorage(base64);
           setImage(imageUrl);
-          setGender(data.gender)
+          setGender(data.gender);
+          const label_string = await getLabelStringForImageSearch(gender, "gpt-4o-mini", imageUrl);
+          setLabelString(label_string);
           const {
             data: { user },
           } = await supabase.auth.getUser();
-          const res = await handleImageSearch(
+          const res = await handleSearch(
+            label_string,
             data.gender,
-            "gpt-4o-mini",
-            imageUrl,
             1
           );
           setCurrentStep(4);
@@ -343,10 +329,6 @@ export default function UploadPage() {
     const NUM_MAX_SUGGESTION: number = 3;
     const NUM_MAX_ITEM: number = 10;
   };
-
-  if (isConfirmed) {
-    return <ConfirmationAnimation />;
-  }
 
   if (isLoading) {
     return <Skeleton />;
@@ -410,6 +392,24 @@ export default function UploadPage() {
                 id={""}
                 index={0}
                 expandOnMount={true} expandable={false} />
+                {
+                  results.length > 0 &&
+                  <div className="mt-8 w-full flex items-center justify-center">
+                    <PaginationBar
+                      currentPage={page}
+                      totalPages={totalPages}
+                        onPageChange={async (page: number) => {
+                          setPage(page);
+                          setLoading(true);
+                          console.log(labelString)
+                          const res = await handleSearch(labelString, gender, page);
+                          console.log(res);
+                          setResults([...(res?.series as Series[])] as Series[]);
+                          setLoading(false);
+                        }}
+                    />
+                  </div>
+                }
             </div>
           )}
         </div>
