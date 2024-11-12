@@ -22,14 +22,14 @@ const validateLabelString = (
 
     let cleanedLabel = recommendationsArray
       .filter((rec) =>
-        [...requiredKeys, ...specificKeys].every((key) => key in rec.item)
+        true
       )
       .map((rec) => ({
         styleName: rec.styleName,
         description: rec.description,
         labelString: generateLabelString(rec, clothingType),
       }));
-    // console.log("validated result = ", cleanedLabel);
+    console.log("in function validated result = ", cleanedLabel);
     return cleanedLabel;
   } catch (error) {
     console.error("Error in validateRecommendation:", error);

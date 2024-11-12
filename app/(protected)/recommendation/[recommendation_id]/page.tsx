@@ -12,7 +12,7 @@ const RecommendationPage = async ({
   params,
   searchParams,
 }: {
-  params: { recommendation_id: number };
+  params: { recommendation_id: string };
   searchParams?: { [key: string]: string | undefined };
   }) => {
   const supabase = createClient();
@@ -21,9 +21,8 @@ const RecommendationPage = async ({
     data: { user },
     error,
   } = await supabase.auth.getUser();
-  const { recommendation_id } = await params; 
   const recommendation: Recommendation = (await getRecommendationRecordById(
-    recommendation_id, user?.id as string
+    parseInt(params.recommendation_id), user?.id as string
   )) as Recommendation;
   if (!recommendation) return <div className="w-full h-full flex flex-col gap-8 items-center justify-center">
     <p className="text-red-400 font-bold">

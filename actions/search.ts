@@ -114,4 +114,4 @@ const getLabelStringForTextSearch = async (
   }
 };
 
-export { getLabelStringForImageSearch, handleSearch, getLabelStringForTextSearch}
+export { getLabelStringForImageSearch, getLabelStringForTextSearch, handleSearch };

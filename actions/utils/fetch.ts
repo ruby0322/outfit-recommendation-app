@@ -5,10 +5,10 @@ import {
   ParamTable,
   RecommendationTable,
   ResultTable,
-  SuggestionTable,
-  UploadTable,
   Series,
-  SimplifiedItemTable
+  SimplifiedItemTable,
+  SuggestionTable,
+  UploadTable
 } from "@/type";
 import { handleDatabaseError } from '../activity';
 import { isFavorite } from '../favorite';
@@ -154,7 +154,7 @@ const getSeriesByIdsForSearching = async (
   user_id?: string,
 ): Promise<Series[] | null> => {
   try {
-    console.time("getSeriesByIdsForSearching");
+    // console.time("getSeriesByIdsForSearching");
 
     const matViewName = gender === "neutral" ? "all_item_matview" : `${gender}_item_matview`;
     const uniqueSeriesIds = Array.from(new Set(series_ids));
@@ -205,7 +205,7 @@ const getSeriesByIdsForSearching = async (
       seriesArray.push(series);
     }
 
-    console.timeEnd("getSeriesByIdsForSearching");
+    // console.timeEnd("getSeriesByIdsForSearching");
     return seriesArray.length > 0 ? seriesArray : null;
   } catch (error) {
     handleDatabaseError(error, "getSeriesByIdsForSearching");
@@ -222,7 +222,7 @@ const getSeriesForRecommendation = async (
   user_id: string
 ): Promise<Series[] | null> => {
   try {
-    console.time("getSeriesForRecommendation");
+    // console.time("getSeriesForRecommendation");
     let clothingTypeString = clothingType === "top" ? "bottom" : "top";
     let genderString = gender === "neutral" ? "all" : gender;
 
@@ -266,7 +266,7 @@ const getSeriesForRecommendation = async (
       seriesArray.push(series);
     }
     
-    console.timeEnd("getSeriesForRecommendation");
+    // console.timeEnd("getSeriesForRecommendation");
     return seriesArray.length > 0 ? seriesArray : null;
   } catch (error) {
     handleDatabaseError(error, "getSeriesForRecommendation");
@@ -281,10 +281,8 @@ export {
   getParamById,
   getRecommendationById,
   getResults,
-  getSeriesById,
-  getSeriesIdsByItemIds,
+  getSeriesById, getSeriesByIdsForSearching,
+  getSeriesForRecommendation, getSeriesIdsByItemIds,
   getSuggestion,
-  getUploadById,
-  getSeriesByIdsForSearching,
-  getSeriesForRecommendation
+  getUploadById
 };
