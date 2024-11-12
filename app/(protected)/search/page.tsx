@@ -25,7 +25,7 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 import { createClient } from "@/utils/supabase/client";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 const schema = z.object({
   uploadedImage: (typeof window === "undefined"
@@ -80,11 +80,12 @@ const searchQueriesRand = [
 ]
 
 export default function SearchPage() {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const [totalPages, setTotalPages] = useState<number>(0);
-  const [labelString, setLabelString] = useState<string>(searchParams.get('label_string') || '');
-  const [query, setQuery] = useState<string>(searchParams.get('title') ? (searchParams.get('title')+'的類似單品') : "");
-  const [gender, setGender] = useState<Gender>(searchParams.get('gender') || 'neutral');
+  const [labelString, setLabelString] = useState<string>('');
+  const [query, setQuery] = useState<string>("");
+  const [gender, setGender] = useState<Gender>('neutral');
   const [loading, setLoading] = useState<boolean>(false);
   const [searchInput, setSearchInput] = useState("");
   const [results, setResults] = useState<Series[]>([]);
@@ -104,14 +105,29 @@ export default function SearchPage() {
         data: { user: userResponse },
       } = await supabase.auth.getUser();
       setUserId(userResponse?.id as string);
+    })();
+  }, []);
+  useEffect(() => {
+    (async () => {
       if (searchParams.get('label_string') && searchParams.get('gender') && searchParams.get('title')) {
-        const res = await handleSearch(labelString, gender, page, undefined, undefined, undefined, undefined, userResponse?.id);
+        setLoading(true);
+        setQuery(searchParams.get('title') as string + '的類似單品');
+        setLabelString(searchParams.get('label_string') as string);
+        setGender(searchParams.get('gender') as string);
+        const supabase = createClient();
+        const {
+          data: { user: userResponse },
+        } = await supabase.auth.getUser();
+        setUserId(userResponse?.id as string);
+        const res = await handleSearch(searchParams.get('label_string') as string, searchParams.get('gender'), page, undefined, undefined, undefined, undefined, userResponse?.id);
         setResults([...(res?.series as Series[])] as Series[]);
         setTotalPages(res?.totalPages as number);
         setPage(1);
+        setLoading(false);
+        router.push('/search')
       }
     })();
-  }, []);
+  }, [searchParams]);
 
   function getRandomItem(array: string[]) {
     const randomIndex = Math.floor(Math.random() * array.length);
