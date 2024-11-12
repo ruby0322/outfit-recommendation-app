@@ -243,6 +243,16 @@ const semanticSearchForSearching = async ({
   user_id?: string;
 }): Promise<SearchResult | null> => {
   try {
+    console.log({
+      suggestedLabelString,
+      gender,
+      priceLowerBound,
+      priceUpperBound,
+      providers,
+      clothingType,
+      page,
+      user_id,
+    });
     const searchResultData = await vectorSearchForSearching(
       suggestedLabelString,
       page,

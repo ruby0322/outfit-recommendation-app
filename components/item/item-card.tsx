@@ -2,7 +2,7 @@
 
 import { Card } from "@/components/ui/card";
 import { Series, SimplifiedItemTable } from "@/type";
-import { Copy, EllipsisVertical, Heart, ScanSearch, ScanText, Shirt, ShoppingBag, X } from "lucide-react";
+import { Copy, EllipsisVertical, Heart, ScanText, Shirt, ShoppingBag, TextSearch, X } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -144,7 +144,7 @@ export function ItemInfoDialog({
 }
 
 
-export function MoreOptions({ children, series }: { children: React.ReactNode, series: Series }) {
+export function MoreOptions({ children, item }: { children: React.ReactNode, item: SimplifiedItemTable }) {
   
   const [dialogOpen, setDialogOpen] = useState<boolean>(false);
   return (
@@ -155,16 +155,18 @@ export function MoreOptions({ children, series }: { children: React.ReactNode, s
         </DropdownMenuTrigger>
         <DropdownMenuContent className="w-fit bg-gray-50 border-0 shadow-none text-gray-500">
           <DropdownMenuLabel className="text-gray-700">進階動作</DropdownMenuLabel>
-          <Link href={series.items[0].external_link as string} target="_blank">
+          <Link href={item.external_link as string} target="_blank">
             <DropdownMenuItem className="gap-2 cursor-pointer hover:bg-gray-200">
               <ShoppingBag className="w-4 h-4" />
               <span>前往商場購買</span>
             </DropdownMenuItem>
           </Link>
-          <DropdownMenuItem className="gap-2 cursor-pointer hover:bg-gray-200">
-            <ScanSearch className="w-4 h-4" />
-            <span>尋找類似單品</span>
-          </DropdownMenuItem>
+          <Link href={`/search?title=${item.title}&gender=${item.gender}&label_string=${item.label_string}`}>
+            <DropdownMenuItem className="gap-2 cursor-pointer hover:bg-gray-200">
+              <TextSearch className="w-4 h-4" />
+              <span>尋找類似單品</span>
+            </DropdownMenuItem>
+          </Link>
           <DropdownMenuItem className="gap-2 cursor-pointer hover:bg-gray-200">
             <Shirt className="w-4 h-4" />
             <span>進行穿搭推薦</span>
@@ -175,7 +177,7 @@ export function MoreOptions({ children, series }: { children: React.ReactNode, s
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
-      <ItemInfoDialog item={series.items[0]} open={dialogOpen} setOpen={setDialogOpen} />
+      <ItemInfoDialog item={item} open={dialogOpen} setOpen={setDialogOpen} />
     </>
   )
 }
@@ -279,7 +281,7 @@ const ItemCard = ({ series, userId }: { series: Series, userId?: string | null }
           <motion.button whileTap={{ scale: 0.9 }}>
             <Heart onClick={toggleFavorite} className='text-rose-300 cursor-pointer' {...(isFavorite ? { fill: '#fca5a5' } : { })} />
           </motion.button>
-          <MoreOptions series={series}>
+          <MoreOptions item={series.items[0]}>
             <motion.button whileTap={{ scale: 0.9 }}>
               <EllipsisVertical className='text-gray-500 cursor-pointer' />
             </motion.button>
