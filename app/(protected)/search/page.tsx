@@ -35,11 +35,16 @@ const schema = z.object({
   ).refine((files) => files.length > 0, "請上傳圖片"),
 });
 
-export default function SearchPage() {
+export default function SearchPage({ params }: {
+  params: {
+    label_string?: string;
+    gender?: string;
+  }
+}) {
   const [totalPages, setTotalPages] = useState<number>(0);
-  const [labelString, setLabelString] = useState<string>('');
+  const [labelString, setLabelString] = useState<string>(params.label_string || '');
   const [query, setQuery] = useState<string>("");
-  const [gender, setGender] = useState<Gender>('neutral');
+  const [gender, setGender] = useState<Gender>(params || 'neutral');
   const [loading, setLoading] = useState<boolean>(false);
   const [searchInput, setSearchInput] = useState("");
   const [results, setResults] = useState<Series[]>([]);
