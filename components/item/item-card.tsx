@@ -18,9 +18,9 @@ import {
   SliderMainItem,
 } from "@/components/ui/extension/carousel";
 import { cn } from "@/lib/utils";
+import { motion } from "framer-motion";
 import { useState } from "react";
 import { Badge } from "../ui/badge";
-import { motion } from "framer-motion";
 
 const PROVIDER_CLASSNAME_MAPPING: { [k: string]: string } = {
   'UNIQLO': 'bg-blue-100 hover:bg-blue-100 text-gray-800',
@@ -28,7 +28,7 @@ const PROVIDER_CLASSNAME_MAPPING: { [k: string]: string } = {
   'H&M': 'bg-violet-100 hover:bg-violet-100 text-vigray-800'
 };  
 
-const ItemCard = ({ series, userId }: { series: Series, userId?: string }) => {
+const ItemCard = ({ series, userId }: { series: Series, userId?: string | null }) => {
 
   const [isFavorite, setIsFavorite] = useState<boolean>(series.isFavorite);
 

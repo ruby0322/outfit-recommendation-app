@@ -1,7 +1,7 @@
 "use server";
+import prisma from "@/prisma/db";
 import { Series } from "@/type";
 import { handleDatabaseError } from "./activity";
-import prisma from "@/prisma/db";
 import { getSeriesById } from "./utils/fetch";
 
 //insert and delete using the same function
@@ -91,7 +91,7 @@ const getFavoriteByUserId = async (
     );
 
     const series: Series[] = favoriteItems
-      .filter(items => items !== null)
+      .filter(items => !!items)
       .map(items => ({
         items: items.map(item => ({
           ...item, 
@@ -108,4 +108,4 @@ const getFavoriteByUserId = async (
 };
 
 
-export { handleFavorite, isFavorite, getFavoriteByUserId };
+export { getFavoriteByUserId, handleFavorite, isFavorite };
