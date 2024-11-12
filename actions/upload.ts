@@ -35,7 +35,7 @@ const handleRecommendation = async (
     let recommendations: string | null = null;
     let cleanedRecommendations: ValidatedRecommendation[] = [];
 
-    while (!recommendations || cleanedRecommendations.length === 0) {
+    while (recommendations?.length === 0 || cleanedRecommendations.length === 0) {
       const prompt = constructPromptForRecommendation({ clothingType, gender, numMaxSuggestion });
       recommendations = await sendImgURLAndPromptToGPT({ model, prompt, imageUrl });
 
@@ -67,7 +67,6 @@ const handleRecommendation = async (
         numMaxItem,
         gender,
         clothing_type: clothingType,
-        user_id: userId,
       });
       await insertResults(results as UnstoredResult[]);
       return 0;
