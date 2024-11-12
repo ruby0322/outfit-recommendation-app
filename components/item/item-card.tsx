@@ -2,7 +2,7 @@
 
 import { Card } from "@/components/ui/card";
 import { Series } from "@/type";
-import { EllipsisVertical, Heart } from "lucide-react";
+import { EllipsisVertical, Heart, ScanSearch, Shirt } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -27,6 +27,37 @@ const PROVIDER_CLASSNAME_MAPPING: { [k: string]: string } = {
   'Fifty Percent': 'bg-rose-100 hover:bg-rose-100 text-gray-800',
   'H&M': 'bg-violet-100 hover:bg-violet-100 text-vigray-800'
 };  
+
+
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuTrigger
+} from "@/components/ui/dropdown-menu";
+
+export function MoreOptions({ children }: { children: React.ReactNode }) {
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        { children }
+      </DropdownMenuTrigger>
+      <DropdownMenuContent className="w-fit bg-gray-50 shadow-none">
+        <DropdownMenuLabel>進階動作</DropdownMenuLabel>
+        <DropdownMenuItem className="gap-2 cursor-pointer">
+          <ScanSearch className="w-4 h-4" />
+          <span>尋找類似單品</span>
+        </DropdownMenuItem>
+        <DropdownMenuItem className="gap-2 cursor-pointer">
+          <Shirt className="w-4 h-4" />
+          <span>進行穿搭推薦</span>
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  )
+}
+
 
 const ItemCard = ({ series, userId }: { series: Series, userId?: string | null }) => {
 
@@ -123,10 +154,14 @@ const ItemCard = ({ series, userId }: { series: Series, userId?: string | null }
       <div className='pb-2 flex justify-between'>
         <p>NTD {series.items[0].price as number}</p>
         <div className='flex justify-end gap-1'>
-          <motion.button>
+          <motion.button whileTap={{ scale: 0.9 }}>
             <Heart onClick={toggleFavorite} className='text-rose-300 cursor-pointer' {...(isFavorite ? { fill: '#fca5a5' } : { })} />
           </motion.button>
-          <EllipsisVertical className='text-indigo-300 cursor-pointer' />
+          <MoreOptions>
+            <motion.button whileTap={{ scale: 0.9 }}>
+              <EllipsisVertical className='text-gray-500 cursor-pointer' />
+            </motion.button>
+          </MoreOptions>
         </div>
       </div>
     </Card>

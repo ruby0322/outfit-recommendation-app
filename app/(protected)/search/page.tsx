@@ -24,6 +24,7 @@ import {
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
+import { createClient } from "@/utils/supabase/client";
 
 const schema = z.object({
   uploadedImage: (typeof window === "undefined"
@@ -49,7 +50,19 @@ export default function SearchPage() {
   const [selectedType, setSelectedType] = useState<string>(""); // 款式
   const [isExpanded, setIsExpanded] = useState(false);
   const [page, setPage] = useState<number>(1);
+  const [userId, setUserId] = useState<string | null>(null);
 
+
+  useEffect(() => {
+    (async () => {
+      const supabase = createClient();
+      const {
+        data: { user: userResponse },
+      } = await supabase.auth.getUser();
+      setUserId(userResponse?.id as string);
+    })();
+  }, []);
+  
   const searchQueriesDescription = [
     "請給我一件寬鬆、舒適的長褲。",
     "我想要一件合身的西裝。",
@@ -117,13 +130,23 @@ export default function SearchPage() {
     setLoading(true);
     const label = await getLabelStringForTextSearch(gender, "gpt-4o-mini",searchInput);
     setLabelString(label);
-    const res = await handleSearch(label, gender, page);
+    const res = await handleSearch(label, gender, page, undefined, undefined, undefined, undefined, userId as string);
     setResults([...(res?.series as Series[])] as Series[]);
     setTotalPages(res?.totalPages as number);
     setPage(1);
     setQuery(searchInput);
     setSearchInput("");
     // console.log(res?.series);
+    setLoading(false);
+  };
+
+  const handlePageNavigation = async (page: number) => {
+    setPage(page);
+    setLoading(true);
+    console.log(labelString)
+    const res = await handleSearch(labelString, gender, page, undefined, undefined, undefined, undefined, userId as string);
+    console.log(res);
+    setResults([...(res?.series as Series[])] as Series[]);
     setLoading(false);
   };
 
@@ -298,15 +321,7 @@ export default function SearchPage() {
           <PaginationBar
             currentPage={page}
             totalPages={totalPages}
-              onPageChange={async (page: number) => {
-                setPage(page);
-                setLoading(true);
-                console.log(labelString)
-                const res = await handleSearch(labelString, gender, page);
-                console.log(res);
-                setResults([...(res?.series as Series[])] as Series[]);
-                setLoading(false);
-              }}
+              onPageChange={handlePageNavigation}
           />
         </div>
       }
