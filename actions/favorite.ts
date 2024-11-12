@@ -1,6 +1,7 @@
 "use server";
 import prisma from "@/prisma/db";
 import { Series } from "@/type";
+import { revalidatePath } from "next/cache";
 import { handleDatabaseError } from "./activity";
 import { getSeriesById } from "./utils/fetch";
 
@@ -28,6 +29,8 @@ const handleFavorite = async (
           },
         },
       });
+      revalidatePath('/closet');
+      revalidatePath('/recommendation');
       return 0;
     } else {
       await prisma.favorite.create({
@@ -36,6 +39,7 @@ const handleFavorite = async (
           series_id,
         },
       });
+      revalidatePath('/recommendation');
       return 1;
     }
   } catch (error) {

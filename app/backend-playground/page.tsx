@@ -1,19 +1,9 @@
 "use server";
 
-import { getFavoriteByUserId, handleFavorite } from "@/actions/favorite";
-import { getRecommendationRecordById } from "@/actions/recommendation";
-import { handleRecommendation } from "@/actions/upload";
-import { getRecommendationById } from "@/actions/utils/fetch";
 
 
 export default async function Playground2() {
   try {
-    let user_id = "64d2474a-2ac8-4775-ab5e-2c8a31bb037c";
-    let image_url = "https://eapzlwxcyrinipmcdoir.supabase.co/storage/v1/object/public/image/image-00ee47f4-8768-42d9-b68b-29a0702243ea";
-    // const recommendation = await handleRecommendation("top", "female", "gpt-4o-mini", user_id, 3, 10, image_url);
-    // console.log("playground = ", recommendation);
-    // const result = await getRecommendationRecordById(recommendation, user_id);
-    // console.log(result);
     // const favorite = await handleFavorite("64d2474a-2ac8-4775-ab5e-2c8a31bb037c", "0475159c-a171-464e-9d09-733839340744");
     // const favorite2 = await handleFavorite("64d2474a-2ac8-4775-ab5e-2c8a31bb037c", "c3fa429a-e49c-471a-b67f-c5cedb5e1cb4");
     // const result = await getFavoriteByUserId("64d2474a-2ac8-4775-ab5e-2c8a31bb037c");

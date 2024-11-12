@@ -132,14 +132,12 @@ const semanticSearchForRecommendation = async ({
   numMaxItem,
   gender,
   clothing_type,
-  user_id,
 }: {
   suggestionId: number;
   suggestedLabelString: string;
   numMaxItem: number;
   gender: Gender;
   clothing_type: ClothingType;
-  user_id?: string;
 }): Promise<UnstoredResult[] | null> => {
   try {
     const similarItems = await vectorSearchForRecommendation(

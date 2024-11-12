@@ -35,7 +35,7 @@ const ItemCard = ({ series, userId }: { series: Series, userId?: string | null }
   const toggleFavorite = async () => {
     if (!userId) return;
     setIsFavorite(!isFavorite);
-    await handleFavorite(userId, series.items[0].id);
+    await handleFavorite(userId, series.items[0].series_id);
   }
   
   return (

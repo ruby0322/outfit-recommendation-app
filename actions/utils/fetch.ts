@@ -167,16 +167,6 @@ const getSeriesByIdsForSearching = async (
       ...uniqueSeriesIds
     );
 
-    let favoriteStatus: Record<string, boolean> = {};
-    if (user_id !== undefined) {
-      favoriteStatus = await Promise.all(
-        uniqueSeriesIds.map(async (seriesId) => {
-          const isFav = await isFavorite(user_id, seriesId);
-          return { [seriesId]: isFav };
-        })
-      ).then(results => results.reduce((acc, curr) => ({ ...acc, ...curr }), {}));
-    }
-
     for (const seriesId of uniqueSeriesIds) {
       const seriesItems = items.filter(item => item.series_id === seriesId);
 
@@ -185,7 +175,15 @@ const getSeriesByIdsForSearching = async (
         continue;
       }
 
-      const isFavoriteStatus = favoriteStatus[seriesId] || false;
+      // Determine the isFavorite status, checking if user_id is provided
+      const isFavorite = user_id
+        ? await prisma.favorite.findFirst({
+            where: {
+              user_id: user_id,
+              series_id: seriesId,
+            },
+          }) !== null
+        : false;
 
       const originalItems = seriesItems.filter(item => originalItemIds.includes(item.id));
       const otherItems = seriesItems.filter(item => !originalItemIds.includes(item.id));
@@ -200,7 +198,7 @@ const getSeriesByIdsForSearching = async (
 
       const series: Series = {
         items: sortedItems,
-        isFavorite: isFavoriteStatus,
+        isFavorite: isFavorite,
       };
       seriesArray.push(series);
     }
@@ -212,7 +210,6 @@ const getSeriesByIdsForSearching = async (
     return null;
   }
 };
-
 
 const getSeriesForRecommendation = async (
   series_ids: string[],
@@ -227,6 +224,7 @@ const getSeriesForRecommendation = async (
     let genderString = gender === "neutral" ? "all" : gender;
 
     const viewName = `${genderString}_${clothingTypeString}_item_matview`;
+    console.log("viewName =", viewName);
   
     const uniqueSeriesIds = Array.from(new Set(series_ids));
     const seriesArray: Series[] = [];
