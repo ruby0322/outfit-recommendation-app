@@ -48,17 +48,17 @@ const getRecommendationRecordById = async (
       const styleName = s.style_name as string;
       const description = s.description as string;
       const results = (await getResults(s.id)) as ResultTable[];
-      if (!results.length) throw new Error("No results found");
+      if (!results.length) throw new Error(`No results found for style: ${styleName}`);
 
       const item_ids = results.map((r) => r.item_id) as string[];
 
       const series_ids = (await getSeriesIdsByItemIds(item_ids)) as string[];
-      if (!series_ids.length) throw new Error("No series IDs found");
+      if (!series_ids.length) throw new Error("No series IDs found for the given items");
 
       const gender = recommendation_record.gender ?? "neutral";
       const clothingType = recommendation_record.clothingType ?? "top";
       const series = (await getSeriesForRecommendation(series_ids, item_ids, gender, clothingType, user_id)) as Series[];
-      if (!series) throw new Error("No series found");
+      if (!series || series.length === 0) throw new Error("No series found for the given series IDs");
 
       recommendation_record.styles![styleName] = {
         series,
@@ -72,7 +72,6 @@ const getRecommendationRecordById = async (
     return null;
   }
 };
-
 
 export { getRecommendationRecordById };
 
