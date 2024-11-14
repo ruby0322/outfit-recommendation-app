@@ -40,7 +40,7 @@ const getLabelStringForImageSearch = async (
       }
       console.log("Image Search recommendation: ", cleanedLabels);
 
-      if (!rawLabelString || cleanedLabels.length === 0) {
+      if (rawLabelString?.length === 0 || cleanedLabels.length === 0) {
         console.warn("Retrying sendImgURLAndPromptToGPT due to invalid results...");
       }
       attempts++;
@@ -82,7 +82,7 @@ const getLabelStringForTextSearch = async (
         cleanedLabels = validateLabelString(rawLabelString);
       }
 
-      if (!rawLabelString || cleanedLabels.length === 0) {
+      if (rawLabelString?.length === 0 || cleanedLabels.length === 0) {
         console.warn("Retrying sendPromptToGPT due to invalid results...");
       }
       attempts++;
