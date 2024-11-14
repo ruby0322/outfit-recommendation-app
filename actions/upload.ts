@@ -34,15 +34,22 @@ const handleRecommendation = async (
   try {
     let recommendations: string | null = null;
     let cleanedRecommendations: ValidatedRecommendation[] = [];
+    const maxRetries = 5;
+    let attempts = 0;
 
-    while (!recommendations || cleanedRecommendations.length === 0) {
+    while (recommendations?.length === 0 || cleanedRecommendations.length === 0) {
+      if (attempts >= maxRetries) {
+        console.error("Max retries reached for handling recommendation.");
+        return -1;
+      }
+      console.log(`handleRecommendation while loop at iteration ${attempts}`);
       const prompt = constructPromptForRecommendation({ clothingType, gender, numMaxSuggestion });
       recommendations = await sendImgURLAndPromptToGPT({ model, prompt, imageUrl });
-      console.log("GPT recommendations= ", recommendations);
 
       if (!recommendations) continue;
 
       cleanedRecommendations = validateLabelString(recommendations, clothingType);
+      attempts++;
     }
     const uploadId: number = await insertUpload(imageUrl, userId);
     const paramId: number = await insertParam(gender, clothingType, model);
@@ -66,7 +73,6 @@ const handleRecommendation = async (
         numMaxItem,
         gender,
         clothing_type: clothingType,
-        user_id: userId,
       });
       await insertResults(results as UnstoredResult[]);
       return 0;
@@ -90,8 +96,15 @@ const handleRecommendationWithoutLogin = async (
   try {
     let rawLabelString: string | null = null;
     let cleanedLabels: ValidatedRecommendation[] = [];
+    const maxRetries = 5;
+    let attempts = 0;
 
-    while (!rawLabelString || cleanedLabels.length === 0) {
+    while (rawLabelString?.length === 0 || cleanedLabels.length === 0) {
+      if (attempts >= maxRetries) {
+        console.error("Max retries reached for hendling recommendation without login.");
+        return null;
+      }
+      console.log(`handleRecommendationWithoutLogin while loop at iteration ${attempts}`);
       const prompt = constructPromptForRecommendation({ clothingType, gender, numMaxSuggestion });
       rawLabelString = await sendImgURLAndPromptToGPT({ model, prompt, imageUrl });
 
@@ -100,9 +113,10 @@ const handleRecommendationWithoutLogin = async (
       }
       console.log("GPT recommendations= ", cleanedLabels);
 
-      if (!rawLabelString || cleanedLabels.length === 0) {
+      if (rawLabelString?.length === 0 || cleanedLabels.length === 0) {
         console.warn("Retrying sendImgURLAndPromptToGPT due to invalid results...");
       }
+      attempts++;
     }
     const recommendations: Recommendation[] = [];
 
@@ -133,6 +147,7 @@ const handleRecommendationWithoutLogin = async (
         recommendations.push(recommendation);
       } else {
         console.error("No results found in semanticSearchWithoutLogin for label:", labelString);
+        return null;
       }
     }
 

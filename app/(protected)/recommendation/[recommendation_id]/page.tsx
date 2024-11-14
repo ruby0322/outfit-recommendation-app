@@ -12,7 +12,7 @@ const RecommendationPage = async ({
   params,
   searchParams,
 }: {
-  params: { recommendation_id: number };
+  params: { recommendation_id: string };
   searchParams?: { [key: string]: string | undefined };
   }) => {
   const supabase = createClient();
@@ -21,9 +21,8 @@ const RecommendationPage = async ({
     data: { user },
     error,
   } = await supabase.auth.getUser();
-  const { recommendation_id } = await params; 
   const recommendation: Recommendation = (await getRecommendationRecordById(
-    recommendation_id, user?.id as string
+    parseInt(params.recommendation_id), user?.id as string
   )) as Recommendation;
   if (!recommendation) return <div className="w-full h-full flex flex-col gap-8 items-center justify-center">
     <p className="text-red-400 font-bold">
@@ -48,6 +47,7 @@ const RecommendationPage = async ({
       </div>
       <div className='flex flex-col gap-4 justify-center items-center md:max-w-[80vw]'>
         {Object.keys(recommendation.styles).map((recommendedStyle, index) => {
+          console.log(recommendation.styles[recommendedStyle].series);
           return (
             <ItemList
               key={`recommended-style-${index}`}

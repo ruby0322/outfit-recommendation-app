@@ -1,14 +1,15 @@
 "use server";
-import { Series } from "@/type";
-import { handleDatabaseError } from "./activity";
 import prisma from "@/prisma/db";
+import { Series } from "@/type";
+import { revalidatePath } from "next/cache";
+import { handleDatabaseError } from "./activity";
 import { getSeriesById } from "./utils/fetch";
 
-//insert and delete using the same function
+// Insert and delete using the same function
 const handleFavorite = async (
   user_id: string,
   series_id: string,
-): Promise<number> => {
+): Promise<number | null> => {
   try {
     const existingFavorite = await prisma.favorite.findUnique({
       where: {
@@ -28,6 +29,8 @@ const handleFavorite = async (
           },
         },
       });
+      revalidatePath('/closet');
+      revalidatePath('/recommendation');
       return 0;
     } else {
       await prisma.favorite.create({
@@ -36,11 +39,11 @@ const handleFavorite = async (
           series_id,
         },
       });
+      revalidatePath('/recommendation');
       return 1;
     }
   } catch (error) {
-    handleDatabaseError(error, "toggleFavorite");
-    return -1;
+    return handleDatabaseError(error, "handleFavorite");
   }
 };
 
@@ -49,7 +52,6 @@ const isFavorite = async (
   series_id: string,
 ): Promise<boolean> => {
   try {
-
     const favorite = await prisma.favorite.findUnique({
       where: {
         user_id_series_id: {
@@ -58,7 +60,6 @@ const isFavorite = async (
         }
       }
     });
-    // console.log("favorite: ", favorite);
 
     return favorite !== null;
   } catch (error) {
@@ -91,7 +92,7 @@ const getFavoriteByUserId = async (
     );
 
     const series: Series[] = favoriteItems
-      .filter(items => items !== null)
+      .filter(items => !!items)
       .map(items => ({
         items: items.map(item => ({
           ...item, 
@@ -107,5 +108,4 @@ const getFavoriteByUserId = async (
   }
 };
 
-
-export { handleFavorite, isFavorite, getFavoriteByUserId };
+export { getFavoriteByUserId, handleFavorite, isFavorite };
