@@ -153,8 +153,8 @@ function ConfirmButton({ isConfirmed, disabled }: { isConfirmed: boolean, disabl
         className={cn(
           "transition-opacity duration-300 w-full px-8 py-2 rounded-md",
           isConfirmed
-          ? "bg-red-400 hover:bg-red-300"
-          : "bg-indigo-400 hover:bg-indigo-300"
+          ? `bg-red-400 hover:bg-red-300`
+          : `bg-indigo-400 hover:bg-indigo-300`,
         )}
         type='submit'
         loading={isConfirmed}
@@ -189,6 +189,7 @@ export default function UploadPage() {
   const [page, setPage] = useState<number>(1);
   const [totalPages, setTotalPages] = useState<number>(0);
   const [labelString, setLabelString] = useState<string>("");
+  const [imageChanged, setImageChanged] = useState<boolean>(false);
 
   useEffect(() => {
     if (!image) {
@@ -223,7 +224,8 @@ export default function UploadPage() {
           setIsConfirmed(false);
           setResults([...(res?.series ?? [])] as Series[]);
           setTotalPages(res?.totalPages as number);
-          setLoading(false)
+          setLoading(false);
+          setImageChanged(false);
         } catch (error) {
           console.error("Error in onSubmit:", error);
         }
@@ -274,9 +276,10 @@ export default function UploadPage() {
         <FormProvider {...methods}>
             <form onSubmit={methods.handleSubmit(onSubmit)}>
               <div className="flex flex-col gap-4">
-                <ImageUpload onImageUpload={() => {}} />
+                <ImageUpload onImageUpload={() => {setImageChanged(true)}} />
+                <div className="flex justify-center text-gray-400">點擊圖片更換上傳內容</div>
                 <FormFields />
-                <ConfirmButton isConfirmed={isConfirmed} disabled={!getValues()['uploadedImage'] || getValues()['uploadedImage'].length === 0 || !gender}/>
+                <ConfirmButton isConfirmed={isConfirmed} disabled={!getValues()['uploadedImage'] || getValues()['uploadedImage'].length === 0 || !gender || !imageChanged}/>
               </div>
             </form>
           </FormProvider>
