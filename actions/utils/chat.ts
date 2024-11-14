@@ -12,7 +12,7 @@ const sendImgURLAndPromptToGPT = async ({
   imageUrl: string;
 }): Promise<string | null> => {
   const NUM_MAX_RETRIES = 5;
-  const RETRY_BASE_WAIT_TIME = 1000; // Base wait time in milliseconds
+  const RETRY_BASE_WAIT_TIME = 600;
 
   for (let numRetries = 0; numRetries < NUM_MAX_RETRIES; ++numRetries) {
     try {

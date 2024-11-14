@@ -231,7 +231,7 @@ const getSeriesForRecommendation = async (
     let genderString = gender === "neutral" ? "all" : gender;
 
     const viewName = `${genderString}_${clothingTypeString}_item_matview`;
-    console.log("viewName =", viewName);
+    // console.log("viewName =", viewName);
   
     const uniqueSeriesIds = Array.from(new Set(series_ids));
     const seriesArray: Series[] = [];

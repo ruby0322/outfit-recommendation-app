@@ -6,7 +6,7 @@ const validateLabelString = (
   clothingType?: ClothingType
 ): ValidatedRecommendation[] => {
   try {
-    console.log("Received recommendations string:", recommendations);
+    // console.log("Received recommendations string:", recommendations);
 
     if (typeof recommendations !== "string") {
       console.log("Recommendations is not a string:", recommendations);
