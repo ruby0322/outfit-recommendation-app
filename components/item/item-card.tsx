@@ -233,7 +233,7 @@ const ItemCard = ({ series, userId }: { series: Series, userId?: string | null }
                   ))}
                 </CarouselMainContainer>
               </Link>
-              <div className='relative w-full bottom-2 left-1/2 -translate-x-1/2'>
+              <div className='relative w-40 md:w-64 bottom-2 left-1/2 -translate-x-1/2'>
                 <CarouselThumbsContainer className='gap-x-1 w-full'>
                   {series.items.map((_, index) => (
                     <CarouselIndicator
