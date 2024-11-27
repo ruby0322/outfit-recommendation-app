@@ -189,6 +189,9 @@ export default function UploadPage() {
   const [userId, setUserId] = useState<string | null>(null);
 
   useEffect(() => {
+    if (!image) {
+      router.push('/image-search');
+    }
     (async () => {
       const supabase = createClient();
       const {
@@ -200,20 +203,11 @@ export default function UploadPage() {
     })();
   }, []);
 
-  useEffect(() => {
-    if (!image) {
-      router.push('/image-search');
-    }
-  }, []);
-
-
   const onSubmit = async (data: any) => {
     setLoading(true);
-    console.log(">> submit");
     setIsConfirmed(true);
     const reader = new FileReader();
     reader.onloadend = async () => {
-      const supabase = createClient();
       if (typeof reader.result === "string") {
         const base64 = reader.result;
         try {
