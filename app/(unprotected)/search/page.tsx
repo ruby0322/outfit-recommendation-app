@@ -153,9 +153,9 @@ export default function SearchPage() {
   const onSubmit = async () => {
     if (!searchInput) return;
     setLoading(true);
-    const label = await getLabelStringForTextSearch(gender, "gpt-4o-mini",searchInput);
-    setLabelString(label);
-    const res = await handleSearch(label, gender, page, userId, undefined, undefined, undefined, undefined);
+    const label = await getLabelStringForTextSearch(gender, "gpt-4o-mini", searchInput);
+    setLabelString(label.labelString);
+    const res = await handleSearch(label.labelString, gender, page, userId, undefined, undefined, undefined, undefined);
     setResults([...(res?.series as Series[])] as Series[]);
     setTotalPages(res?.totalPages as number);
     setPage(1);

@@ -214,13 +214,18 @@ export default function UploadPage() {
           const imageUrl = await storeImageToStorage(base64);
           setImage(imageUrl);
           setGender(data.gender);
-          const label_string = await getLabelStringForImageSearch(gender, "gpt-4o-mini", imageUrl);
-          setLabelString(label_string);
+          const labelString = await getLabelStringForImageSearch(gender, "gpt-4o-mini", imageUrl);
+          setLabelString(labelString.labelString);
+          console.log(labelString);
           const res = await handleSearch(
-            label_string,
+            labelString.labelString,
             data.gender,
             1,
-            userId
+            userId,
+            undefined,
+            undefined,
+            undefined,
+            labelString.clothing_type
           );
           setIsConfirmed(false);
           setResults([...(res?.series ?? [])] as Series[]);
