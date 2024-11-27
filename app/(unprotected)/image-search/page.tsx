@@ -1,31 +1,27 @@
 "use client";
 
-import { handleSearch, getLabelStringForImageSearch } from "@/actions/search";
+import { getLabelStringForImageSearch, handleSearch } from "@/actions/search";
 import { storeImageToStorage } from "@/actions/utils/insert";
 import ItemList from "@/components/item/item-list";
 import ItemListSkeleton from "@/components/item/item-list-skeleton";
-import { Input } from "@/components/ui/input";
-import TourButton from '@/components/tour-button';
+import PaginationBar from "@/components/pagination-bar";
 import { Badge } from "@/components/ui/badge";
 import { LoadingButton } from "@/components/ui/loading-button";
 import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
+import { Series } from "@/type";
 import { createClient } from "@/utils/supabase/client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import imageCompression from 'browser-image-compression';
 import { motion } from "framer-motion";
-import { CheckCircle, ChevronLeft } from "lucide-react";
 import Image from "next/image";
-import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { FormProvider, useForm, useFormContext } from "react-hook-form";
 import { z } from "zod";
 import CustomizationFields from "./customization-fields";
 import ImageUploader from "./image-uploader";
 import Skeleton from "./skeleton";
-import { Gender, Series } from "@/type";
-import PaginationBar from "@/components/pagination-bar";
 
 
 const schema = z.object({
@@ -190,6 +186,19 @@ export default function UploadPage() {
   const [totalPages, setTotalPages] = useState<number>(0);
   const [labelString, setLabelString] = useState<string>("");
   const [imageChanged, setImageChanged] = useState<boolean>(false);
+  const [userId, setUserId] = useState<string | null>(null);
+
+  useEffect(() => {
+    (async () => {
+      const supabase = createClient();
+      const {
+        data: { user: userResponse },
+      } = await supabase.auth.getUser();
+      if (userResponse) {
+        setUserId(userResponse?.id as string);
+      }
+    })();
+  }, []);
 
   useEffect(() => {
     if (!image) {
@@ -213,13 +222,11 @@ export default function UploadPage() {
           setGender(data.gender);
           const label_string = await getLabelStringForImageSearch(gender, "gpt-4o-mini", imageUrl);
           setLabelString(label_string);
-          const {
-            data: { user },
-          } = await supabase.auth.getUser();
           const res = await handleSearch(
             label_string,
             data.gender,
-            1
+            1,
+            userId
           );
           setIsConfirmed(false);
           setResults([...(res?.series ?? [])] as Series[]);
@@ -293,7 +300,7 @@ export default function UploadPage() {
                 title='搜尋結果'
                 description={""}
                 series={results}
-                id={""}
+                id={0}
                 index={0}
                 expandOnMount={true} expandable={false} />
                 {
@@ -306,7 +313,7 @@ export default function UploadPage() {
                           setPage(page);
                           setLoading(true);
                           console.log(labelString)
-                          const res = await handleSearch(labelString, gender, page);
+                          const res = await handleSearch(labelString, gender, page, userId);
                           console.log(res);
                           setResults([...(res?.series as Series[])] as Series[]);
                           setLoading(false);
