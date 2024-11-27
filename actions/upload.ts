@@ -141,6 +141,7 @@ const handleRecommendationWithoutLogin = async (
             default: {
               series: results,
               description: description,
+              suggestion_id: 0
             },
           },
         };

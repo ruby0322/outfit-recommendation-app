@@ -23,15 +23,13 @@ const ClosetPage = async () => {
             title='我的最愛'
             description={'你收藏的服飾都會被收納在這裡'}
             series={favorites}
-            id={""}
+            id={0}
             index={0}
             expandOnMount={true}
             expandable={false}
           />
           <PreviewList
             title='穿搭推薦'
-            id={""}
-            index={0}
             previews={previews}
             description='您過去上傳的推薦照片都會顯示在此，點擊圖片查看推薦結果'
           />
