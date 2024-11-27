@@ -22,7 +22,7 @@ const RecommendationPage = async ({
     error,
   } = await supabase.auth.getUser();
   const recommendation: Recommendation = (await getRecommendationRecordById(
-    parseInt(params.recommendation_id), user?.id as string
+    params.recommendation_id, user !== null ? user.id : null
   )) as Recommendation;
   if (!recommendation) return <div className="w-full h-full flex flex-col gap-8 items-center justify-center">
     <p className="text-red-400 font-bold">
