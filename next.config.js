@@ -41,6 +41,62 @@ const nextConfig = {
       {
         protocol: 'https',
         hostname: 'lp2.hm.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'www.gu-global.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'www.lativ.com.tw',
+      },
+      {
+        protocol: 'https',
+        hostname: 's.lativ.com.tw',
+      },
+      {
+        protocol: 'https',
+        hostname: 'www.meierq.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'pics.meierq.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'www.net-fashion.net',
+      },
+      {
+        protocol: 'https',
+        hostname: 'net.wimg.tw',
+      },
+      {
+        protocol: 'https',
+        hostname: 'www.obdesign.com.tw',
+      },
+      {
+        protocol: 'https',
+        hostname: 'diz36nn4q02zr.cloudfront.net',
+      },
+      {
+        protocol: 'https',
+        hostname: 'www.pazzo.com.tw',
+      },
+      {
+        protocol: 'https',
+        hostname: 'pics.pzcdn.tw',
+      },
+      {
+        protocol: 'https',
+        hostname: 'www.zara.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'static.zara.net',
+      },
+      {
+        protocol: 'https',
+        hostname: 'www.edwin.com.tw',
       }
     ],
   },
