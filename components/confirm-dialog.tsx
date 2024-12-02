@@ -34,7 +34,6 @@ const ConfirmDialog = ({
   };
   return (
     <Dialog open={dialogOpen}>
-      <DialogTitle>,,,</DialogTitle>
       <DialogTrigger asChild>
         <div onClick={onOpenClick as unknown as MouseEventHandler}>
           {children}
@@ -50,7 +49,7 @@ const ConfirmDialog = ({
         className='sm:w-[32rem] w-[88vw]'
       >
         <DialogHeader>
-          {title && <DialogTitle>{title}</DialogTitle>}
+          <DialogTitle>{title}</DialogTitle>
         </DialogHeader>
         {text}
         <DialogFooter>

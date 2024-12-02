@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { LoadingButton } from "@/components/ui/loading-button";
 import { Gender, Series } from "@/type";
 import { SearchIcon, SlidersHorizontal } from "lucide-react";
-import { Suspense, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { z } from "zod";
 
 
@@ -176,7 +176,6 @@ export default function SearchPage() {
   };
 
   return (
-    <Suspense fallback={<div></div>}>
       <div className='container mx-auto px-4 py-8'>
         <div className='max-w-4xl mx-auto'>
           <div className='flex w-full gap-2'>
@@ -352,6 +351,5 @@ export default function SearchPage() {
           </div>
         }
       </div>
-    </Suspense>
   );
 }
