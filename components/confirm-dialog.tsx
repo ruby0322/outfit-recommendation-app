@@ -34,6 +34,7 @@ const ConfirmDialog = ({
   };
   return (
     <Dialog open={dialogOpen}>
+      <DialogTitle>,,,</DialogTitle>
       <DialogTrigger asChild>
         <div onClick={onOpenClick as unknown as MouseEventHandler}>
           {children}
