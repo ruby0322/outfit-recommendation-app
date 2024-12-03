@@ -1,11 +1,12 @@
 "use client";
 
 import { signOut } from "@/actions/utils/user";
+import { cn } from "@/lib/utils";
 import { LogOut } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Button } from "./ui/button";
 
-export default function LogoutButton() {
+export default function LogoutButton({ isMobile } : { isMobile?: boolean }) {
   const router = useRouter();
 
   const onClick = async () => {
@@ -17,9 +18,9 @@ export default function LogoutButton() {
     <Button
       variant='outline'
       onClick={onClick}
-      className='m-0 p-0 border-0 w-full px-4 text-xs rounded-none'
+      className={cn('bg-transparent text-red-400 hover:text-red-500 hover:bg-red-100 m-0 p-0 border-0 w-full px-4 rounded-none', isMobile ? 'text-md' : 'text-xs')}
     >
-      <LogOut className='mr-2 h-3 w-3' />
+      <LogOut className={cn(isMobile ? 'mr-3' : 'mr-2', isMobile ? 'h-4 w-4' : 'h-3 w-3')} />
       登出
     </Button>
   );

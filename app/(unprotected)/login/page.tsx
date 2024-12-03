@@ -1,11 +1,17 @@
 import GoogleLoginButton from "@/components/google-login-button";
 import { Button } from "@/components/ui/button";
+import { createClient } from "@/utils/supabase/server";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 
 export default async function Login() {
-
+  const supabase = createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (user) return redirect('/home');
   return (
-    <div className="flex-1 flex items-center flex-col w-full px-8 sm:max-w-md justify-center gap-4 pt-8">
+    <div className="flex-1 flex items-center flex-col w-full px-8 sm:max-w-md justify-center gap-6 pt-8">
       <div className="flex flex-col gap-4">
         <h2 className="text-center text-xl font-bold text-gray-700">
           加入我們，解鎖你的穿搭新世界！
