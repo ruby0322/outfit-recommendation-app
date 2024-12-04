@@ -5,12 +5,18 @@ import { cn } from "@/lib/utils";
 import { LogOut } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Button } from "./ui/button";
+import { useToast } from "./ui/use-toast";
 
 export default function LogoutButton({ isMobile } : { isMobile?: boolean }) {
   const router = useRouter();
+  const { toast } = useToast();
 
   const onClick = async () => {
     await signOut();
+    toast({
+      title: '👋 期待下次再見',
+      description: '希望下次回來時，能繼續為你帶來更多穿搭靈感與驚喜！✨',
+    })
     router.push("/login");
   };
 
