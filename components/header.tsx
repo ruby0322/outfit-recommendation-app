@@ -14,6 +14,8 @@ import { useEffect, useState } from "react";
 import AuthButton from "./auth-button";
 import AvatarMenu from "./avatar-menu";
 
+const BRAND_NAME = '一鍵穿新';
+
 const LandingPageHeader = () => {
   const [isVisible, setIsVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
@@ -82,7 +84,7 @@ const LandingPageHeader = () => {
               </Button>
             </SheetTrigger>
             <SheetContent className='w-[40vw] bg-gray-100/80'>
-              <SheetTitle>一鍵穿新</SheetTitle> 
+              <SheetTitle>{BRAND_NAME}</SheetTitle> 
               <nav className='flex flex-col gap-4 mt-8'>
                 {menuItems.map((item) => (
                   <Link
@@ -178,7 +180,9 @@ const Header = () => {
       <div className='w-full font-semibold bg-gray-100 border-solid border-t-2 flex p-0 pt-2 pb-0 p-4 h-[7vh] items-center justify-between'>
         <div className='flex gap-4 items-center justify-center'>
           {
-            !isMobile && <>
+            isMobile
+              ? <div className="font-normal">{BRAND_NAME}</div>
+              : <>
               {
                 routes.map(route => {
                   return <Link
@@ -206,7 +210,7 @@ const Header = () => {
             </SheetTrigger>
             <SheetContent className='w-[70vw] flex flex-col gap-6 justify-between bg-gray-100 pt-10'>
               <nav className='flex flex-col gap-4 mt-8'>
-                <SheetTitle className="text-center text-gray-700">一鍵穿新</SheetTitle>
+                <SheetTitle className="text-center text-gray-700">{BRAND_NAME}</SheetTitle>
                 {
                   routes.map(route => {
                     return <Link

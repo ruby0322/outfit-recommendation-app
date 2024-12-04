@@ -91,6 +91,7 @@ const updateUserProfile = async (
       console.log("No valid fields to update");
     }
 
+    console.log(origin);
     revalidatePath(origin);
     return true;
   } catch (error) {
