@@ -327,7 +327,7 @@ export default function SearchPage() {
         </div>
 
         {isExpanded && (
-          <div className="bg-gray-100 px-2 mb-4 rounded-md">
+          <div className="bg-gray-100 px-2 mb-4 rounded-md py-2">
             <div className="text-indigo-400 text-center px-3 font-semibold mb-2">
               快速填寫
             </div>
