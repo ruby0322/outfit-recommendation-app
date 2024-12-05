@@ -92,6 +92,17 @@ const FormFields = ({ nextStep }: { nextStep: () => void }) => {
   );
 };
 
+const toHHMMSS = (secs: number) => {
+  var hours = Math.floor(secs / 3600);
+  var minutes = Math.floor(secs / 60) % 60;
+  var seconds = secs % 60;
+
+  return [hours, minutes, seconds]
+    .map((v) => (v < 10 ? "0" + v : v))
+    .filter((v, i) => v !== "00" || i > 0)
+    .join(":");
+};
+
 // Overview Component
 const Overview = ({
   isConfirmed,
@@ -114,7 +125,7 @@ const Overview = ({
         <div className='flex'>
           <div className='flex flex-row w-full items-center gap-4'>
             <Badge className='bg-indigo-300 hover:bg-indigo-300'>性別</Badge>
-            <p>{formData.gender === "male" ? "男性 🙋‍♂️" : "女性 🙋‍♀️"}</p>
+            <p>{formData.gender === "male" ? "男性 🙋‍♂️" : (formData.gender === "female" ? "女性 🙋‍♀️" : "無限制")}</p>
           </div>
           <div className='flex flex-row w-full items-center gap-4'>
             <Badge className='bg-indigo-300 hover:bg-indigo-300'>類別</Badge>
@@ -130,6 +141,7 @@ const Overview = ({
 function ConfirmButton({ isConfirmed }: { isConfirmed: boolean }) {
   const router = useRouter();
   const { reset, trigger, getValues,  formState: { errors }, } = useFormContext();
+  const [secondsElapsed, setSecondsElapsed] = useState<number>(0);
   return (
     <motion.div
       whileTap={{ scale: 0.95 }}
@@ -152,19 +164,14 @@ function ConfirmButton({ isConfirmed }: { isConfirmed: boolean }) {
             reset();
             router.push('/upload?step=1');
           } else {
-            console.log('formData', getValues());
-            console.log('validate', await trigger());
-            console.log('validate gender', await trigger('gender'));
-            console.log('validate clothingType', await trigger('clothingType'));
-            console.log('validate uploadedImage', await trigger('uploadedImage'));
-            console.log('errors', errors);
+            setInterval(() => { setSecondsElapsed((prev) => (prev + 1)); }, 1000);
           }
         }}
         loading={isConfirmed}
         disabled={false}
       >
         {isConfirmed
-          ? `終止並退出`
+          ? `${toHHMMSS(secondsElapsed)} 終止並退出`
           : "一鍵成為穿搭達人！"}
       </LoadingButton>
     </motion.div>
@@ -216,16 +223,17 @@ export default function UploadPage() {
           const {
             data: { user },
           } = await supabase.auth.getUser();
+          console.log('ok1')
           const recommendationId = await handleRecommendation(
             data.clothingType,
             data.gender,
             data.model,
-            user?.id as string,
+            !user ? null : user.id,
             NUM_MAX_SUGGESTION,
             NUM_MAX_ITEM,
             imageUrl
           );
-
+          console.log('ok2')
           router.push(`/recommendation/${recommendationId}`);
         } catch (error) {
           console.error("Error in onSubmit:", error);

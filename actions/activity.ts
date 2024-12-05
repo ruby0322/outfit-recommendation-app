@@ -3,10 +3,13 @@ import prisma from "@/prisma/db";
 
 const insertActivityRecommendation = async (
   user_id: string,
-  recommendation_id: number,
+  recommendation_id: string,
   activity_type: string
 ): Promise<number | null> => {
   try {
+    console.log(user_id,
+      recommendation_id,
+      activity_type,);
     const activity = await prisma.userActivityRecommendation.create({
       data: {
         user_id,

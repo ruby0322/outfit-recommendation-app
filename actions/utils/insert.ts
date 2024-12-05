@@ -1,9 +1,9 @@
 "use server";
 import supabase from "@/lib/supabaseClient";
-import { UnstoredResult, ClothingType, Gender } from "@/type";
+import prisma from "@/prisma/db";
+import { ClothingType, Gender, UnstoredResult } from "@/type";
 import { revalidatePath } from "next/cache";
 import { v4 as uuidv4 } from "uuid";
-import prisma from "@/prisma/db";
 import { handleDatabaseError } from "../activity";
 
 
@@ -63,7 +63,7 @@ const insertSuggestion = async ({
   styleName,
   description,
 }: {
-  recommendationId: number;
+  recommendationId: string;
   labelString: string;
   styleName: string;
   description: string;
@@ -92,21 +92,16 @@ const insertRecommendation = async ({
 }: {
   paramId: number;
   uploadId: number;
-  userId: string;
-}): Promise<number> => {
-  try {
-    const recommendation = await prisma.recommendation.create({
-      data: {
-        param_id: paramId,
-        upload_id: uploadId,
-        user_id: userId,
-      },
-    });
-    return recommendation.id;
-  } catch (error) {
-    handleDatabaseError(error, "insertRecommendation");
-    return -1;
-  }
+  userId: string | null;
+}): Promise<string> => {
+  const recommendation = await prisma.recommendation.create({
+    data: {
+      param_id: paramId,
+      upload_id: uploadId,
+      user_id: userId,
+    },
+  });
+  return recommendation.id;
 };
 
 const insertParam = async (
@@ -129,7 +124,7 @@ const insertParam = async (
   }
 };
 
-const insertUpload = async (imageUrl: string, userId: string) => {
+const insertUpload = async (imageUrl: string, userId: string | null) => {
   try {
     const upload = await prisma.upload.create({
       data: {
@@ -151,5 +146,6 @@ export {
   insertResults,
   insertSuggestion,
   insertUpload,
-  storeImageToStorage,
+  storeImageToStorage
 };
+

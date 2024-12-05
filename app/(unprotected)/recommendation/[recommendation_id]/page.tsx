@@ -8,13 +8,16 @@ import { createClient } from "@/utils/supabase/server";
 import Link from "next/link";
 import UserInfoCard from "./user-info-card";
 
+interface RecommendationPageProps {
+  params: Promise<{ recommendation_id: string }>;
+  searchParams?: Promise<{ [key: string]: string | undefined }>;
+}
+
 const RecommendationPage = async ({
   params,
   searchParams,
-}: {
-  params: { recommendation_id: string };
-  searchParams?: { [key: string]: string | undefined };
-  }) => {
+}: RecommendationPageProps) => {
+  const { recommendation_id } = await params;
   const supabase = createClient();
   // Get the user data
   const {
@@ -22,7 +25,7 @@ const RecommendationPage = async ({
     error,
   } = await supabase.auth.getUser();
   const recommendation: Recommendation = (await getRecommendationRecordById(
-    parseInt(params.recommendation_id), user?.id as string
+    recommendation_id, user !== null ? user.id : null
   )) as Recommendation;
   if (!recommendation) return <div className="w-full h-full flex flex-col gap-8 items-center justify-center">
     <p className="text-red-400 font-bold">
@@ -51,7 +54,7 @@ const RecommendationPage = async ({
           return (
             <ItemList
               key={`recommended-style-${index}`}
-              id={recommendedStyle}
+              id={recommendation.styles[recommendedStyle].suggestion_id}
               index={index}
               title={recommendedStyle}
               description={recommendation.styles[recommendedStyle].description}

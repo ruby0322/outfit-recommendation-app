@@ -1,8 +1,8 @@
 "use client";
 
 import { handleDatabaseError } from "@/actions/activity";
-
 import { handler } from "@/actions/utils/embedding";
+
 
 export default async function Playground2() {
   try {
@@ -31,7 +31,7 @@ export default async function Playground2() {
       <button onClick={generateEmbedding}>generateEmbedding</button>
     </div>
   );
-}catch (error){
-  console.log(error);
+} catch {
+  console.log("error");
 }
 }

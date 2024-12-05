@@ -20,12 +20,12 @@ import {
 } from "./utils/fetch";
 
 const getRecommendationRecordById = async (
-  recommendation_id: number,
-  user_id: string,
+  recommendation_id: string,
+  user_id: string | null,
 ): Promise<Recommendation | null> => {
   try {
     const recommendation = await getRecommendationById(recommendation_id) as RecommendationTable;
-    if (!recommendation || recommendation.user_id !== user_id) {
+    if (!recommendation || recommendation.user_id && (recommendation.user_id !== user_id)) {
       return null;
     }
     const param = await getParamById(recommendation.param_id as number) as ParamTable;
@@ -82,6 +82,7 @@ const getRecommendationRecordById = async (
       }
 
       recommendation_record.styles![styleName] = {
+        suggestion_id: s.id,
         series,
         description
       };

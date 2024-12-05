@@ -6,8 +6,6 @@ import { Copy, EllipsisVertical, Heart, ScanText, Shirt, ShoppingBag, TextSearch
 import Image from "next/image";
 import Link from "next/link";
 
-
-
 import { handleFavorite } from "@/actions/favorite";
 import {
   Carousel,
@@ -25,8 +23,12 @@ import { Badge } from "../ui/badge";
 
 const PROVIDER_CLASSNAME_MAPPING: { [k: string]: string } = {
   'UNIQLO': 'bg-blue-100 hover:bg-blue-100 text-gray-800',
-  'Fifty Percent': 'bg-rose-100 hover:bg-rose-100 text-gray-800',
-  'H&M': 'bg-violet-100 hover:bg-violet-100 text-vigray-800'
+  'FIFTY PERCENT': 'bg-rose-100 hover:bg-rose-100 text-gray-800',
+  'H&M': 'bg-violet-100 hover:bg-violet-100 text-vigray-800',
+  'PAZZO': 'bg-teal-100 hover:bg-teal-100 text-gray-800',
+  'Meier.Q': 'bg-fuchsia-100 hover:bg-fuchsia-100 text-gray-800',
+  'ZARA': 'bg-amber-100 hover:bg-amber-100 text-gray-800',
+  'lativ': 'bg-sky-100 hover:bg-sky-100 text-gray-800',
 };  
 
 
@@ -39,6 +41,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useToast } from "../ui/use-toast";
 
+import { insertActivityItem } from "@/actions/activity";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -48,6 +51,7 @@ import {
   DialogHeader,
   DialogTitle
 } from "@/components/ui/dialog";
+import { createClient } from "@/utils/supabase/client";
 
 const parseLabelString = (input: string) => {
   const result: { [key: string]: string } = {};
@@ -93,7 +97,7 @@ export function ItemInfoDialog({
           </DialogDescription>
         </DialogHeader> 
         <div className="flex flex-col gap-6 items-center justify-center">
-          <div className='relative w-40 h-40 md:w-64 md:h-64'>
+          <div className='relative w-36 h-36 md:w-64 md:h-64'>
             <Image
               src={item.image_url as string}
               className='object-cover'
@@ -184,17 +188,37 @@ export function MoreOptions({ children, item }: { children: React.ReactNode, ite
 
 
 const ItemCard = ({ series, userId }: { series: Series, userId?: string | null }) => {
-
+  const { toast } = useToast()
   const [isFavorite, setIsFavorite] = useState<boolean>(series.isFavorite);
 
   const toggleFavorite = async () => {
     if (!userId) return;
+    if (isFavorite) {
+      toast({
+        title: '💔 已從我的最愛移出',
+        description: '雖然你選擇將它移出，但美好的東西總會留下一點牽掛。✨\n緣分未盡，或許還會再見！',
+      });
+    } else {
+      toast({
+        title: '💖 成功加入我的最愛',
+        description: `單品 ${series.items[0].title} 已悄悄進入你的收藏✨\n這是緣分的開始，或許它正是為你而來的那一件！`,
+      });
+    }
     setIsFavorite(!isFavorite);
     await handleFavorite(userId, series.items[0].series_id);
   }
+
+  const recordActivity = (activityType: string) => (async () => {
+    console.log('activitiy item')
+    const supabase = createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    await insertActivityItem(user?.id as string, series.items[0].id, activityType);
+  });
   
   return (
-    <Card className='w-40 md:w-64 rounded-none flex flex-col justify-between h-fit gap-1 shadow-none border-0'>
+    <Card className='w-36 md:w-64 rounded-none flex flex-col justify-between h-fit gap-1 shadow-none border-0'>
       <div className='relative inline-block w-full h-full'>
         {
           series.items.length > 0 &&
@@ -212,6 +236,7 @@ const ItemCard = ({ series, userId }: { series: Series, userId?: string | null }
             <div className='relative w-full'>
               <Link
                 target="_blank"
+                onClick={recordActivity('click_see_more')}
                 href={
                   series.items[0].external_link ? series.items[0].external_link : "#"
                 }
@@ -219,7 +244,7 @@ const ItemCard = ({ series, userId }: { series: Series, userId?: string | null }
                 <CarouselMainContainer className='h-full w-full'>
                   {series.items.map((item, index) => (
                     <SliderMainItem key={item.id} className='bg-transparent'>
-                      <div className='relative w-full h-40 md:h-64'>
+                      <div className='relative w-full h-36 md:h-64'>
                         <Image
                           src={item.image_url as string}
                           className='object-cover'
@@ -233,8 +258,8 @@ const ItemCard = ({ series, userId }: { series: Series, userId?: string | null }
                   ))}
                 </CarouselMainContainer>
               </Link>
-              <div className='relative w-full bottom-2 left-1/2 -translate-x-1/2'>
-                <CarouselThumbsContainer className='gap-x-1 w-full'>
+              <div className='relative w-36 md:w-64 bottom-2 left-1/2 -translate-x-1/2'>
+                <CarouselThumbsContainer onClick={recordActivity('switch_color')} className='gap-x-1'>
                   {series.items.map((_, index) => (
                     <CarouselIndicator
                       key={index}
@@ -246,9 +271,10 @@ const ItemCard = ({ series, userId }: { series: Series, userId?: string | null }
             </div>
           </Carousel>
         ) : (
-          <div className='relative w-full h-40 md:h-64'>
+          <div className='relative w-full h-36 md:h-64'>
             <Link
               target="_blank"
+              onClick={recordActivity('click_see_more')}
               href={
                 series.items[0].external_link ? series.items[0].external_link : "#"
               }
@@ -267,6 +293,7 @@ const ItemCard = ({ series, userId }: { series: Series, userId?: string | null }
       </div>
       <Link
         target="_blank"
+        onClick={recordActivity('click_see_more')}
         href={
           series.items[0].external_link ? series.items[0].external_link : "#"
         }
@@ -278,12 +305,12 @@ const ItemCard = ({ series, userId }: { series: Series, userId?: string | null }
       <div className='pb-2 flex justify-between'>
         <p>NTD {series.items[0].price as number}</p>
         <div className='flex justify-end gap-1'>
-          <motion.button whileTap={{ scale: 0.9 }}>
-            <Heart onClick={toggleFavorite} className='text-rose-300 cursor-pointer' {...(isFavorite ? { fill: '#fca5a5' } : { })} />
+          <motion.button whileTap={{ scale: 0.9 }} disabled={userId === null}>
+            <Heart onClick={toggleFavorite} className={cn(userId !== null ? 'text-rose-300' : 'text-rose-300/30')} {...(isFavorite ? { fill: '#fca5a5' } : { })} />
           </motion.button>
           <MoreOptions item={series.items[0]}>
             <motion.button whileTap={{ scale: 0.9 }}>
-              <EllipsisVertical className='text-gray-500 cursor-pointer' />
+              <EllipsisVertical className='text-gray-500' />
             </motion.button>
           </MoreOptions>
         </div>
