@@ -100,6 +100,22 @@ const nextConfig = {
       },
       {
         protocol: 'https',
+        hostname: 'diz36nn4q02zr.cloudfront.net'
+      },
+      {
+        protocol: 'https',
+        hostname: 'www.alasha.com.tw'
+      }, 
+      {
+        protocol: 'https',
+        hostname: 'www.roots.com.tw'
+      }, 
+      {
+        protocol: 'https',
+        hostname: 'cdn-static.roots.com.tw'
+      },
+      {
+        protocol: 'https',
         hostname: 'scontent-tpe1-1.xx.fbcdn.net',
       }
     ],
