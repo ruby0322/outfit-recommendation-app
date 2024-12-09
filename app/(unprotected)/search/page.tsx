@@ -203,7 +203,7 @@ export default function SearchPage() {
     setTotalPages(res?.totalPages as number);
     setPage(1);
     setQuery(searchInput);
-    setSearchInput("");
+    // setSearchInput("");
     // console.log(res?.series);
     setLoading(false);
   };
@@ -254,13 +254,14 @@ export default function SearchPage() {
         </div>
 
         <div className="bg-gray-100 p-2 mb-4 rounded-md">
-          <div className="flex gap-2 items-center justify-begin">
+          <div className="flex flex-col gap-2 items-start justify-start md:flex-row md:items-center md:justify-begin">
+            {/* 性別選單 */}
             <Select onValueChange={(value: Gender) => {
               setGender(value);
               console.log(value);
             }}>
-              <SelectTrigger className="w-[100px] bg-white">
-                <SelectValue id='gender-select' placeholder="性別" />
+              <SelectTrigger className="w-full md:w-[100px] bg-white">
+                <SelectValue id="gender-select" placeholder="性別" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="neutral">無限制</SelectItem>
@@ -269,21 +270,22 @@ export default function SearchPage() {
               </SelectContent>
             </Select>
 
-            <div className="flex items-center gap-2">
+            {/* 價格下限選單 */}
+            <div className="flex items-center gap-2 w-full md:w-auto">
               <Select
                 value={priceLowerBound !== null ? priceLowerBound.toString() : "null"}
                 onValueChange={(value) => handleLowerBoundChange(value)}
               >
-                <SelectTrigger className="w-[120px] bg-white">
+                <SelectTrigger className="w-full md:w-[120px] bg-white">
                   <SelectValue placeholder="價格下限" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="null">價格下限</SelectItem> {/* 清空選項 */}
+                  <SelectItem value="null">價格下限</SelectItem>
                   {priceOptions.map((price) => (
                     <SelectItem
                       key={price}
                       value={price.toString()}
-                      disabled={priceUpperBound !== null && price >= priceUpperBound} // 禁用不符合條件的選項
+                      disabled={priceUpperBound !== null && price >= priceUpperBound}
                     >
                       ${price}
                     </SelectItem>
@@ -292,22 +294,22 @@ export default function SearchPage() {
               </Select>
             </div>
 
-            {/* 最高價格篩選器 */}
-            <div className="flex items-center gap-2">
+            {/* 價格上限選單 */}
+            <div className="flex items-center gap-2 w-full md:w-auto">
               <Select
                 value={priceUpperBound !== null ? priceUpperBound.toString() : "null"}
                 onValueChange={(value) => handleUpperBoundChange(value)}
               >
-                <SelectTrigger className="w-[120px] bg-white">
+                <SelectTrigger className="w-full md:w-[120px] bg-white">
                   <SelectValue placeholder="價格上限" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="null">價格上限</SelectItem> {/* 清空選項 */}
+                  <SelectItem value="null">價格上限</SelectItem>
                   {priceOptions.map((price) => (
                     <SelectItem
                       key={price}
                       value={price.toString()}
-                      disabled={priceLowerBound !== null && price <= priceLowerBound} // 禁用不符合條件的選項
+                      disabled={priceLowerBound !== null && price <= priceLowerBound}
                     >
                       ${price}
                     </SelectItem>
@@ -315,16 +317,19 @@ export default function SearchPage() {
                 </SelectContent>
               </Select>
             </div>
-            {/* provider */}
-            <MultiSelect
-              options={providerList}
-              onValueChange={(selected) => setProvider(selected.length > 0 ? selected : null)}
-              defaultValue={provider ?? []} // If provider is null, pass an empty array
-              placeholder="選擇品牌"
-              variant="inverted"
-              animation={2}
-              maxCount={3} // Allow selection of all options
-            />
+
+            {/* 品牌篩選器 */}
+            <div className="w-full md:w-auto">
+              <MultiSelect
+                options={providerList}
+                onValueChange={(selected) => setProvider(selected.length > 0 ? selected : null)}
+                defaultValue={provider ?? []}
+                placeholder="選擇品牌"
+                variant="inverted"
+                animation={2}
+                maxCount={3}
+              />
+            </div>
           </div>
         </div>
 
