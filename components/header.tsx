@@ -74,23 +74,6 @@ const LandingPageHeader = () => {
             </p>
           </div>
         </Link>
-        {isMobile ? (
-          <Sheet>
-            <SheetTrigger asChild>
-              <Button variant='ghost' size='icon'>
-                <Menu className='h-6 w-6' />
-              </Button>
-            </SheetTrigger>
-            <SheetContent className='w-[40vw] bg-gray-100/80'>
-              <SheetTitle>{BRAND_NAME}</SheetTitle> 
-              <nav className='flex flex-col gap-4 mt-8'>
-              </nav>
-            </SheetContent>
-          </Sheet>
-        ) : (
-          <div className='flex gap-4 font-light'>
-          </div>
-        )}
       </motion.div>
     </header>
   );
@@ -135,6 +118,7 @@ const match = (pathname: string, pathnames: string[]) => {
 const Header = () => {
   const [user, setUser] = useState<User | null>(null);
   const [isMobile, setIsMobile] = useState<boolean>(false);
+  const [isVisible, setIsVisible] = useState<boolean>(false);
   useEffect(() => {
     const handleResize = () => {
       setIsMobile(window.innerWidth < 768);
@@ -186,9 +170,9 @@ const Header = () => {
           }
         </div>
         {
-          isMobile && <Sheet>
+          isMobile && <Sheet open={isVisible}>
             <SheetTrigger asChild>
-              <Button variant='ghost' size='icon'>
+              <Button onClick={() => setIsVisible(true)} variant='ghost' size='icon'>
                 <Menu className='h-6 w-6' />
               </Button>
             </SheetTrigger>
@@ -198,6 +182,7 @@ const Header = () => {
                 {
                   routes.map(route => {
                     return <Link
+                      onClick={() => setIsVisible(false)}
                       key={route.pathnames[0]}
                       href={route.pathnames[0]}
                     >
