@@ -50,14 +50,6 @@ const LandingPageHeader = () => {
     }
   }, [lastScrollY]);
 
-  const menuItems = [
-    { href: "#overview", label: "價值" },
-    { href: "#recommendation-feature", label: "穿搭推薦" },
-    { href: "#text-search-feature", label: "文字搜尋" },
-    { href: "#image-search-feature", label: "以服搜服" },
-    { href: "#testimonial", label: "用戶回饋" },
-  ];
-
   return (
     <header className='z-50'>
       <motion.div
@@ -92,25 +84,11 @@ const LandingPageHeader = () => {
             <SheetContent className='w-[40vw] bg-gray-100/80'>
               <SheetTitle>{BRAND_NAME}</SheetTitle> 
               <nav className='flex flex-col gap-4 mt-8'>
-                {menuItems.map((item) => (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    className='text-lg font-medium cursor-pointer'
-                  >
-                    {item.label}
-                  </Link>
-                ))}
               </nav>
             </SheetContent>
           </Sheet>
         ) : (
           <div className='flex gap-4 font-light'>
-            {menuItems.map((item) => (
-              <Link key={item.href} href={item.href}>
-                {item.label}
-              </Link>
-            ))}
           </div>
         )}
       </motion.div>

@@ -97,6 +97,10 @@ const nextConfig = {
       {
         protocol: 'https',
         hostname: 'www.edwin.com.tw',
+      },
+      {
+        protocol: 'https',
+        hostname: 'scontent-tpe1-1.xx.fbcdn.net',
       }
     ],
   },

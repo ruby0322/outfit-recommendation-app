@@ -6,13 +6,12 @@ import ItemList from "@/components/item/item-list";
 import ItemListSkeleton from "@/components/item/item-list-skeleton";
 import PaginationBar from "@/components/pagination-bar";
 import { LoadingButton } from "@/components/ui/loading-button";
-import { cn } from "@/lib/utils";
 import { Series } from "@/type";
 import { createClient } from "@/utils/supabase/client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import imageCompression from 'browser-image-compression';
 import { motion } from "framer-motion";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { FormProvider, useForm, useFormContext } from "react-hook-form";
 import { z } from "zod";
@@ -61,33 +60,21 @@ function ConfirmButton({ isConfirmed, disabled }: { isConfirmed: boolean, disabl
   return (
     <motion.div
       whileTap={{ scale: 0.95 }}
-      className={cn('w-full text-white font-bold rounded-lg',
-        isConfirmed
-          ? "bg-red-400 hover:bg-red-300"
-          : "bg-indigo-400 hover:bg-indigo-300")
-      }
+      className="w-full text-white font-bold rounded-lg bg-indigo-400 hover:bg-indigo-300"
     >
       <LoadingButton
-        className={cn(
-          "transition-opacity duration-300 w-full px-8 py-2 rounded-md",
-          isConfirmed
-          ? `bg-red-400 hover:bg-red-300`
-          : `bg-indigo-400 hover:bg-indigo-300`,
-        )}
+        className="transition-opacity duration-300 w-full px-8 py-2 rounded-md bg-indigo-400 hover:bg-indigo-300"
         type='submit'
         loading={isConfirmed}
-        disabled={disabled}
+        disabled={disabled || isConfirmed}
       >
-        {isConfirmed
-          ? `終止並退出`
-          : "一鍵尋找類似的服飾！"}
+        一鍵尋找類似的服飾！
       </LoadingButton>
     </motion.div>
   );
 }
 
 export default function ImageSearchPage() {
-  const searchParams = useSearchParams();
   const router = useRouter();
   const methods = useForm({
     resolver: zodResolver(schema),
