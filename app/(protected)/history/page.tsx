@@ -7,7 +7,6 @@ const HistoryPage = async () => {
   const supabase = createClient();
   const {
     data: { user },
-    error,
   } = await supabase.auth.getUser();
   const previews = await getPreviewsByUserId(user?.id as string);
   return <div className='container mx-auto px-4 py-8'>

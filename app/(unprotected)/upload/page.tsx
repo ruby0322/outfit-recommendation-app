@@ -93,9 +93,9 @@ const FormFields = ({ nextStep }: { nextStep: () => void }) => {
 };
 
 const toHHMMSS = (secs: number) => {
-  var hours = Math.floor(secs / 3600);
-  var minutes = Math.floor(secs / 60) % 60;
-  var seconds = secs % 60;
+  const hours = Math.floor(secs / 3600);
+  const minutes = Math.floor(secs / 60) % 60;
+  const seconds = secs % 60;
 
   return [hours, minutes, seconds]
     .map((v) => (v < 10 ? "0" + v : v))
@@ -140,7 +140,7 @@ const Overview = ({
 
 function ConfirmButton({ isConfirmed }: { isConfirmed: boolean }) {
   const router = useRouter();
-  const { reset, trigger, getValues,  formState: { errors }, } = useFormContext();
+  const { reset } = useFormContext();
   const [secondsElapsed, setSecondsElapsed] = useState<number>(0);
   return (
     <motion.div

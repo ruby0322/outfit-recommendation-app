@@ -7,7 +7,7 @@ export default function GoogleLoginButton() {
   const { toast } = useToast();
   const signInWithGoogle = async () => {
     const supabase = createClient();
-    const res = await supabase.auth.signInWithOAuth({
+    await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
         redirectTo: location.origin + "/auth/callback?next=/upload",

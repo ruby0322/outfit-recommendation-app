@@ -10,19 +10,16 @@ import UserInfoCard from "./user-info-card";
 
 interface RecommendationPageProps {
   params: Promise<{ recommendation_id: string }>;
-  searchParams?: Promise<{ [key: string]: string | undefined }>;
 }
 
 const RecommendationPage = async ({
   params,
-  searchParams,
 }: RecommendationPageProps) => {
   const { recommendation_id } = await params;
   const supabase = createClient();
   // Get the user data
   const {
     data: { user },
-    error,
   } = await supabase.auth.getUser();
   const recommendation: Recommendation = (await getRecommendationRecordById(
     recommendation_id, user !== null ? user.id : null

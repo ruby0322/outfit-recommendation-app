@@ -27,7 +27,7 @@ export default function Login() {
         redirect('/home');
       }
     })()
-  }, []);
+  }, [toast]);
   return (
     <div className="flex-1 flex items-center flex-col w-full px-8 sm:max-w-md justify-center gap-6 pt-8">
       <div className="flex flex-col gap-4">

@@ -1,7 +1,6 @@
 "use client";
 
 import { RecommendationPreview } from "@/type";
-import { useRouter } from "next/navigation";
 import PreviewCard from "./preview-card";
 
 
@@ -14,8 +13,6 @@ const PreviewList = ({
   previews: RecommendationPreview[];
   description: string;
 }) => {
-  const router = useRouter();
-
   return (
     <div
       className="w-full px-4 flex flex-col gap-6 items-center pt-6"

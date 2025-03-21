@@ -13,7 +13,7 @@ import imageCompression from 'browser-image-compression';
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { FormProvider, useForm, useFormContext } from "react-hook-form";
+import { FormProvider, useForm } from "react-hook-form";
 import { z } from "zod";
 import CustomizationFields from "./customization-fields";
 import ImageUploader from "./image-uploader";
@@ -46,9 +46,6 @@ const ImageUpload = ({ onImageUpload }: { onImageUpload: () => void }) => {
 };
 
 const FormFields = () => {
-  const [errorMessage, setErrorMessage] = useState<string>("");
-  const { getValues } = useFormContext();
-
   return (
     <div id='form-fields' className='flex-1 flex gap-4 flex-col items-center justify-center h-auto'>
       <CustomizationFields />
@@ -82,7 +79,6 @@ export default function ImageSearchPage() {
   const { getValues } = methods;
   const [loading, setLoading] = useState<boolean>(false);
 
-  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isConfirmed, setIsConfirmed] = useState<boolean>(false);
 
   const [results, setResults] = useState<Series[]>([]);
@@ -113,7 +109,7 @@ export default function ImageSearchPage() {
     setLoading(true);
     setIsConfirmed(true);
     const reader = new FileReader();
-    reader.onloadend = async () => {
+    reader.onloadend = async (): Promise<void> => {
       if (typeof reader.result === "string") {
         const base64 = reader.result;
         try {
@@ -161,11 +157,9 @@ export default function ImageSearchPage() {
       console.log(error);
     }
     
-    const NUM_MAX_SUGGESTION: number = 3;
-    const NUM_MAX_ITEM: number = 10;
   };
 
-  if (isLoading) {
+  if (loading) {
     return <Skeleton />;
   }
 

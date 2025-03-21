@@ -1,35 +1,15 @@
 "use client";
 
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { useFormContext } from "react-hook-form";
-
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 
 const CustomizationFields = () => {
   const {
     register,
     setValue,
     watch,
-    control,
-    formState: { errors },
   } = useFormContext();
 
-  const clothingType = watch("clothingType");
   const gender = watch("gender");
 
   return (

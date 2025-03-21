@@ -94,10 +94,10 @@ const getFavoriteByUserId = async (
     const series: Series[] = favoriteItems
       .filter(items => !!items)
       .map(items => ({
-        items: items.map(item => ({
+        items: items ? items.map(item => ({
           ...item, 
           price: item.price ? Number(item.price) : 0,
-        })),
+        })) : [],
         isFavorite: true,
       }));
 

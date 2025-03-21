@@ -8,10 +8,6 @@ import { createClient } from "@/utils/supabase/client";
 import { useEffect, useState } from "react";
 import ItemCard from "./item-card";
 
-const parseTags = (stylePreferencesString: string) => {
-  return stylePreferencesString.split(",");
-};
-
 const ItemList = ({
   title,
   id,

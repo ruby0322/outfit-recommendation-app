@@ -9,7 +9,6 @@ import { LoadingButton } from "@/components/ui/loading-button";
 import { ClothingType, Gender, Series } from "@/type";
 import { SearchIcon, SlidersHorizontal } from "lucide-react";
 import { useEffect, useState } from "react";
-import { z } from "zod";
 
 
 import { MultiSelect } from "@/components/multi-select";
@@ -28,15 +27,6 @@ import { createClient } from "@/utils/supabase/client";
 import { useRouter, useSearchParams } from "next/navigation";
 
 const BANNED_KEYWORDS = '淫穢,色情,情色,賤民,淫蕩,陰莖,陰道,乳頭,騷貨,口交,做愛,交配,精液,小穴,打炮,幹你,爽死,打飛機,殺人,杀戮,血腥,殘忍,揍,殺死,爆炸,刀砍,斷頭,拳打腳踢,殺手,戳殺,殘暴,肢解,打死,拳擊,黑鬼,變態,死基佬,低能,死變態,蠢貨,蠢逼,兩百五,傻逼,屌毛,白癡,大傻逼,地痞流氓,王八蛋,傻逼,狗屎,賤人,死變態,鬼畜,狗日的,蠢逼,死小子,爛人,腐爛,低賤,操你,威脅,我要殺了你,你死定了,打爆你,爆炸,爆裂,砍死你,咬死你,殺光你,斷手斷腳,撕票,砸死你,廢了你,人渣,壞蛋,瞧不起,死變態,滾出來,死基佬,中國人渣,人民公敵,醜陋的,醜陋,操你媽,操,你媽,你媽死了,死亡,屁眼,屁股,幹,sex,fuck,cock,pussy,blowjob,tits,nipple,masturbation,oral sex,anal sex,vagina,penis,semen,ass,dildo,cum,horny,gangbang,pornstar,slut,whore,milf,kill,murder,blood,massacre,stabbing,shooting,violence,bomb,explode,decapitate,explode,death,torture,mutilation,beat,assault,bomb,terrorize,massacre,nigger,fag,dyke,bitch,retard,chink,spic,kike,gook,slant,cracker,honky,wop,spade,queef,tranny,skank,asshole,bitch,bastard,dickhead,cunt,idiot,moron,prick,fuckhead,douchebag,shithead,cunt,twat,wanker,asswipe,shitstain,kill you,death threat,blow you up,bomb you,explode,shoot you,stab you,rip you apart,dismember,torture you,fucking kill you,murder you,decapitate you,hang you,slit your throat,scum,trash,bastard,evil,disgusting,worthless,vermin,lowlife,garbage,trash,filthy,racist,white trash,scumbag,dirtbagBlood,Cutting,Twerk,Making love,Voluptuous,Naughty,Wincest,Orgy,XXX,No clothes,Au naturel,No shirt,Decapitate,Bare,Nude,Barely dressed,Nude,Bra,Risque,Clear,Scantily clad,Cleavage,Stripped,Infested,Full frontal,Unclothed,Invisible clothes,Wearing nothing,Lingerie,With no shirt,Naked,Without clothes on,Negligee,Zero clothes,Gruesome,Fascist,Nazi,Prophet Mohammed,Slave,Coon,Honkey,Cocaine,Heroin,Meth,Crack,Kill,Belle Delphine,Hitler,Jinping,Lolita,President Xi,Torture,Disturbing,Farts,Fart,Poop,Infected,Warts,Shit,Brown pudding,Bunghole,Vomit,Voluptuous,Seductive,Sperm,Hot,Sexy,Sadist,Sensored,Censored,Silenced,Deepfake,Inappropriate,Pus,Waifu,MP5,Succubus,Slaughter,Surgery,Reproduce,Crucified,Seductively,Explicit,Inappropriate,Large bust,Explicit,Inappropriate,Teratoma,Intimate,see through,Tryphophobia,Bloodbath,Wound,Cronenberg,Khorne,Cannibal,Cannibalism,Visceral,Guts,Bloodshot,Gory,Killing,Crucifixion,Surgery,Vivisection,Massacre,Hemoglobin,Suicide,Arse,Labia,Ass,Mammaries,Badonkers,Bloody,Minge,Big Ass,Mommy Milker,Booba,Nipple,Oppai,Booty,Organs,Bosom,Ovaries,Flesh,Breasts,Penis,Busty,Phallus,Clunge,Sexy Female,Crotch,Skimpy,Dick,Thick,Bruises,Girth,Titty,Honkers,Vagina,Hooters,Veiny,Knob,Ahegao,Pinup,Ballgag,Car crash,Playboy,Bimbo,Pleasure,Bodily fluids,Pleasures,Boudoir,Rule34,Brothel,Seducing,Dominatrix,Corpse,Seductive,Erotic,Seductive,Fuck,Sensual,Hardcore,Sexy,Hentai,Shag,Horny,Crucified,Shibari,Incest,Smut,JAV,Succubus,Jerk off king at pic,Thot,Kinbaku,Transparent,Legs spread,sensuality,belly button,porn,patriotic,bleed,excrement,petite,seduction,mccurry,provocative,sultry,erected,camisole,tight white,arrest,see-through,feces,anus,revealing clothing,vein,loli,-edge,boobs,-backed,tied up,zedong,bathing,jail,reticulum,rear end,sakimichan,behind bars,shirtless,sakimichan,seductive,dong,sexi,sexualiz,sexual'.split(',')
-
-const schema = z.object({
-  uploadedImage: (typeof window === "undefined"
-    ? z.any()
-    : z.instanceof(FileList, {
-        message: "請上傳圖片",
-      })
-  ).refine((files) => files.length > 0, "請上傳圖片"),
-});
 
 const searchQueriesDescription = [
   "請給我一件寬鬆、舒適的長褲。",
@@ -127,15 +117,6 @@ export default function SearchPage() {
     if (numValue !== null && priceLowerBound !== null && numValue <= priceLowerBound) {
       setPriceLowerBound(null);  // 清空不符合條件的最低價格
     }
-  };
-
-  const handleBrandChange = (brand: string) => {
-    setProvider((prev) => {
-      const current = prev ?? [];
-      return current.includes(brand)
-        ? current.filter((b) => b !== brand)
-        : [...current, brand];
-    });
   };
 
   useEffect(() => {

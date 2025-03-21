@@ -1,7 +1,7 @@
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 
-const Section = ({ children, title, slogan, description, buttonText, buttonLink, reverse, darkerBackground, id, screenshotUrl }: { children?: React.ReactNode, title?: string, description?: string, slogan?: string, buttonText?: string, buttonLink?: string, reverse?: boolean, darkerBackground?: boolean, id: string, screenshotUrl: string }) => {
+const Section = ({ title, slogan, description, reverse, darkerBackground, id, screenshotUrl }: { title?: string, description?: string, slogan?: string, reverse?: boolean, darkerBackground?: boolean, id: string, screenshotUrl: string }) => {
   return (
     <section id={id} className={cn('px-10 py-16 flex flex-col gap-12 items-center', darkerBackground ? 'bg-gray-100' : 'bg-gray-50')}>
       <div className={cn('w-full flex md:px-[5rem]  md:items-start items-center justify-center gap-32 mx-auto px-4', reverse ? 'md:flex-row-reverse flex-col' : 'md:flex-row flex-col')}>
@@ -19,7 +19,6 @@ const Section = ({ children, title, slogan, description, buttonText, buttonLink,
           </span>
         </div>
         <div className='flex-1 flex flex-col md:flex-row gap-12 items-center justify-center'>
-          {/* { children } */}
           <Image
             width={480}
             height={480}

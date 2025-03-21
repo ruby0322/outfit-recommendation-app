@@ -6,15 +6,12 @@ import { useFormContext } from "react-hook-form";
 
 const ImageUploader = ({
   onImageUpload,
-  className,
 }: {
   onImageUpload: () => void;
-  className?: string;
 }) => {
   const {
     register,
     setValue,
-    watch,
     formState: { errors },
   } = useFormContext();
 

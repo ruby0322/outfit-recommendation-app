@@ -17,7 +17,6 @@ const CustomizationFields = () => {
     register,
     setValue,
     watch,
-    control,
     formState: { errors },
   } = useFormContext();
 
