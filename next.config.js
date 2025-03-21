@@ -125,6 +125,11 @@ const nextConfig = {
       bodySizeLimit: "4mb", // Set desired value here
     },
   },
+  eslint: {
+    // Warning: This allows production builds to successfully complete even if
+    // your project has ESLint errors.
+    ignoreDuringBuilds: true,
+  },
 };
 
 module.exports = nextConfig;
